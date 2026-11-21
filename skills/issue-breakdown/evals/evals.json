@@ -3,32 +3,38 @@
   "evals": [
     {
       "id": 0,
-      "prompt": "we're building a notifications feature for our SaaS app \u2014 users should get in-app notifications when someone comments on their post, mentions them, or when their subscription is about to expire, plus a notification bell with an unread count and a settings page to toggle each notification type on/off. can you break this into an epic and issues i can drop into Linear? draft the epic and each issue.",
-      "expected_output": "An epic with what/why/how/key-features, and multiple issues each as a user story with acceptance criteria, a Fibonacci estimate <=3, labels, parent epic, and dependency links (e.g. the notifications backend/model blocks the bell and settings UI).",
+      "prompt": "we're building a notifications feature for our SaaS app: users get in-app notifications when someone comments on their post, mentions them, or when their subscription is about to expire, plus a notification bell with an unread count and a settings page to toggle each type. break this into a Linear project and tickets agents can build without asking me things.",
+      "expected_output": "Researches the codebase first. Drafts an intent brief (problem, users, definition of done, non-goals, constraints, decisions, release checks). Proposes a foundation ticket for the shared notification model and contracts that blocks the rest. Keeps the ticket count small: no ticket is split only to stay under a point cap. Every acceptance criterion has a Verify that runs on the PR and an Evidence line. Asks one batch of questions with recommended defaults, assumptions, and the non-code checklist before creating anything. Behavioral tickets carry numbered EARS requirements, each acceptance criterion is tagged with its REQ and names its test, the text follows STE100 style, and the intent brief has a Mermaid dependency flowchart.",
       "files": []
     },
     {
       "id": 1,
-      "prompt": "I've got Figma mocks for a redesigned account settings page. It has four tabs \u2014 Profile, Billing, Notifications, and Security \u2014 each with its own form and a save button. Help me turn this into properly-scoped tickets for my team to build.",
-      "expected_output": "A breakdown where the UI/design issues each call out a required design screenshot/PNG export (and optional Figma link), plus user-story format, acceptance criteria, <=3pt estimates, labels, parent, and dependency links.",
+      "prompt": "Plan Stripe subscriptions for our app. Acceptance: customers can pay with real cards in production, Stripe webhooks update the subscription status, and churn drops after launch.",
+      "expected_output": "Rewrites the post-merge criteria so they can be proven inside the PR: test-mode keys on the preview deploy, a signed sample webhook payload sent to the handler in a test. Moves 'churn drops after launch' and production card payments to the intent brief's Release checks, not ticket acceptance criteria. Includes Stripe test keys and webhook secrets in the non-code checklist, without naming a specific secrets manager.",
       "files": []
     },
     {
       "id": 2,
       "prompt": "break down 'add real-time collaboration to our doc editor' into tickets",
-      "expected_output": "A deliberately large/vague feature decomposed into small <=3pt user stories (nothing left as a giant 5+ point ticket), with acceptance criteria, labels, an epic, and a dependency graph across the pieces (presence, cursors, conflict resolution, sync backend, etc.).",
+      "expected_output": "Asks one short question first if the goal is unclear, otherwise researches. Puts real technical unknowns (for example the sync and conflict-resolution approach) in a time-boxed spike inside the foundation ticket instead of guessing. Lists explicit non-goals so agents do not add extras. Tickets state outcomes and decisions, not implementation steps. A cold read by a fresh agent happens before the question batch.",
       "files": []
     },
     {
       "id": 3,
-      "prompt": "Our source-retention child ticket has one merged PR with verified source and original-unit-test evidence. It is still In Progress because the parent migration has not passed its browser, full package graph, and deployment acceptance. Clean up the breakdown. Each implementation ticket must map to one PR.",
-      "expected_output": "Checks the child's actual scoped evidence, closes the delivered retention ticket, records which parent criterion it satisfies, and leaves parent integration unchecked. Assigns unmet browser, graph, and deployment requirements to separately scoped <=3-point follow-ups with dependencies. Does not claim integration passed, reuse the child for another PR, or associate its PR with the parent as another owner.",
+      "prompt": "I've got Figma mocks for a redesigned account settings page with four tabs (Profile, Billing, Notifications, Security), each with its own form and save button. Turn it into tickets for my agents.",
+      "expected_output": "UI tickets require an attached design screenshot or PNG export (with an optional Figma link). Does not force a user-story format or split tabs into slivers to meet a point cap; groups work into reviewable units. Acceptance criteria are provable on the preview deploy with Verify and Evidence lines.",
       "files": []
     },
     {
       "id": 4,
-      "prompt": "Plan a migration ticket to retain a storage adapter, execute its original suites, wire all consumers, and deploy it. We expect four PRs. Can one 8-point issue own all four, with each PR also linked to the parent?",
-      "expected_output": "Splits the work into finite independently verifiable tickets, each <=3 points and preferably 1-2. Gives each planned PR exactly one owning implementation ticket and each ticket exactly one PR. Uses parent acceptance traceability and dependency links instead of multiple PR ownership associations. Each ticket's exit is its own verified PR merge, with no dependency on later parent completion.",
+      "prompt": "Here's a ticket: 'Build the reporting dashboard. AC: dashboard is live for all customers, uses a repository pattern with a caching layer and an event bus, and the export ticket ENG-41 is merged first.' Is it ready for an agent?",
+      "expected_output": "Says it is not ready. 'Live for all customers' is not provable before merge, so it moves to release checks or becomes a preview/flag check. The repository pattern, caching layer, and event bus are 'how' with no stated need, so they are removed unless a decision requires them. 'ENG-41 is merged first' becomes a blocker link, not a criterion. Rewrites the ticket with an outcome, scope, decisions, and three-part criteria.",
+      "files": []
+    },
+    {
+      "id": 5,
+      "prompt": "Plan a ticket that migrates our users table to split full_name into first_name and last_name, backfills existing rows, and drops the old column.",
+      "expected_output": "Marks the destructive column drop with WARNING and treats it as a costly decision settled in planning (for example, keep the old column until a later release check) rather than left to the agent. Writes EARS requirements for the migration behavior and acceptance criteria provable before merge: forward and back migration on a production-shaped fixture in CI. Moves verification against production data to release checks.",
       "files": []
     }
   ]

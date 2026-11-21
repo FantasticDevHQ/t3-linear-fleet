@@ -1,228 +1,207 @@
 ---
 name: issue-breakdown
-description: "Break a feature or initiative into a Linear epic (project) plus small, review-ready issues that meet a strict quality bar: every issue is a user story ('as a role, I want an action, so a result') with explicit acceptance criteria, a Fibonacci estimate of 3 points or less (anything larger is split), a parent epic/project, blocker and dependency links, and labels; design issues also carry a screenshot/PNG export of the design plus an optional prototype/Figma/Claude Design link. Use whenever the user wants to break down, scope, or plan a feature/epic/initiative into tickets, write Linear issues, create an epic, turn work into user stories, estimate or split tickets, or enforce ticket-quality standards — even if they don't say 'Linear' explicitly. Works whether issues are created via linear-cli, the Linear MCP, or drafted as specs first."
+description: "Plan a feature as a Linear project that agents can build unattended. Researches the codebase, writes an intent brief (problem, users, definition of done, non-goals, decisions), drafts the fewest reviewable tickets with EARS requirements and traceable acceptance criteria that can be proven inside the PR before merge, has a fresh agent cold-read them, asks the user every open question in one batch with recommended defaults, and only creates the tickets once a readiness gate passes. Use whenever the user wants to break down, scope, plan, or ticket a feature, epic, or initiative, write Linear issues or acceptance criteria, or prepare work for parallel agents, even if they don't say Linear. Works with the Linear MCP or linear-cli, or as drafts."
 metadata:
   author: kellykampen
-  version: "1.7.0"
+  version: "2.0.0"
 ---
 
 # Issue Breakdown
 
-Turn a feature, epic, or rough initiative into **one Linear project (the epic) and a set of small, review-ready issues** that all clear a fixed quality bar. The value here is *predictability*: the same feature, broken down by anyone on any day, comes out as the same shape of tickets — small user stories with acceptance criteria, estimates, parents, dependency links, and (for design work) a picture of the target. A backlog built this way is estimable, parallelizable, and reviewable; a backlog of vague 8-point "build the thing" tickets is none of those.
+Turn a feature into **one Linear project and the fewest tickets that agents can build without asking anyone anything.** All the talking happens here, once. After the plan is approved, agents execute, get everything green, and hand back evidence. A question an agent has to ask mid-build is a planning bug.
 
-Apply this whether you're creating the issues live (linear-cli or the Linear MCP) or just drafting specs to paste in later — the standard is the same; only the last "how to create it" step changes.
+Three rules shape everything below:
 
-## The shape you're producing
+- **Decide now, not later.** Every product decision is settled before a ticket is created. Agents may make reversible implementation choices on their own; they should never have to guess what the user wants.
+- **Plan only what the feature needs.** No speculative requirements, options, or "while we're here" work. Over-planned tickets become over-engineered code. Non-goals are as important as goals.
+- **Acceptance happens inside the PR.** Every acceptance criterion can be proven from the PR's branch, CI, or preview deploy before merge. Anything that can only be checked after release goes on a separate, non-blocking list.
 
-```
-Epic (Linear project)  ──  what / why / how / key features
-  ├─ Issue  (≤3 pts, user story, AC, labels, parent, links)
-  ├─ Issue  (≤3 pts, …)  ──blocks──▶ Issue
-  └─ Issue  (≤3 pts, …)
-```
+Precision is not over-engineering. Exact requirements and plain wording are what let an agent build the right thing without asking; over-engineering is scope or code the feature does not need.
 
-Work top-down: first frame the **epic**, then decompose it into **issues**, then **wire the dependencies** between them. Don't create issues before the epic exists — an unparented issue is a rule violation and loses the "why."
+## Writing standards
 
-## Step 1 — Frame the epic (project)
+Every ticket and the intent brief use the same standards:
 
-The epic is the container and the narrative. Give it four things so anyone landing on it understands the work without reading every child:
+- **Wording: ASD-STE100.** Write all text you put in Linear in Simplified Technical English: short sentences, active voice, one meaning per word, the same term for the same thing. Use it as a style guide, not a certified process. Do not rewrite text you quote verbatim. See [references/ste-writing.md](references/ste-writing.md).
+- **Requirements: EARS, for behavioral tickets.** Number them `REQ-001` and up, one requirement per ID, using the ubiquitous, event-driven ("When X, the system shall Y"), state-driven, unwanted-behavior, or optional-feature pattern. Config, chore, and migration tickets can skip numbered requirements. See [references/requirements-ears.md](references/requirements-ears.md).
+- **Quality: ISO/IEC/IEEE 29148.** Each requirement is necessary, appropriate, unambiguous, complete, singular, feasible, verifiable, correct, and conforming. The readiness gate checks this. Same reference.
+- **Traceability: REQ → AC → TEST.** Every REQ has at least one acceptance criterion tagged with its ID, and every criterion's Verify line names its test or check. Nothing gets built without a check. See [references/traceability.md](references/traceability.md).
+- **Diagrams: Mermaid.** The intent brief carries a small flowchart of ticket dependencies. A complex ticket can add a REQ → AC → TEST graph. Same reference.
+- **Risky changes.** Put **WARNING:** (data loss, security, injury) or **CAUTION:** (damage to systems, money, schedule) first, then the step, then the risk. A WARNING item is a costly decision: it is settled in planning or escalated during execution, never decided silently by an agent.
 
-- **What** — the feature in one or two sentences.
-- **Why** — the user/business outcome it drives.
-- **How** — the approach and the key decisions already locked.
-- **Key features / scope** — a short bullet list of what's in, and an explicit **non-goals** line for what's out.
+## Step 1: Research before asking
 
-- **Project-level dependencies** — which *other existing projects* in the team must this epic build on? Check the team's project list and link the ones it depends on. Nearly every project depends on ≥1 other; only a genuinely foundational epic is a legitimate solo. These are **project↔project** relations, distinct from the issue links in Step 2.5 — see the tool note in Step 4.
+Read before you write. Inspect the codebase (structure, existing patterns, similar features, test setup, how previews and CI run), the repo's agent instructions, and related Linear projects and issues. Never ask the user something the code or Linear can answer. Note what you found; it grounds your defaults in Step 5.
 
-If the "why/how" isn't clear yet, that's a signal to interview the user before decomposing — you can't write good stories against a fuzzy goal. (The `interview` skill is the tool for that; this skill assumes the goal is understood and focuses on the breakdown.)
+If the goal itself is unclear (you cannot say what problem this solves or for whom), ask that first, in one short question, before drafting anything.
 
-## Step 2 — Decompose into issues (the quality bar)
+## Step 2: Write the intent brief
 
-**Every** issue must clear all of these. Treat them as a checklist you verify before the issue is "done being written," not aspirations.
-
-### 2.1 Written as a user story
-
-Format: **"As a role, I want to action, so result."** The role is a real actor (end user, admin, reviewer, the system, an integrating developer), the action is one concrete capability, the result is the payoff. This keeps tickets outcome-focused instead of task-focused — "As an admin, I want to bulk-archive members, so I can clean up churned accounts fast" tells a reviewer what success *means*, where "Add archive button" does not.
-
-If you can't phrase it as one clean story, the issue is probably doing two things — split it.
-
-### 2.2 Explicit acceptance criteria — as markdown checkboxes
-
-Every issue carries an **Acceptance Criteria** section written as a **markdown task list — one `- [ ]` checkbox per condition** — never plain bullets (`-`, `*`), a numbered list, or a prose paragraph. The format is load-bearing, not cosmetic: Linear (and GitHub) render `- [ ]` as **interactive checkboxes** a reviewer/QA ticks off one at a time, and the `linear-ac-verification` flow literally checks these boxes as it confirms each criterion against the running code. A criterion written as a bare bullet can't be ticked, so it drops out of that verification loop — the AC stops being a tracked contract and becomes decoration.
-
-Make each box one **observable, testable** condition — something you could hand to QA for an unambiguous pass/fail ("archived members disappear from the active list and appear under Archived", "the endpoint returns 403 for non-admins"), not vague ("works correctly"). Keep it to **one assertion per box** — don't staple three conditions together with "and", or you can't tick them independently. AC is the contract: it's what the reviewer/QA checks against and what tells the implementer when to stop. No AC — or AC that isn't checkboxes — means not ready to work.
+The intent brief is the Linear project description. Every agent reads it before touching a ticket, so it must stand alone. Keep it under one page:
 
 ```markdown
-### Acceptance criteria
-- [ ] archived members disappear from the active list and appear under Archived
-- [ ] the bulk-archive action is admin-only (button hidden for members)
-- [ ] the archive endpoint returns 403 for non-admin callers
+## Problem
+<who has what problem today, in 2-3 sentences>
+
+## Users
+<the actors this serves>
+
+## Definition of done
+<what a user can see or do when this ships, as concrete observable outcomes>
+
+## Non-goals
+- <explicitly out of scope; things a helpful agent might otherwise add>
+
+## Constraints
+<platform, performance, compatibility, deadlines, budget, security>
+
+## Decisions
+- <decision> — <one-line reason>   (settled choices; updated during execution)
+
+## Release checks (post-merge, non-blocking)
+- <things only provable after release: production metrics, rollout, live third-party behavior>
+
+## Ticket dependencies
+<Mermaid flowchart: foundation ticket first, A --> B means A blocks B>
 ```
 
-**These boxes are the child's Definition of Done.** Each box must be verified against actual code or behavior by an independent reviewer or the `linear-ac-verification` flow. Record the evidence; do not check a box from an unsupported claim. Complete this verification before merging the child's PR so that merge can close the ticket. Do not copy project-wide build, deployment, integration or sibling requirements into a child unless that PR actually delivers them. Parent acceptance remains open independently.
+Also record **project-level dependencies**: which other existing projects this one builds on. Most projects depend on at least one; link them in Step 7.
 
-### 2.3 Fibonacci estimate, 3 points or less
+## Step 3: Draft the tickets
 
-Estimate in Fibonacci (1, 2, 3, …). **If an issue is larger than 3 points, it is too large — split it** until each piece is ≤3. **Prefer 1–2 point issues**: they're faster to build, far faster to review, merge sooner, and cause fewer conflicts. A 1-point ticket that ships today beats a 5-point ticket that's "in review" for a week. When in doubt, split smaller. (See Step 3 for how.)
+### Size and count
 
-### 2.4 Parented to the epic
+A ticket is **one independently reviewable unit of work that lands as one PR.** There is no point cap. Split a ticket only when it has two outcomes that could ship separately, or when one PR could not prove all its criteria. Merge tickets that are too trivial to review on their own. Fewer, meaningful tickets beat many slivers.
 
-Every issue belongs to the epic/project from Step 1. No orphan issues — a loose issue can't be tracked, filtered, or reasoned about as part of the feature.
+Still set a provisional estimate on the team's configured scale; it is for planning, not a reason to split.
 
-### 2.5 Dependency links
+### Foundation first (Wave 0)
 
-Wire the real relationships: if issue A must land before B, record **A blocks B** (equivalently, B is blocked by A). This makes the build order explicit, lets work parallelize safely, and stops someone picking up a ticket whose groundwork doesn't exist yet. Link every dependency you know — a dependency graph you can see beats one that lives in someone's head.
+When tickets share schema, contracts, types, new dependencies, or central registries (routes, navigation, i18n keys), put that shared groundwork in one **foundation ticket** that blocks the rest. It also stubs the registry entries later tickets fill in, and adds contract-level tests. Real technical unknowns become a **time-boxed spike** in the foundation, not a guess inside a ticket.
 
-When the user specifies a top-to-bottom execution order, also arrange the project's visible issue list in that order. `blocks` links do not move rows. Do not change issue urgency (`priority`) to position tickets; the view's ordering field is separate. See [references/linear-cli.md](references/linear-cli.md) for reading and setting the rank when using Linear CLI. If the user requests one forward chain, verify that only adjacent requested tickets are linked, with exactly one entrance and one exit.
-
-### 2.6 Labels
-
-Label each issue enough to filter and route it — area/domain, type (feature/bug/chore/spike), and any workflow labels your team uses. Unlabeled issues get lost. At minimum every issue should be findable by its domain.
-
-Inspect the issue-label catalog and team hierarchy before creating a label.
-Reuse workspace and inherited parent-team definitions; do not create a local
-variant such as `platform:cli` when an applicable workspace `cli` exists.
-Project labels are a separate catalog and do not satisfy an issue's labels.
-Respect existing groups and selection modes. Use the `linear-labels` skill,
-when available, for ownership decisions or consolidation; it is not required
-for ordinary issue authoring.
-
-On every ticket created or revised, verify relevant labels and a non-empty
-provisional estimate on the team's configured scale. Fill missing fields before
-handoff. Resolve a disabled estimation scale with the owner rather than silently
-changing team settings. Do not bulk-create new labels to avoid that discovery.
-
-### 2.7 Design issues carry the design
-
-If an issue is a **design/UI ticket**, it must include a **screenshot or PNG export of the target design** attached to the issue — the implementer builds to match a picture, not a paragraph. Optionally add a link to the source (prototype, Figma, or Claude Design). A UI ticket without the visual is not ready; the copy and layout live in the design, and "build it like the mock" only works if the mock is on the ticket.
-
-### 2.8 One implementation ticket, one PR
-
-Scope each implementation ticket to one small, reviewable PR. Associate that PR with only its owning implementation ticket, and associate the ticket with only that PR. Before opening or linking a PR, check for an existing association in both directions. A parent/project can contain many child tickets, but it does not own their PRs. Keep dependency and parent references as context, separate from PR ownership and closing declarations.
-
-The PR must satisfy every acceptance criterion of its owning ticket. Use the repository's completion linkage for that ticket, such as `Fixes TICKET-123`, so a verified merge can close it. Read the saved Linear association and status back; a missing integration or automation is not a reason to leave delivered work In Progress. When authorized, reconcile the status with the merge evidence.
-
-If the work needs another PR, create another focused ticket before that work starts. If a requirement remains unfinished, give it a separate follow-up ticket with its own acceptance criteria, estimate and dependencies. Never reuse a delivery ticket for a series of partial PRs or hold it open until its parent passes.
-
-### 2.9 Independent child completion and parent traceability
-
-Each child delivers one finite outcome and states which parent criterion it advances. Close the child when its own verified PR merges. Mark a parent criterion complete only when the child's evidence proves that entire criterion; otherwise record the delivered part and leave the remaining parent work unchecked. A source-retention PR, for example, can complete its retention ticket while runtime qualification remains a separate ticket. Do not represent an unexecuted suite or a failing graph as passing.
-
-When cleaning up an existing backlog, inspect the actual PR and acceptance evidence. Separate delivered work from unfinished requirements, create or identify focused follow-ups, and link them in both directions before closing the delivery ticket. Preserve the original scope and evidence as history. Do not simply delete unmet criteria, lower an estimate to disguise a large task, or keep a completed child open for parent acceptance. Parent or umbrella records organize work; decompose their implementation into independently closable tickets of at most three points, preferably one or two.
-
-## Step 3 — Splitting anything over 3 points
-
-When an issue estimates above 3, split along a real seam rather than slicing arbitrarily. Good seams, roughly in order of preference:
-
-- **By vertical slice** — a thin end-to-end path first (one entity, one happy path), then broaden. Each slice ships and is demoable.
-- **By CRUD / capability** — read path vs write path; create vs edit vs delete as separate stories.
-- **By state / variant** — empty state, loaded state, error state; or per-role behavior.
-- **By layer only as a last resort** — backend endpoint vs frontend wiring. Layer splits don't ship independently, so prefer vertical slices when you can.
-
-After splitting, re-estimate each piece and wire the dependencies between them (the slice that lays the foundation usually **blocks** the others). If a "split" piece is still >3, split again — keep going until everything is ≤3.
-
-Check the merge boundary as well as the estimate: each piece must fit one PR whose merge can close that ticket. Move later integration, additional test families or deployment into their own tickets when they cannot be delivered in that PR. State entry prerequisites explicitly instead of inheriting every parent requirement as a child exit condition.
-
-## Requirements standards: STE100, EARS, Gherkin, traceability, 29148
-
-Every issue uses the same standards. The user story (2.1) stays as the first line: it gives the "why". The numbered REQs give the exact behavior. The Gherkin AC (2.2) check each REQ.
-
-- **Wording: ASD-STE100.** Write all text in Linear (titles, descriptions, AC, comments, updates, procedures/SOPs) in Simplified Technical English. We use it as a style guide, not a certified process. Do not rewrite text that you quote verbatim. See [references/ste-writing.md](references/ste-writing.md).
-- **Requirements: EARS.** Number them `REQ-001` and up, one requirement per ID. Use the ubiquitous, event-driven ("When X, the system shall Y"), state-driven, unwanted-behavior, or optional-feature pattern. See [references/requirements-ears.md](references/requirements-ears.md).
-- **Quality: ISO/IEC/IEEE 29148.** Each REQ is necessary, appropriate, unambiguous, complete, singular, feasible, verifiable, correct, and conforming. Same file.
-- **AC: Gherkin.** One Given/When/Then scenario per AC, still as a `- [ ]` checkbox, with ≥1 AC per REQ. Every Then is testable.
-- **Traceability: REQ → AC → TEST.** Each issue has a table that maps each REQ to its AC and test. Nothing gets built without a check. See [references/traceability.md](references/traceability.md).
-- **Diagrams: Mermaid.** Use a Mermaid flowchart for issue dependencies in the epic, and a REQ → AC → TEST graph for complex issues. Same file.
-- **Structure.** Project = epic = one feature (Step 1). Parent and dependency links already apply (2.4, 2.5). Add to each issue an **Entry** condition (what must be true to start, e.g. "ENG-101 is Done") and an **Exit** condition (the Definition of Done in 2.2, plus the traceability tests pass). The Mermaid dependency flowchart shows both.
-- **Risky change:** put **WARNING:** (injury, data loss, security) or **CAUTION:** (damage to systems, money, schedule) first. Write the command, then the risk.
-
-## Output format
-
-When drafting an issue (before creating it), use this template so nothing in the bar gets skipped:
+### What every ticket contains
 
 ```markdown
-**Title:** Bulk-archive members from the members table
+**Title:** <the outcome, e.g. "Members can bulk-archive from the members table">
 
-As a <role>, I want to <action>, so <result>.
+## Outcome
+<1-3 sentences: what this delivers, for whom, and which part of the definition of done it serves.
+A user story ("As a <role>, I want <action>, so <result>") is a good way to write this; it is optional.>
 
-### Requirements
+## Requirements   (behavioral tickets)
 - **REQ-001:** When <trigger>, the <system> shall <response>.
-- **REQ-002:** …
 
-### Acceptance criteria
-- [ ] **AC-001 (REQ-001)** Given <state>, When <action>, Then <observable result>.
-- [ ] **AC-002 (REQ-002)** …
+## Scope
+- <what to build>
+- Decided: <decisions that apply here, so the agent does not re-decide them>
 
-### Traceability
-| REQ | AC | Test |
-| --- | --- | --- |
-| REQ-001 | AC-001 | <test file › test name> |
+## Non-goals
+- <ticket-specific exclusions, if any beyond the project's>
 
-### Notes / design
-- Design: <screenshot attached> · <optional prototype/Figma/Claude Design link>   (design issues only)
+## Acceptance criteria
+- [ ] **AC-1 (REQ-001):** Given <state>, When <action>, Then <observable result with real values>.
+  - Verify: <test (file › name), preview-deploy check, or command that runs on the PR>
+  - Evidence: <what CI or the preview produces: test pass, recording, output>
 
-**Estimate:** 1|2|3   **Labels:** area, type   **Epic:** project
-**Depends on / blocks:** issue refs, or "none"
-**Parent criterion advanced:** parent REQ/AC ID and the exact part this child delivers
-**PR ownership:** one owning ticket ↔ one PR; URL when available
-**Follow-ups / excluded parent work:** separate ticket refs, or "none"
-**Entry:** what must be true to start   **Exit:** this child's AC verified, traceability tests pass, and its sole PR merges
+## Design
+<screenshot/PNG of the target, plus optional source link (UI tickets only)>
 ```
 
-And for the epic:
+Plus, as Linear fields: parent project, labels (`area:<domain>` and a type), estimate, and **blocker links** for every real dependency.
 
-```markdown
-**Project:** name
-**What:** …  **Why:** …  **How:** …
-**Key features:** …
-**Non-goals:** …
-**Project dependencies:** other projects this epic builds on (`projectRelationCreate`), or "foundational"
-**Issue dependencies:** Mermaid flowchart of the issues (A --> B means A blocks B), with Entry/Exit per issue
-```
+Describe **what**, not **how**. Name decisions already made; leave the implementation to the agent. A ticket that dictates files, functions, and patterns invites both over-engineering and wrong guesses about the codebase.
 
-## Step 4 — Create it (tool notes)
+### Acceptance criteria that can be proven before merge
 
-The standard above is tool-agnostic — it holds whether you create issues via `linear-cli`, the Linear MCP, or hand the drafts to someone. The concrete "how the fleet runs it" (linear-cli invocations for creating the project, creating issues, setting estimates, adding relations, attaching design PNGs, and applying labels) lives in **[references/linear-cli.md](references/linear-cli.md)** — read it when you're actually creating issues in Linear via the CLI. If you're using the Linear MCP or another client, map the same fields; the bar doesn't change.
+An acceptance criterion is a gate *before* merge. If it can only be checked after merge, it blocks the merge forever, and an unattended agent will loop, quietly skip it, or ask the user. So every criterion must be **provable from the PR alone**.
 
-Whatever the tool: create the **epic first**, then the issues (parented as you go), then add the **issue dependency relations** in a second pass once all issue IDs exist — and finally wire the **project-level dependencies** (this epic → the other projects it depends on). If the user requested a visible execution order, set and verify that order after the issues exist. Project↔project relations are a different mechanism from issue relations: the Linear MCP and `linear-cli rel` don't create them; use `projectRelationCreate` via `linear-cli api mutate`, and get the anchor orientation right (finish-to-start — prerequisite `end` → dependent `start`). Details in [references/linear-cli.md](references/linear-cli.md).
+- Write criteria as **concrete examples with real values**: "Given a cart with 2 items, When the user pays with Stripe test card 4242…, Then the order shows Paid and a receipt email is queued." Use Given/When/Then for behavior.
+- One observable condition per checkbox, tagged with the REQ it checks.
+- If you cannot fill in **Verify** with something that runs on the PR, rewrite the criterion or move it to Release checks.
+- A dependency on another ticket is a **blocker link**, never a criterion.
 
-**Description body is content, not a path (FLT-61).** When using `linear-cli`, `-d` / `--description`
-takes the markdown text itself. Stage drafts under `/tmp` if useful, then always pass contents:
-`-d "$(cat /tmp/body.md)"` or (on create) `-d - < /tmp/body.md`. Never `-d /tmp/body.md` — that
-stores the path string as the ticket body. The body must include the user story and `- [ ]` AC
-checkboxes. See [references/linear-cli.md](references/linear-cli.md) for the full pattern.
+Swap the live world for a controlled one:
 
-## Completion criteria
+| Not provable before merge | Provable in the PR |
+| --- | --- |
+| Works in production | Works on the PR's preview deploy against staging or sandbox services |
+| Users can pay with real cards | Checkout succeeds with the provider's test-mode keys on the preview |
+| The provider's webhook updates the order | A test sends a signed sample payload to the handler; the order updates |
+| The nightly job sends digests | A test invokes the job with fixture data; digests are rendered and queued |
+| Error rate stays low after release | Error paths are tested and new errors are logged with a tag (monitoring becomes a release check) |
+| Migration works on production data | Migration runs forward and back on a production-shaped fixture in CI |
+| The event shows on the analytics dashboard | A test asserts the event is emitted with the right payload |
+| The page is fast for users | A performance budget check on the preview passes in CI |
+| Enabled for everyone | Flag on: new behavior works. Flag off: old behavior unchanged (rollout is a release check) |
 
-The breakdown is done when **every** issue satisfies all of:
+## Step 4: Cold read by a fresh agent
 
-- [ ] Phrased as a user story (as a role / I want / so that)
-- [ ] Has an Acceptance Criteria list written as `- [ ]` checkboxes (observable + testable, one assertion per box)
-- [ ] Estimated in Fibonacci and **≤3 points** (prefer 1–2)
-- [ ] Parented to the epic/project
-- [ ] Has dependency links wired (or explicitly "none")
-- [ ] If an execution order was requested, the project's visible issue order matches it
-- [ ] Has ≥1 label
-- [ ] If a design/UI issue: has a design screenshot/PNG attached (+ optional source link)
-- [ ] Has numbered EARS requirements (`REQ-001`…, one per ID) that pass the 29148 checks
-- [ ] Has ≥1 Gherkin AC checkbox per REQ, each tagged with its REQ ID
-- [ ] Has a traceability row for every REQ (REQ → AC → TEST), with no gaps
-- [ ] States an Entry condition and an Exit condition
-- [ ] Fits one PR with exactly one owning implementation ticket; neither side has another PR/ticket association
-- [ ] Child acceptance is finite and independent of unfinished parent or sibling acceptance
-- [ ] Identifies the parent criterion advanced and assigns remaining work to separate focused tickets
-- [ ] The child's verified PR merge can close its ticket without waiting for parent completion
-- [ ] Text follows ASD-STE100 style ([references/ste-writing.md](references/ste-writing.md))
+You cannot see your own gaps. Before asking the user anything, give the intent brief and drafted tickets to a **fresh agent with no history**, ideally on a different model provider, as a read-only task. Ask it, for each ticket:
 
-…and the epic itself has what/why/how/key-features/non-goals **and its project-level dependencies wired** (linked to the other projects it depends on, or explicitly a foundational solo). If any box is unchecked, the breakdown isn't finished — fix it before calling it done.
+1. What would you have to guess or ask to build this?
+2. Can each acceptance criterion be proven before merge, using only this PR?
+3. Is anything here not needed for the definition of done, or excluded by a non-goal?
+
+In T3 Code, use `orchestrator_capabilities` to pick a model and `delegate_task` with a review role. Elsewhere, use your harness's subagent. Fix what you can from the code; carry the rest into Step 5.
+
+## Step 5: One batch of questions
+
+Ask the user **once**, in a single batch, through your harness's question tool (for example `AskUserQuestion` or `request_user_input`) so the thread visibly waits. Group it in three parts:
+
+1. **Decisions needed**, each with your recommended default first, grounded in what you found in Step 1.
+2. **Assumptions** you will make unless the user objects.
+3. **Non-code checklist**, which causes most unattended stalls: credentials and external accounts, secrets in the project's secrets manager, seed or fixture data, design assets, copy and wording, feature flags, preview-deploy and sandbox availability.
+
+Put full context in each question so it reads on its own. Fold every answer into the intent brief's Decisions and the affected tickets. Ask a follow-up only when an answer opens a genuinely new product decision.
+
+## Step 6: Readiness gate
+
+Do not create tickets in Linear until every box is checked. Show the user the brief and ticket list for one approval.
+
+- [ ] The intent brief has a problem, users, a definition of done, non-goals, constraints, and decisions.
+- [ ] No product decision is unresolved. Every cold-read guess is answered or explicitly delegated to the agent as a reversible choice.
+- [ ] Every ticket has an outcome, scope with decisions, and at least one acceptance criterion.
+- [ ] Every behavioral ticket has numbered EARS requirements, and each passes the 29148 checks: necessary, appropriate, unambiguous, complete, singular, feasible, verifiable, correct, conforming.
+- [ ] Traceability has no gaps: every REQ has at least one tagged criterion, and every criterion's Verify names its test or check.
+- [ ] Every criterion has a Verify that runs on the PR and an Evidence that CI or a preview produces. None depends on production, "after deploy," real users, time windows, dashboards, or another ticket merging.
+- [ ] Post-release checks are in the brief's Release checks, not in tickets.
+- [ ] Dependencies are blocker links. Shared groundwork is in a foundation ticket.
+- [ ] UI tickets have a design screenshot attached.
+- [ ] Risky steps carry WARNING or CAUTION, and every WARNING decision is settled.
+- [ ] The intent brief has the Mermaid dependency flowchart.
+- [ ] Text follows ASD-STE100 style.
+- [ ] Nothing is planned that the definition of done does not need.
+
+## Step 7: Create it in Linear
+
+Order matters:
+
+1. Create the **project** with the intent brief as its description.
+2. Create the **tickets**, parented to the project as you go, with labels and estimates.
+3. In a second pass, once all IDs exist, add **blocker relations**.
+4. Link **project-level dependencies** to the other projects this builds on.
+5. If the user gave an execution order, set the project's visible issue order to match. Blocker links do not reorder rows, and priority is not an ordering tool.
+
+Labels: inspect the workspace and inherited team label catalog first and reuse existing labels. Do not create local duplicates such as `platform:cli` when a workspace `cli` exists. Project labels are a separate catalog. Verify labels and a provisional estimate on every ticket you create or revise.
+
+Tool notes for `linear-cli`, including project relations and the description-body pitfall, are in [references/linear-cli.md](references/linear-cli.md). With the Linear MCP or another client, map the same fields.
+
+Finish by reporting the project link, the tickets in dependency order, and the decisions recorded.
+
+## How tickets connect to code
+
+So agents and humans link work the same way:
+
+- Work on a ticket happens on a branch named with Linear's copied branch name, which contains the ticket ID.
+- Every commit for a ticket carries a Linear magic word in its body: `Fixes ENG-123` when it completes the ticket, `Refs ENG-123` for partial work. Linear links commits only through magic words.
+- Each ticket lands as one PR into the feature's integration branch. The final PR to the default branch lists every ticket again (`Fixes ENG-1, ENG-2`), because Linear does not re-detect tickets that were merged into a feature branch.
 
 ## Gotchas
 
-- **Merged delivery tickets must not become permanent integration buckets.** Close the verified one-PR delivery; put remaining requirements in separate small tickets and keep parent acceptance accurate.
-- **One PR does not close a parent and its child.** Link it to its single implementation owner. Update parent acceptance through the child's verified evidence, not a second PR ownership association.
-- **The estimate cap is an authoring rule, not a display setting.** "≤3 points" means *split the work*, even if your Linear estimate scale technically allows 5/8. A stored 3 that's really an 8 lies to everyone planning against it.
-- **Parent + label are non-negotiable and easy to forget** when creating issues fast. An issue with no project or no label is effectively invisible later. Verify both on every issue.
-- **Design tickets fail silently without the image.** The implementer will guess copy/spacing and it'll bounce at review. Attach the PNG even when a prototype link exists — links rot and require auth; the attached image always renders on the ticket.
-- **Wire dependencies in a second pass.** You usually can't link A→B until both exist, so create all issues first, then add relations. Skipping this leaves a backlog that looks parallelizable but isn't.
-- **Don't over-split into meaningless fragments.** ≤3 and "prefer 1–2" is about review-ability, not turning one story into ten half-point slivers. Each issue should still be an independently valuable, demoable slice with its own AC.
-- **Project dependencies ≠ issue dependencies, and they're easy to skip.** Issue `blocks` links (Step 2.5) live *inside* the epic; project↔project links tie this epic to *other* epics. Both matter. The project one is the one people forget — and because the Linear MCP / `linear-cli rel` can't create it, it gets silently dropped. Wire it with `projectRelationCreate` (see the reference), and mind the anchor orientation: the reverse order still "succeeds" but never shows up in the Dependencies column — a silent no-op.
+- **Criteria that need a merge to verify** are the most common planning bug. Run every criterion through the table above.
+- **"How" in tickets** reads as helpful and causes over-engineering and wrong guesses. State outcomes and decisions only.
+- **Over-splitting** fragments context and multiplies PR overhead. Split on independent outcomes, never on a point count.
+- **Design tickets without the image** get guessed at. Attach the PNG even when a prototype link exists; links rot and need auth.
+- **Relations need a second pass.** You cannot link A to B until both exist.
+- **Project dependencies are a different mechanism from issue relations** and are easy to drop. The Linear MCP and `linear-cli rel` do not create them; see the reference for `projectRelationCreate` and its anchor orientation, where the reverse order silently does nothing.
+- **`linear-cli -d` takes the markdown text, not a file path.** Pass `-d "$(cat body.md)"`; `-d body.md` stores the path string as the ticket body.

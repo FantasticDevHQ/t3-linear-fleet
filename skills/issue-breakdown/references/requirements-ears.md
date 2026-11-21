@@ -1,6 +1,6 @@
 # Requirements: EARS form + ISO/IEC/IEEE 29148 quality rules
 
-Read this when you write the **Requirements** section of an issue. Write each requirement in EARS form, number it, and check it against the 29148 rules below. Use STE wording ([ste-writing.md](ste-writing.md)) for all words outside the EARS keywords.
+Read this when you write the **Requirements** section of a behavioral ticket. Config, chore, and migration tickets can skip numbered requirements and rely on their acceptance criteria. Write each requirement in EARS form, number it, and check it against the 29148 rules below. Use STE wording ([ste-writing.md](ste-writing.md)) for all words outside the EARS keywords.
 
 ## Numbering
 
@@ -29,13 +29,13 @@ Each requirement (clause 5.2.5) shall be:
 | Characteristic | Check |
 | --- | --- |
 | Necessary | Remove it. Does something important break? If no, delete it. |
-| Appropriate | The detail fits the level (issue, not code). It does not dictate the design. |
+| Appropriate | The detail fits the level (ticket, not code). It does not dictate the design or implementation. |
 | Unambiguous | Only one interpretation. No "fast", "easy", "user-friendly", "etc.", "and/or". |
 | Complete | It needs no other text to understand it. Give units and limits. |
 | Singular | One capability, constraint, or quality. |
-| Feasible | The team can build it in the estimate (≤3 points). |
+| Feasible | It can be built and proven in one PR. |
 | Verifiable | A test or check can prove it. Give a measurable value. |
-| Correct | It states the real need of the user story. |
+| Correct | It states the real need behind the ticket's outcome and the intent brief. |
 | Conforming | It uses the EARS template and the REQ numbering above. |
 
 The set of REQs in an issue (clause 5.2.6) shall be complete, consistent (no conflicts, same terms), feasible, comprehensible, and able to be validated.

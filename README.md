@@ -77,7 +77,7 @@ Expected result: `issue-breakdown` appears in the list for your agents. Ask your
 
 | Skill | Status | What it does |
 | --- | --- | --- |
-| [issue-breakdown](./skills/issue-breakdown/SKILL.md) | Copied from agent-skills. Rewrite in progress. | Turns a feature into a Linear project plus review-ready tickets. |
+| [issue-breakdown](./skills/issue-breakdown/SKILL.md) | Ready (2.0) | Plans a feature as a Linear project: intent brief, one batch of questions with defaults, a cold read, the fewest tickets, EARS requirements traced to acceptance criteria provable inside the PR, and a readiness gate. |
 | project-run | Planned | Orchestrator: dispatch, load balancing across machines and providers, merge and freeze rules, escalation, evidence packet. |
 | ticket-worker | Planned | The worker brief: intent, smallest change, proof, ownership through green. |
 | pr-gate | Planned | Merge gate and PR event handling. |

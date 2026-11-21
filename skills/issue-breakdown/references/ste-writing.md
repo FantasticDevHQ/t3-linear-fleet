@@ -4,7 +4,7 @@ Read this before you write any text into Linear. ASD-STE100 is a controlled lang
 
 ## When to apply
 
-- Apply to **all text you write into Linear**: issue titles, descriptions, user stories, acceptance criteria, comments, project descriptions, and project updates.
+- Apply to **all text you write into Linear**: ticket titles and descriptions, requirements, acceptance criteria, the intent brief, comments, and project updates.
 - Do **not** rewrite text that you quote verbatim (user text, error messages, logs, code, UI copy). Put it in quotes or a code block.
 - Code, identifiers, numbers with units, and quoted strings count as one word each.
 - The user-story form ("As a role, I want to action, so result.") stays. Write the role, action, and result in STE words.
