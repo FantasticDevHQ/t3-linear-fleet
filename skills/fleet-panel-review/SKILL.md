@@ -1,14 +1,14 @@
 ---
-name: panel-review
-description: "Get an independent verdict from a panel of three flagship models, one per provider, on a plan, a set of contracts, or a large feature. Each panelist works read-only and returns findings and a score out of 10; you check every finding against the source, settle disagreements, fix what you accept, and run a fresh round after fixes until the panel is satisfied or the budget ends, while keeping scope fixed. Records a per-round score table in the PR. Use for large or risky features, Wave-0 contracts, a plan before execution, or when the user asks for a panel or multi-provider review. For a single-reviewer loop on one PR, use review-loop instead."
+name: fleet-panel-review
+description: "Get an independent verdict from a panel of three flagship models, one per provider, on a plan, a set of contracts, or a large feature. Each panelist works read-only and returns findings and a score out of 10; you check every finding against the source, settle disagreements, fix what you accept, and run a fresh round after fixes until the panel is satisfied or the budget ends, while keeping scope fixed. Records a per-round score table in the PR. Use for large or risky features, Wave-0 contracts, a plan before execution, or when the user asks for a panel or multi-provider review. For a single-reviewer loop on one PR, use fleet-review instead."
 metadata:
   author: kellykampen
-  version: "1.0.0"
+  version: "2.0.0"
 ---
 
-# Panel Review
+# Fleet Panel Review
 
-One reviewer has blind spots; three reviewers from three different providers rarely share them. Use a panel when a mistake would be expensive: a plan before agents execute it, shared contracts before parallel work builds on them, or a large feature before the human's final review. For an ordinary PR, `review-loop` with one reviewer is enough.
+One reviewer has blind spots; three reviewers from three different providers rarely share them. Use a panel when a mistake would be expensive: a plan before agents execute it, shared contracts before parallel work builds on them, or a large feature before the human's final review. For an ordinary PR, `fleet-review` with one reviewer is enough.
 
 ## Before the panel
 

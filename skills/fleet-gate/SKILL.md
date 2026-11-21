@@ -1,12 +1,12 @@
 ---
-name: pr-gate
+name: fleet-gate
 description: "Merge gates and PR event handling for a feature built by parallel agents. Defines when a ticket PR may merge into the feature's integration branch, when the final PR to the default branch is ready for the human (agents never merge it), how to watch PRs without polling (one watcher per PR, owned by the thread that owns the PR, never by delegated children), how to route failures back to the owning worker, how to recheck when the base moved under a PR, and how to freeze merges when integration CI goes red. Use when merging or watching PRs in the fleet workflow, deciding whether a PR is ready, handling a red integration branch, or acting as the orchestrator for a Linear project."
 metadata:
   author: kellykampen
-  version: "1.2.0"
+  version: "2.0.0"
 ---
 
-# PR Gate
+# Fleet Gate
 
 A feature has two kinds of PRs:
 
@@ -21,7 +21,7 @@ Merge a ticket PR into the integration branch only when **all** of these are tru
 
 - [ ] Every check on the PR has completed and passed, and at least one check ran. Branch protection is often configured only for the default branch, so do not rely on "required" checks alone.
 - [ ] The PR's acceptance checklist shows every criterion with a Verify result and Evidence.
-- [ ] `review-loop` ended **Approved** on the latest head, or on an earlier head when every later commit is a merge of the integration branch with no conflicts: a reviewer from a provider that wrote none of the PR's commits verified every acceptance criterion, and no **blocker** or **should** finding is open. Tickets labeled `t3-fleet-risky` used the strongest reviewer.
+- [ ] `fleet-review` ended **Approved** on the latest head, or on an earlier head when every later commit is a merge of the integration branch with no conflicts: a reviewer from a provider that wrote none of the PR's commits verified every acceptance criterion, and no **blocker** or **should** finding is open. Tickets labeled `t3-fleet-risky` used the strongest reviewer.
 - [ ] Every commit carries a Linear magic word, and the PR summary declares the ticket.
 - [ ] GitHub reports the PR mergeable, and not DIRTY (conflicting).
 - [ ] The integration branch is not frozen, or this is a **repair PR** (a fix-forward or revert during a freeze), which is exempt.
@@ -44,7 +44,7 @@ Bring the feature PR to this state, then **stop**:
 - [ ] Every ticket PR for the feature is merged, and no ticket is open except ones explicitly moved out of scope.
 - [ ] The integration branch includes the latest default branch (merge it in; never rebase a shared integration branch), and full CI is green on that exact head.
 - [ ] No foundation (Wave 0) test is still skipped. No test was weakened without a recorded decision.
-- [ ] The feature review-loop has finished with no open blocker or should finding.
+- [ ] The feature fleet-review has finished with no open blocker or should finding.
 - [ ] Every review-bot thread is resolved, or dismissed with a written reason.
 - [ ] The PR summary lists **every** ticket again (`Fixes ENG-1, ENG-2, …`) and links the Linear project, because Linear does not re-detect tickets merged into a feature branch.
 - [ ] The evidence packet is in the PR description. For a user-facing feature it leads with a recording of the definition of done on the preview deploy. For a backend feature it leads with the command, API, or test transcripts that prove the definition of done.

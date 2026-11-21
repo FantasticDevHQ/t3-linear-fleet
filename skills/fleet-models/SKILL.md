@@ -1,6 +1,6 @@
 ---
 name: fleet-models
-description: "Classify the user's favorite models in T3 Code once, so the fleet can give each ticket the right model. Reads the favorites from T3 Code's settings, proposes a rating for each model (intelligence, taste, cost, best use) as helpful defaults, asks the user to confirm or edit them in one question, saves the result, and asks again only about favorites that were added since. Also holds the rule for choosing a model for a ticket. Use when fleet-plan or project-run needs a model, when the user changes their favorite models, or when the user asks to classify, rate, or review their models."
+description: "Classify the user's favorite models in T3 Code once, so the fleet can give each ticket the right model. Reads the favorites from T3 Code's settings, proposes a rating for each model (intelligence, taste, cost, best use) as helpful defaults, asks the user to confirm or edit them in one question, saves the result, and asks again only about favorites that were added since. Also holds the rule for choosing a model for a ticket. Use when fleet-plan or fleet-run needs a model, when the user changes their favorite models, or when the user asks to classify, rate, or review their models."
 metadata:
   author: kellykampen
   version: "1.1.0"
@@ -8,7 +8,7 @@ metadata:
 
 # Fleet Models
 
-The fleet gives each ticket a model and an effort level. This skill decides **which models are candidates** and **how good each one is at what**, using the user's own judgment, asked once. `fleet-plan` uses it to fill every ticket's Fleet section. `project-run` uses it to replace a model that is not available.
+The fleet gives each ticket a model and an effort level. This skill decides **which models are candidates** and **how good each one is at what**, using the user's own judgment, asked once. `fleet-plan` uses it to fill every ticket's Fleet section. `fleet-run` uses it to replace a model that is not available.
 
 ## Where things live
 
@@ -50,7 +50,7 @@ Every rating is 1 to 9, and **higher is always better**, including cost:
 ## Step 1: Sync
 
 1. Read the favorites from the settings file. They alone decide `favorite: true` or `false`; provider availability does not.
-2. Read the classification file. If it does not exist, every favorite is new. If it cannot be parsed, or an entry lacks a model ID or has a rating outside 1 to 9, report the problem and the file's path, and treat the broken entries (or the whole file) as unclassified for now. Planning and setup may offer to reclassify in their question batch; `project-run` never asks and never writes the file. **Before saving over a broken file, copy it** to `models.json.broken-<date>` next to it, then write a valid file that keeps every valid entry and adds the new answers.
+2. Read the classification file. If it does not exist, every favorite is new. If it cannot be parsed, or an entry lacks a model ID or has a rating outside 1 to 9, report the problem and the file's path, and treat the broken entries (or the whole file) as unclassified for now. Planning and setup may offer to reclassify in their question batch; `fleet-run` never asks and never writes the file. **Before saving over a broken file, copy it** to `models.json.broken-<date>` next to it, then write a valid file that keeps every valid entry and adds the new answers.
 3. Compare, by model ID:
    - **Favorites to classify:** those with no entry yet, and those whose entry is broken (step 2).
    - **Removed favorites** get `"favorite": false`. Keep their ratings in case they come back.
@@ -86,7 +86,7 @@ Candidates are the classified favorites that the run can reach. Choose by the ti
 
 **Ties:** spread tickets across providers so one rate limit cannot stall the run: prefer the provider with fewer tickets chosen so far, then the model ID that sorts first. Write the reason in the ticket's `Why` line.
 
-**Choosing a reviewer** (for `review-loop`): only candidates from a provider that wrote none of the PR's commits.
+**Choosing a reviewer** (for `fleet-review`): only candidates from a provider that wrote none of the PR's commits.
 
 | Review | Choose | Effort |
 | --- | --- | --- |
@@ -95,11 +95,11 @@ Candidates are the classified favorites that the run can reach. Choose by the ti
 
 If no eligible candidate has intelligence 7 or more, use the highest one there is and note it in the review's evidence. **Ties:** prefer the provider with fewer reviews in this run, then the model ID that sorts first. **Without ratings:** rank eligible models by your own judgment of intelligence, then cost, apply the same rule, and say so in the review's evidence.
 
-**Closest replacement** (for `project-run`, when a ticket's model is not available): the available candidate with the smallest difference in intelligence, then in taste, then the same tie rule. If the missing model has no ratings, judge its strength from its family and tier, and pick the candidate closest to that.
+**Closest replacement** (for `fleet-run`, when a ticket's model is not available): the available candidate with the smallest difference in intelligence, then in taste, then the same tie rule. If the missing model has no ratings, judge its strength from its family and tier, and pick the candidate closest to that.
 
 ## Never
 
 - Write to T3 Code's settings file.
 - Change a rating the user gave without asking.
 - Ask about models that are already classified, unless the user asks to reclassify.
-- Ask in the middle of a `project-run`. During a run, unclassified favorites are not candidates; list them in the run's final report instead.
+- Ask in the middle of a `fleet-run`. During a run, unclassified favorites are not candidates; list them in the run's final report instead.

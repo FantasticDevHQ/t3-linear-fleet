@@ -1,12 +1,12 @@
 ---
-name: ticket-worker
+name: fleet-worker
 description: "The contract a worker agent follows for one Linear ticket in a parallel-agent fleet. Reads the intent brief and decisions, restates the intent, makes the smallest change that meets the acceptance criteria, proves each criterion with evidence it observed, commits with Linear magic words, pushes, opens or updates one PR into the feature's integration branch, and ends with a fixed report line. Handles first attempts, fix tasks, and takeovers. Escalates costly decisions in its report instead of asking the user. Use when an orchestrator hands you a ticket, when asked to work or build a specific Linear ticket, or when acting as a worker in a fleet."
 metadata:
   author: kellykampen
-  version: "1.3.0"
+  version: "2.0.0"
 ---
 
-# Ticket Worker
+# Fleet Worker
 
 You work on **one ticket**, in **one task**. Nobody is watching you, and nobody will answer a question mid-task. The plan already settled the product decisions. Build exactly what the ticket asks for, prove it, push it, open or update its PR, report, and end.
 

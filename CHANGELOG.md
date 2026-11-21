@@ -2,6 +2,19 @@
 
 ## Unreleased
 
+- **Breaking: every skill now starts with `fleet-`.** Generic names were hard to find and could collide with other skill collections. Renamed (each to 2.0.0):
+
+  | Before | After |
+  | --- | --- |
+  | `project-run` | `fleet-run` |
+  | `project-refresh` | `fleet-refresh` |
+  | `ticket-worker` | `fleet-worker` |
+  | `pr-gate` | `fleet-gate` |
+  | `review-loop` | `fleet-review` |
+  | `panel-review` | `fleet-panel-review` |
+
+  `fleet-setup`, `fleet-plan`, and `fleet-models` keep their names. Reinstall, and remove the old names from your skill manager.
+
 - **The least change, and no scope creep.** `fleet-plan` 3.2.0 makes each ticket the least change that meets its outcome, and the plan the fewest tickets that meet the definition of done. The approved plan is the whole scope. `project-run` 1.7.0 does not create or widen tickets on its own during a run: workers (`ticket-worker` 1.3.0) and reviewers (`review-loop` 1.2.1) report out-of-scope ideas as possible follow-ups, which the final report lists for the user to decide, and a real gap is escalated as a planning gap: the user approves one new ticket for exactly that gap, changes the definition of done, or stops the run. Feature-review findings are sorted into fixes for the owning ticket, follow-ups, or planning gaps. `project-refresh` 1.5.0 adds a new ticket only when the definition of done cannot be met without it.
 
 - Every ticket is now verified and reviewed by an independent model from another provider before it merges, not only risky tickets. `review-loop` 1.2.0 gives ordinary tickets one round with a capable, inexpensive reviewer that checks each acceptance criterion's Verify and Evidence on the latest head, and keeps two rounds with the strongest reviewer for risky tickets. `fleet-models` 1.1.0 adds the rule for choosing a reviewer, `pr-gate` 1.2.0 requires an approved review in the ticket gate, and `project-run` 1.6.0 reviews every green ticket PR. The review brief tells reviewers that pending CI is not a finding, because the merge gate checks CI.
