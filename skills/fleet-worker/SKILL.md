@@ -3,7 +3,7 @@ name: fleet-worker
 description: "The contract a worker agent follows for one Linear ticket in a parallel-agent fleet. Reads the intent brief and decisions, restates the intent, makes the smallest change that meets the acceptance criteria, proves each criterion with evidence it observed, commits with Linear magic words, pushes, opens or updates one PR into the feature's integration branch, and ends with a fixed report line. Handles first attempts, fix tasks, and takeovers. Escalates costly decisions in its report instead of asking the user. Use when an orchestrator hands you a ticket, when asked to work or build a specific Linear ticket, or when acting as a worker in a fleet."
 metadata:
   author: kellykampen
-  version: "2.0.1"
+  version: "2.1.0"
 ---
 
 # Fleet Worker
@@ -35,6 +35,7 @@ Read the repository's agent instructions (`AGENTS.md`, `CLAUDE.md`, or similar) 
 Work in your own checkout. Never share a working tree with another agent.
 
 - **First attempt:** fetch, then create your branch from the latest integration branch tip, using Linear's branch name for the ticket (it contains the ticket ID).
+- **Stacked attempt** (the brief names a **PR base**, another ticket's branch): create your branch from that branch's tip instead, and open your PR into that branch, not the integration branch. The orchestrator links and later retargets it.
 - **Fix task or takeover:** continue the **existing** branch. Another worktree may still have it checked out, so do not check it out by name:
 
   ```sh
@@ -104,9 +105,9 @@ gh pr edit <n> --body-file pr-body.md \
 ## Step 6: Commit, push, PR
 
 1. Commit with a Conventional Commit subject and, on its own line in the body of **every** commit, a Linear magic word: `Fixes ENG-123` when the work completes the ticket, `Refs ENG-123` for partial work.
-2. Fetch and rebase onto the latest integration branch tip (first attempts) or onto `origin/<branch>` (fix tasks and takeovers). **Then** run the fast check, so the code you push is the code you checked.
+2. Fetch and rebase onto the latest tip of your PR's base: the integration branch for first attempts, the given PR base for stacked attempts, or `origin/<branch>` for fix tasks and takeovers. **Then** run the fast check, so the code you push is the code you checked.
 3. **Always push before you end**, even when you are blocked or escalating, so the next agent can continue your work.
-4. Open **one** PR into the **integration branch** (never the default branch), or update the existing one. Use the repository's PR format exactly; do not add top-level headings it does not define. Include:
+4. Open **one** PR into the **integration branch**, or into the given PR base for a stacked attempt (never the default branch), or update the existing one. Use the repository's PR format exactly; do not add top-level headings it does not define. Include:
    - the one-line intent restatement and `Fixes ENG-123` (or `Refs`) in the summary;
    - the acceptance checklist: each criterion ID, the result of its Verify step, and its Evidence;
    - decisions you made and deviations or limitations, as subsections inside the format's sections (for example `### Decisions` under Evidence). An empty deviations list must be true;
