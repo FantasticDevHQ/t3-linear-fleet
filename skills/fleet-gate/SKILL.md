@@ -17,7 +17,7 @@ The thread that owns a PR decides on it. A watcher wake-up is news, not a decisi
 
 ## Ticket gate
 
-A **stacked** ticket PR (its base is another ticket's branch) never merges while that base is unmerged: merge the bottom PR first (`gh stack merge <bottom PR> --yes --squash`), rebase the stacked one onto the integration branch, then run this gate on it.
+A **stacked** ticket PR (its base is another ticket's branch) never merges while that base is unmerged: merge the bottom PR first through this gate, the ordinary way with its explicit squash message (`gh stack merge` cannot set one), rebase the stacked one onto the integration branch, then run this gate on it.
 
 Merge a ticket PR into the integration branch only when **all** of these are true on its **latest head commit**:
 

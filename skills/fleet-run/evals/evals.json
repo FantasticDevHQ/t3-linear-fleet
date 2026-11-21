@@ -52,7 +52,7 @@
     {
       "id": 8,
       "prompt": "Run request: 'stack dependent tickets'. ENG-31 is blocked only by ENG-30, whose PR #40 into feat/billing is open with green checks and is waiting for review round 2. ENG-32 is blocked by ENG-30 and ENG-29 (unmerged, still being built).",
-      "expected_output": "Dispatches ENG-31 now as a stacked attempt with ENG-30's branch as its PR base, then links the PRs with gh stack link --base feat/billing 40 <ENG-31 PR> and reads both PR bases back. Does not stack ENG-32 (two unmerged blockers). Merges ENG-30 first with gh stack merge 40 --yes --squash after its gate passes, then sends ENG-31 a fix task to rebase onto feat/billing (git rebase --onto) and retarget, then runs ENG-31's review verification and ticket gate. If gh stack link exits 9, stops stacking, merges ENG-30 the ordinary way, and keeps ENG-31 blocked and targeting ENG-30's branch until ENG-30 merges.",
+      "expected_output": "Dispatches ENG-31 now as a stacked attempt with ENG-30's branch as its PR base, then links the PRs with gh stack link --base feat/billing 40 <ENG-31 PR> and reads both PR bases back. Does not stack ENG-32 (two unmerged blockers). Merges ENG-30 first through the normal ticket gate with an explicit squash message (not gh stack merge) after its gate passes, then sends ENG-31 a fix task to rebase onto feat/billing (git rebase --onto) and retarget, then runs ENG-31's review verification and ticket gate. If gh stack link exits 9, stops stacking and keeps ENG-31 blocked and targeting ENG-30's branch until ENG-30 merges.",
       "files": []
     }
   ]
