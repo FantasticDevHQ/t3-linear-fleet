@@ -3,7 +3,7 @@ name: fleet-worker
 description: "The contract a worker agent follows for one Linear ticket in a parallel-agent fleet. Reads the intent brief and decisions, restates the intent, makes the smallest change that meets the acceptance criteria, proves each criterion with evidence it observed, commits with Linear magic words, pushes, opens or updates one PR into the feature's integration branch, and ends with a fixed report line. Handles first attempts, fix tasks, and takeovers. Escalates costly decisions in its report instead of asking the user. Use when an orchestrator hands you a ticket, when asked to work or build a specific Linear ticket, or when acting as a worker in a fleet."
 metadata:
   author: kellykampen
-  version: "2.0.0"
+  version: "2.0.1"
 ---
 
 # Fleet Worker
@@ -95,7 +95,7 @@ gh pr edit <n> --body-file pr-body.md \
   --attach './archive-flow.mp4#Bulk archive flow'
 ```
 
-- Check first that `gh pr edit --help` lists `--attach`. It needs a recent `gh`; if it is missing, update `gh` before falling back.
+- Check first that `gh --version` is 2.99.0 or newer, the first release with `--attach`. If it is older, update `gh` before falling back.
 - Up to 50 files per command. The alt text goes after `#`.
 - Fallback only when `--attach` is unavailable: link a GitHub Actions artifact that contains the recording (`Video: https://github.com/<owner>/<repo>/actions/runs/<run>/artifacts/<id>`), if the repository's PR standard accepts it.
 - Do not commit evidence files to the repository. If you cannot publish evidence at all, say so in the PR.

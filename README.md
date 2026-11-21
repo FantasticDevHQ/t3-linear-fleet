@@ -39,9 +39,8 @@ T3 Linear Fleet is a set of agent skills for solo developers who plan in [Linear
 | [T3 Code](https://github.com/pingdotgg/t3code) | Machines, providers, models, and the tools that dispatch workers | `fleet-run`, `fleet-models` |
 | At least **two** model providers in T3 Code (for example Claude and Codex) | Every review comes from a provider other than the writer's | `fleet-run` |
 | A GitHub repository and the [GitHub CLI](https://cli.github.com) (`gh`), signed in | PRs and checks | `fleet-run`, `fleet-worker` |
-| A `gh` recent enough that `gh pr edit --help` lists `--attach` | Uploads screenshots and recordings as PR evidence (CI artifacts are the fallback) | Runs with UI tickets |
+| `gh` **2.99.0 or newer** (the first release with `--attach`) | Uploads screenshots and recordings as PR evidence (CI artifacts are the fallback) | Runs with UI tickets |
 | CI that runs on pull requests into `feat/**` and on pushes to `feat/**` | Ticket PRs merge into the feature branch only when checks pass | `fleet-run` |
-| Every secret and external account the plan needs, already in your project's secrets manager | Workers can't stop to ask for keys | `fleet-run` |
 
 Optional: more linked machines in T3 Code (local or cloud) to run more workers at once, and a preview or remote end-to-end setup for UI evidence. `fleet-setup` checks most of this for you.
 
@@ -310,6 +309,8 @@ Audits the project, shows a change plan (what it keeps, rewrites, merges, moves 
 /fleet-run https://linear.app/acme/project/billing-export-1a2b3c4d5e6f
 ```
 
+If the plan needs secrets or external accounts (API keys, a payment sandbox, an email provider), add them to the project's secrets manager before you start: workers can't stop to ask for keys, and a missing one stops the tickets that need it. Many projects need none.
+
 The orchestrator checks your machines and the plan, creates `feat/billing-export`, dispatches tickets as their blockers merge, gets each one reviewed and green, and ends with a feature PR and an evidence packet for you to review. Limits and overrides go in the same request:
 
 ```text
@@ -339,12 +340,12 @@ Builds a single ticket to the worker contract: the smallest change, proof for ev
 
 | Skill | Status | What it does |
 | --- | --- | --- |
-| [fleet-setup](./skills/fleet-setup/SKILL.md) | Ready (1.0.1) | One-time setup and health check: Linear access (MCP or linear-cli), T3 Code providers, the GitHub CLI, the t3-fleet labels, Linear's GitHub automation, and your model ratings. Safe to rerun. |
+| [fleet-setup](./skills/fleet-setup/SKILL.md) | Ready (1.1.0) | One-time setup and health check: Linear access (MCP or linear-cli), T3 Code providers, the GitHub CLI, the t3-fleet labels, Linear's GitHub automation, and your model ratings. Safe to rerun. |
 | [fleet-plan](./skills/fleet-plan/SKILL.md) | Ready (3.2.0) | Plans a feature as a Linear project: intent brief, one batch of questions with defaults, a cold read, the fewest tickets, EARS requirements traced to acceptance criteria provable inside the PR, and a readiness gate. |
 | [fleet-models](./skills/fleet-models/SKILL.md) | Ready (1.1.0) | Classifies your favorite models in T3 Code once (intelligence, taste, cost, best use) from suggested defaults you confirm, asks again only about new favorites, and holds the rule for picking each ticket's model. |
-| [fleet-run](./skills/fleet-run/SKILL.md) | Ready (2.0.0) | The orchestrator: preflight, integration branch, foundation first, dispatch on blockers across T3 Code machines and providers, merge and freeze rules, takeovers, batched escalation, feature review, and the evidence packet. |
+| [fleet-run](./skills/fleet-run/SKILL.md) | Ready (2.0.1) | The orchestrator: preflight, integration branch, foundation first, dispatch on blockers across T3 Code machines and providers, merge and freeze rules, takeovers, batched escalation, feature review, and the evidence packet. |
 | [fleet-refresh](./skills/fleet-refresh/SKILL.md) | Ready (2.0.0) | `/fleet-refresh <Linear project URL>`: audits a project written to an older standard and rewrites it in place to the fleet spec, keeping IDs and history, so `fleet-run` can execute it. |
-| [fleet-worker](./skills/fleet-worker/SKILL.md) | Ready (2.0.0) | The worker brief: intent, smallest change, proof, ownership through green, escalation to the orchestrator, fixed report line. |
+| [fleet-worker](./skills/fleet-worker/SKILL.md) | Ready (2.0.1) | The worker brief: intent, smallest change, proof, ownership through green, escalation to the orchestrator, fixed report line. |
 | [fleet-gate](./skills/fleet-gate/SKILL.md) | Ready (2.0.0) | Ticket and final merge gates, PR watching without polling, event routing, and the freeze on a red integration branch. |
 | [fleet-review](./skills/fleet-review/SKILL.md) | Ready (2.0.0) | Independent review of every ticket and the feature by a different provider, with acceptance verification, with blocker / should / nit severity, a ledger, and checks for over-engineering and weakened tests. |
 | [fleet-panel-review](./skills/fleet-panel-review/SKILL.md) | Ready (2.0.0) | Optional review by a panel of three flagship models from three providers, with scores per round, synthesis, and firm scope control. For plans, contracts, and large features. |

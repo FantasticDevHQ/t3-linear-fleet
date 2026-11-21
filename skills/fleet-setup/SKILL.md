@@ -3,7 +3,7 @@ name: fleet-setup
 description: "One-time setup and health check for the T3 Linear Fleet. Checks Linear access (Linear MCP or linear-cli), T3 Code's orchestration tools and providers, and the GitHub CLI; creates the t3-fleet label group at the right level of the Linear workspace; walks the user through Linear's GitHub automation (magic-word commit linking and branch rules); and classifies the user's favorite models with fleet-models. Safe to run again: it only fixes what is missing and ends with a ready or not-ready checklist. Use when the user installs the fleet, says set up or check the fleet, or when fleet-plan or fleet-run finds setup missing."
 metadata:
   author: kellykampen
-  version: "1.0.1"
+  version: "1.1.0"
 ---
 
 # Fleet Setup
@@ -27,7 +27,7 @@ If neither works, stop this step and tell the user how to connect one: add the L
 
 - **T3 Code machines:** list linked machines with `t3_environment_links` and note which answer now. None is fine; the local machine runs everything.
 - **Providers:** call `orchestrator_capabilities` on the local machine and on each machine that answers (pass its `environmentId`). Count the distinct providers that can run child tasks across those machines, and separately on the local machine alone. `fleet-run` needs at least **two** usable providers, because every review comes from a provider other than the writer's. `t3-fleet-local-only` tickets need two on the local machine. Fewer is a warning, not a failure: planning still works.
-- **GitHub CLI:** `gh auth status` succeeds, and `gh pr edit --help` lists `--attach` (agents upload screenshots and recordings with it). If `--attach` is missing, tell the user to update `gh`.
+- **GitHub CLI:** `gh auth status` succeeds, and `gh --version` is **2.99.0 or newer**, the first release with `--attach` (agents upload screenshots and recordings with it). If it is older, tell the user to update `gh`.
 
 ## Step 3: The t3-fleet labels
 
@@ -54,7 +54,7 @@ The fleet links work through commits, not PR titles: every commit carries `Fixes
 1. **Link commits to issues with magic words** is on, and the GitHub push webhook Linear shows is added to the repositories.
 2. **Branch rules:** a merge into `^feat/.*` moves the issue to an "Integrated" status (or "no action"), and a merge into the default branch moves it to Done.
 
-Put both in the question batch as a checklist the user confirms. If the user cannot confirm, mark it not ready; `fleet-run` then checks Linear statuses after its first merge and corrects them by hand.
+**Verify what the API can show; never trust a confirmation alone.** List each team's workflow statuses through the API. The feature-branch rule needs a status to move tickets to: an "Integrated" status (any started-type status the user names), unless the user chose "no action". If that status is missing, report **needs you: add an Integrated status to team <key>** (or confirm "no action"). Then put the two settings the API cannot read (magic-word linking and the branch rules) in the question batch as a checklist. Mark them **confirmed, not verified**: `fleet-run` checks the first ticket's status after its first merge into the feature branch and corrects statuses by hand if the rule did not fire.
 
 ## Step 5: Models
 

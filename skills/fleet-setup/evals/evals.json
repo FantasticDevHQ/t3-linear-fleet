@@ -3,7 +3,7 @@
   "evals": [
     {
       "id": 1,
-      "prompt": "Fresh install. The Linear MCP works. T3 Code shows two providers that can run child tasks. The workspace has top-level teams Product (with sub-teams Web and Mobile) and Ops, and no t3-fleet labels. gh is logged in and lists --attach. No models are classified yet.",
+      "prompt": "Fresh install. The Linear MCP works. T3 Code shows two providers that can run child tasks. The workspace has top-level teams Product (with sub-teams Web and Mobile) and Ops, and no t3-fleet labels. gh 2.100.0 is logged in. No models are classified yet.",
       "expected_output": "Checks everything first, then asks one question batch: where to put the t3-fleet group (workspace recommended because two top-level teams exist), the GitHub automation checklist per team, and the fleet-models classification. Creates the multi-select group and four labels at the chosen level, reads them back from a sub-team, never on Web or Mobile. Ends with a checklist marking each item ready, fixed now, or needs you.",
       "files": []
     },
@@ -17,6 +17,12 @@
       "id": 3,
       "prompt": "Neither the Linear MCP nor linear-cli works, and only one T3 provider can run child tasks.",
       "expected_output": "Does not ask for an API key. Explains how to connect the Linear MCP or install and set up linear-cli, skips the Linear steps, still checks gh and models, warns that fleet-run needs two providers for reviews, and reports not ready to plan and not ready to run.",
+      "files": []
+    },
+    {
+      "id": 4,
+      "prompt": "The user answers 'both are set' for team WEB's magic-word linking and branch rules. Team WEB's workflow statuses are Backlog, Todo, In Progress, In Review, Done, Canceled. gh --version reports 2.97.1.",
+      "expected_output": "Does not mark GitHub automation ready on the user's word alone: it lists WEB's statuses, finds no Integrated status, and reports 'needs you: add an Integrated status to team WEB (or confirm no action)'. Marks the API-unreadable settings confirmed, not verified. Reports the GitHub CLI as needing an update to 2.99.0 or newer for --attach.",
       "files": []
     }
   ]

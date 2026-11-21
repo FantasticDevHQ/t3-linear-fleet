@@ -3,7 +3,7 @@ name: fleet-run
 description: "Orchestrate a planned Linear project to a ready feature PR with no human in the loop. Checks the plan was approved, discovers machines, providers, and projects through T3 Code at run time, runs a preflight smoke test per machine, creates the integration branch, runs the foundation ticket first, then dispatches tickets to worker agents as their blockers merge, load-balanced across machines and providers. Merges through the merge gate, freezes on red CI, hands stuck tickets to fresh agents, asks the few escalations in one batch, runs a cross-provider feature review, assembles the evidence packet, and stops for the human to merge. Use when the user asks to run, execute, build, or ship a Linear project or feature with agents, or to orchestrate a fleet across machines and providers."
 metadata:
   author: kellykampen
-  version: "2.0.0"
+  version: "2.0.1"
 ---
 
 # Fleet Run
@@ -60,7 +60,7 @@ Stop and report, without starting any work, if a check fails.
 6. **Check the repository's pipeline.**
    - CI runs on pull requests into `feat/**` and on pushes to `feat/**`, not only on the default branch. If it does not, stop: the ticket gate would pass with no checks. Name the prerequisite ticket that fixes it, if the plan has one; it merges into the default branch outside the run.
    - Preview deploys run for PRs into `feat/**`, if any ticket's evidence needs a preview.
-   - Agents can publish UI evidence on a PR: the smoke test confirms `gh pr edit --help` lists `--attach` on each machine (uploads go through the GitHub CLI, never a browser). If a machine's `gh` lacks it, update `gh` there or use CI artifacts (for example recordings from the end-to-end job) as the fallback. If no ticket is UI, skip this.
+   - Agents can publish UI evidence on a PR: the smoke test confirms `gh --version` is 2.99.0 or newer (the first release with `--attach`) on each machine (uploads go through the GitHub CLI, never a browser). If a machine's `gh` lacks it, update `gh` there or use CI artifacts (for example recordings from the end-to-end job) as the fallback. If no ticket is UI, skip this.
 7. **Check Linear's GitHub automation.** Commit linking with magic words is on, and a branch-specific rule sends merges into `feat/.*` to an "Integrated" status (or "no action") instead of Done. If you cannot confirm these through the API, check after the first merge (Phase 3) and correct statuses by hand if needed.
 8. **Order the work** from the blocker links and the **t3-fleet** labels set in planning (one label group at the workspace or top-most parent team, inherited by every team below):
    - `t3-fleet-foundation` tickets go first.
