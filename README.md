@@ -79,14 +79,13 @@ Expected result: `issue-breakdown` appears in the list for your agents. Ask your
 | --- | --- | --- |
 | [issue-breakdown](./skills/issue-breakdown/SKILL.md) | Ready (2.0) | Plans a feature as a Linear project: intent brief, one batch of questions with defaults, a cold read, the fewest tickets, EARS requirements traced to acceptance criteria provable inside the PR, and a readiness gate. |
 | [project-run](./skills/project-run/SKILL.md) | Ready (1.0) | The orchestrator: preflight, integration branch, foundation first, dispatch on blockers across T3 Code machines and providers, merge and freeze rules, takeovers, batched escalation, feature review, and the evidence packet. |
+| [project-refresh](./skills/project-refresh/SKILL.md) | Ready (1.0) | `/project-refresh <Linear project URL>`: audits a project written to an older standard and rewrites it in place to the fleet spec, keeping IDs and history, so `project-run` can execute it. |
 | [ticket-worker](./skills/ticket-worker/SKILL.md) | Ready (1.0) | The worker brief: intent, smallest change, proof, ownership through green, escalation to the orchestrator, fixed report line. |
 | [pr-gate](./skills/pr-gate/SKILL.md) | Ready (1.0) | Ticket and final merge gates, PR watching without polling, event routing, and the freeze on a red integration branch. |
 | [review-loop](./skills/review-loop/SKILL.md) | Ready (1.0) | Budgeted review by a different provider, with blocker / should / nit severity, a ledger, and checks for over-engineering and weakened tests. |
 | council | Planned | Optional review by several providers for large or risky work. |
-| ticket-takeover | Planned | A fresh agent takes over a stuck ticket. |
-| pr-writing | Planned | PR descriptions, evidence packets, and comment attribution. |
 
-The skills require Linear (MCP server or `linear-cli`) and T3 Code for orchestration. To spread work across machines and providers, copy [the example fleet config](./skills/project-run/references/fleet.config.example.json) to `~/.config/t3-linear-fleet/config.json` and edit it; without it, `project-run` uses the local machine only. They never assume a specific secrets manager; they use whatever your project declares.
+The skills require Linear (MCP server or `linear-cli`) and T3 Code for orchestration. There is no config file: `project-run` discovers your linked machines, their providers and models, and the repository's project on each machine through T3 Code every time it runs, so machines can come and go. Set limits in the request itself, for example "run this project, max 8 workers". The skills never assume a specific secrets manager; they use whatever your project declares.
 
 ## Linear setup
 
@@ -94,6 +93,9 @@ The fleet tracks tickets on commits, not PR titles. Every commit carries a Linea
 
 1. Turn on **Link commits to issues with magic words** and add the GitHub push webhook that Linear shows.
 2. Add branch-specific rules: a merge into `^feat/.*` moves the ticket to an "Integrated" status (or "no action"), and a merge into `main` moves it to Done.
+3. Create the **Fleet** label group once, as a multi-select group with four labels: `foundation`, `local-only`, `schema-change`, and `risky`. Put it at the **workspace** if unrelated teams will use the fleet, or at the **top-most parent team** if only that parent's teams will. Teams below inherit it. Never create it on a leaf team. `issue-breakdown` sets these labels during planning, and `project-run` schedules from them. If the group is missing, `issue-breakdown` creates it at the right level.
+
+Your repository's CI must also run on pull requests into `feat/**` and on pushes to `feat/**`, not only on the default branch. `project-run` checks this before it starts.
 
 See [Linear's GitHub integration docs](https://linear.app/docs/github) for details.
 

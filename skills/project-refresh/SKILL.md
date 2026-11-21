@@ -1,0 +1,99 @@
+---
+name: project-refresh
+description: "Bring an existing Linear project up to the fleet spec so project-run can execute it. Invoked as /project-refresh <Linear project URL>. Audits a project whose tickets were written to an older standard (user stories, 3-point slivers, post-merge acceptance criteria, missing intent brief, no Fleet labels), proposes a change plan, asks every open question in one batch, then rewrites the intent brief and tickets in place: it keeps ticket IDs, links, and history, saves each old description as a comment first, merges slivers as duplicates, and ends at the readiness gate with an Approved line. Use when the user wants to refresh, upgrade, migrate, clean up, or rewrite an existing Linear project or backlog to the new ticket standard."
+metadata:
+  author: kellykampen
+  version: "1.0.0"
+---
+
+# Project Refresh
+
+Turn an existing Linear project into one that `project-run` can execute: a real intent brief, the fewest tickets, acceptance criteria provable inside the PR, and Fleet labels. The **target standard is `issue-breakdown`** from this skill set; read it first. This skill adds what is different about starting from tickets that already exist: auditing them, preserving their history, and changing them **in place**.
+
+## Input
+
+The Linear project URL, passed as the argument (`/project-refresh https://linear.app/<workspace>/project/<slug>`). If it is missing, ask for it once. If the user named a project without a URL, find it in Linear and confirm the match.
+
+## Step 1: Read everything (no changes yet)
+
+Read, following every page:
+
+- the project description, documents, and recent project updates;
+- every issue in the project, including completed and canceled ones: description, status, assignee, estimate, labels, comments, relations, and linked branches and PRs;
+- the team hierarchy and the label catalog, with owning team and `inheritedFrom`;
+- the repository the project builds on: structure, existing patterns, tests, CI, previews, and agent instructions. Do not ask what the code can answer.
+
+Sort the tickets by state, because each state gets different treatment:
+
+| State | Treatment |
+| --- | --- |
+| **Done** (merged) | History. Do not rewrite. Use it to understand what exists. |
+| **Canceled** or **duplicate** | Leave as is. |
+| **In progress** (a branch or open PR exists) | Do not change its scope. Add only what is missing for execution (Verify and Evidence lines, Fleet labels, blocker links). A scope problem goes in the question batch. |
+| **Not started** | The main target. Rewrite to the standard. |
+
+## Step 2: Audit against the standard
+
+Check the project and every not-started ticket against `issue-breakdown`:
+
+- **Intent brief:** problem, users, definition of done, non-goals, constraints, decisions, release checks, the dependency flowchart. Most old projects have only a summary; the gaps become drafts or questions.
+- **Size:** slivers that only exist to stay under a point cap (merge them), and tickets with two independent outcomes (split them).
+- **Requirements:** behavioral tickets without EARS requirements; vague or compound requirements that fail the 29148 checks.
+- **Acceptance criteria:** criteria that need a merge, a deploy, production, real users, or time to verify (rewrite as pre-merge proof, or move to release checks); criteria without Verify and Evidence; criteria that are another ticket merging (convert to blocker links).
+- **Over-specification:** "how" content with no recorded decision behind it (remove it, or turn a real constraint into a decision).
+- **Dependencies:** missing blocker links, links that point the wrong way, and cycles.
+- **Fleet labels:** `foundation`, `local-only`, `schema-change`, `risky`, and whether the Fleet group exists at the right level.
+- **Design and risk:** UI tickets without a design image, and risky steps without WARNING or CAUTION.
+
+## Step 3: Draft the change plan
+
+Write the plan before touching Linear. For each ticket, give exactly one action and a one-line reason:
+
+| Action | Meaning |
+| --- | --- |
+| **Keep** | Already meets the standard (only labels or links may change). |
+| **Rewrite** | Same ticket and ID, description rewritten to the ticket template. |
+| **Merge into ENG-n** | Its scope folds into the surviving ticket; it is then marked a duplicate of it. |
+| **Split** | It keeps its first outcome; new tickets take the others. |
+| **New** | A missing ticket, usually the foundation ticket or a spike. |
+| **Cancel** | Out of scope under the intent brief or a non-goal. Never delete. |
+
+Choose the surviving ticket in a merge by: the one with history (branch, PR, comments), then the most complete, then the lowest number.
+
+Also draft the new intent brief, and the rewritten text of every ticket you will change.
+
+## Step 4: Cold read and one batch of questions
+
+Run `issue-breakdown` Step 4 (a cold read by a fresh agent, ideally on another provider) on the drafts. Then ask **one batch** through the question tool, as in `issue-breakdown` Step 5: decisions with defaults, assumptions, the non-code checklist, plus:
+
+- approval of the change plan, showing every merge, split, cancel, and new ticket;
+- each in-progress ticket whose scope conflicts with the new plan.
+
+Fold the answers into the drafts. Ask a follow-up only for a genuinely new product decision.
+
+## Step 5: Apply in place
+
+Make the changes in this order, and read each one back:
+
+1. **Preserve the old text.** Before you change a ticket's description, add a comment to it that contains the old description in full, under a heading such as "Description before the fleet refresh (<date>)". Do the same for the project description, as a project document or a project update. If that comment already exists, the ticket was refreshed before: compare, and do not save it twice.
+2. **Rewrite the project description** with the new intent brief.
+3. **Rewrite tickets** to the ticket template. Keep the ID, assignee, comments, attachments, and links. Update the title to the outcome when the old title was a task. Move post-merge criteria to the intent brief's release checks.
+4. **Merge** each sliver: fold its requirements and criteria into the surviving ticket, move its blocker links to the survivor, then mark it a duplicate of the survivor. Never delete a ticket.
+5. **Split** and **create** tickets, parented to the project, with labels and estimates.
+6. **Relations:** add missing blocker links and fix reversed ones. Remove a link only when it is clearly wrong, and say so in the ticket's comment. Confirm there is no cycle.
+7. **Labels:** create the Fleet group only if it does not exist, at the workspace or top-most parent team, as `issue-breakdown` Step 7 describes. Add and remove individual labels; never replace a ticket's whole label set, so unrelated labels survive.
+8. **Cancel** out-of-scope tickets with a comment that names the non-goal.
+
+## Step 6: Readiness gate
+
+Run the `issue-breakdown` readiness gate over the whole project. When it passes and the user approved the plan, add `Approved: <date>` at the end of the intent brief. `project-run` will not start without it.
+
+Report: the project link, a table of every ticket with its action and new state, the merges and splits, any remaining open items, and whether the project is ready for `project-run`.
+
+## Never
+
+- Delete a ticket or a comment. Merge as a duplicate, or cancel with a reason.
+- Rewrite a Done ticket, or change the scope of an in-progress ticket without the user's answer.
+- Change a description before its old text is saved as a comment.
+- Replace a ticket's full label set, or create Fleet labels on a leaf team.
+- Apply changes before the user approves the change plan.

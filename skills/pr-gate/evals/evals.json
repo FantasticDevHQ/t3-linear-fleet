@@ -30,6 +30,12 @@
       "prompt": "Nothing changed on the PR since the last wake-up. What do you post?",
       "expected_output": "Nothing. When an event needs no action, it stays silent and never posts 'still waiting'.",
       "files": []
+    },
+    {
+      "id": 5,
+      "prompt": "feat/search is frozen after a red full suite caused by ENG-44. The fix-forward agent opened PR #61 into feat/search. Can it merge while frozen?",
+      "expected_output": "Yes, if it passes the rest of the ticket gate: it is a repair PR, which is exempt from the freeze, and its commits carry Refs ENG-44. Ordinary ticket PRs stay blocked until the full suite is green again. The merge uses an explicit squash subject and body.",
+      "files": []
     }
   ]
 }

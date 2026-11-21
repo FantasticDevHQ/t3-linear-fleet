@@ -36,6 +36,12 @@
       "prompt": "Plan a ticket that migrates our users table to split full_name into first_name and last_name, backfills existing rows, and drops the old column.",
       "expected_output": "Marks the destructive column drop with WARNING and treats it as a costly decision settled in planning (for example, keep the old column until a later release check) rather than left to the agent. Writes EARS requirements for the migration behavior and acceptance criteria provable before merge: forward and back migration on a production-shaped fixture in CI. Moves verification against production data to release checks.",
       "files": []
+    },
+    {
+      "id": 6,
+      "prompt": "Our Linear workspace has a parent team Product with sub-teams Web and Mobile. Plan a feature for Web, and there are no Fleet labels yet.",
+      "expected_output": "Reads the team hierarchy and label catalog first. Creates the Fleet multi-select group (foundation, local-only, schema-change, risky) once at the Product parent team (or the workspace if unrelated teams will use it), never on Web. Applies the labels to the right tickets, and after approval adds an 'Approved:' line to the intent brief.",
+      "files": []
     }
   ]
 }

@@ -22,13 +22,19 @@
     {
       "id": 3,
       "prompt": "After two replies we still disagree with the reviewer about whether a retry loop needs a lock, and the budget has one round left.",
-      "expected_output": "Recognizes a stuck dispute, writes both sides in two or three lines each, and escalates through the orchestrator. Does not treat budget end or exhaustion as approval, and does not add the lock just to end the loop.",
+      "expected_output": "Recognizes a stuck dispute (a should or blocker still disputed after two replies), writes both sides in two or three lines each, and sends it to the orchestrator's escalation batch. Does not treat budget end alone as approval, and does not add the lock just to end the loop.",
       "files": []
     },
     {
       "id": 4,
       "prompt": "This ordinary ticket PR adds a settings toggle. Should it get a review-loop round before merging into the integration branch?",
       "expected_output": "No. Ordinary ticket PRs skip the review loop; only risky tickets (security, data, money, migrations, concurrency, WARNING items) get one round. The feature review covers the rest.",
+      "files": []
+    },
+    {
+      "id": 5,
+      "prompt": "Risky ticket ENG-60 (a payments migration). Round 1 found one should finding, which you fixed and verified yourself. Round 2 confirms the fix and approves.",
+      "expected_output": "Uses the 2-round budget for risky tickets: one review, one verification round. The ticket passes the gate after round 2. If round 2 had been unavailable but every finding was fixed and verified, records 'passed after fixes' in the ledger rather than escalating.",
       "files": []
     }
   ]

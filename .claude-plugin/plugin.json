@@ -4,6 +4,7 @@
   "skills": [
     "./skills/issue-breakdown",
     "./skills/pr-gate",
+    "./skills/project-refresh",
     "./skills/project-run",
     "./skills/review-loop",
     "./skills/ticket-worker"

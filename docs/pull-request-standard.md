@@ -123,7 +123,9 @@ Reviewers assess those details.
 
 In Evidence, explicitly declare `UI changes: Yes` or `UI changes: No`.
 UI changes require screenshots and/or video of the affected flow, uploaded
-through GitHub attachments. At least one is required; both are welcome when useful.
+through GitHub attachments or published as a GitHub Actions artifact (for
+example a recording from an end-to-end job, which agents without a browser can
+produce). At least one is required; both are welcome when useful.
 Embed screenshots inline and label the proof fields you include:
 
 ```markdown
@@ -131,12 +133,13 @@ UI changes: Yes
 
 - Screenshot: ![Affected flow](https://github.com/user-attachments/assets/UPLOAD_ID)
 - Video: https://github.com/user-attachments/assets/RECORDING_ID
+- Video: https://github.com/OWNER/REPO/actions/runs/RUN_ID/artifacts/ARTIFACT_ID
 ```
 
 The validator inspects changed frontend files, styles, markup, and image assets,
 excluding tests and fixtures. Detected UI files require visual proof even
 if the declaration says No. Declare Yes for UI changes in other file types too,
-such as server-rendered templates in backend code. Use GitHub upload URLs.
+such as server-rendered templates in backend code. Use GitHub upload or Actions artifact URLs.
 Reviewers verify the media actually demonstrate
 the affected flow; the validator checks references, not image or video contents.
 Backend,

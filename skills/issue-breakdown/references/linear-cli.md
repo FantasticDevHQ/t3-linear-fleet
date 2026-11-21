@@ -45,30 +45,9 @@ For creating projects/issues, setting estimates, applying labels, and uploading 
 
 ## Visible issue order
 
-Linear stores issue urgency in `priority` (0 = none). A project view ordered by **Priority** uses `prioritySortOrder` for the relative order within a priority level; its value is distinct from `sortOrder`. A manually ordered view may use `sortOrder`. Check the view's display option and compare live ranks with the order shown in the UI before writing either field. Ranking affects the issue's position across the workspace, not just this project. [Linear's priority ordering](https://linear.app/docs/priority) and [display options](https://linear.app/docs/display-options) describe the view behavior.
+Only when the user asks for a visible top-to-bottom order: blocker links do not reorder rows, and `priority` is urgency, not rank. A view ordered by Priority sorts within each priority level by `prioritySortOrder`; a manually ordered view uses `sortOrder`. Neither is exposed by `linear-cli i update` or the Linear MCP, so read and write them through `linear-cli api` (`issueUpdate` with the rank field). Read all pages of current ranks first, change only the issues you must, never change `priority` to move a row, and requery to verify. See [Linear's priority ordering](https://linear.app/docs/priority).
 
-The ordinary `linear-cli i list` output defaults to identifier order, and `i update` has no rank flag. The Linear MCP issue list/save tools do not expose these rank fields. Use raw GraphQL through `linear-cli api` when the user has asked for the project list itself to follow an execution sequence:
-
-```bash
-linear-cli api query '{ project(id:"PROJECT_ID") { issues(first:100) { nodes { id identifier priority sortOrder prioritySortOrder } pageInfo { hasNextPage endCursor } } } }' --output json
-```
-
-If `hasNextPage` is true, repeat the query with `issues(first:100, after:"END_CURSOR")` until every page has been collected. Do not rank or verify only the first page. Do not trust the API's node order as the view order.
-
-For a Priority-ordered view, compare `priority` levels first (1 Urgent, 2 High, 3 Medium, 4 Low, then 0 None), then sort within each level by ascending `prioritySortOrder`. Rank cannot move an issue across priority levels. If the requested sequence crosses those levels, explain that this view cannot show it without changing urgency or view ordering; do not silently change urgency. `IssueUpdateInput` accepts both `prioritySortOrder` and `sortOrder`. For a Priority-ordered view, update a specific issue with raw `issueUpdate` after choosing a rank from its current neighbors in the same priority level:
-
-```graphql
-mutation {
-  issueUpdate(id: "ISSUE_UUID", input: { prioritySortOrder: -123456.5 }) {
-    success
-    issue { identifier priority prioritySortOrder }
-  }
-}
-```
-
-The rank above is illustrative; read current ranks before calculating a new one. Preserve `priority` and avoid changing unrelated issues. Requery after each batch and verify the requested top-to-bottom sequence. If the user requested a single forward chain, verify that the requested tickets have only the matching adjacent `blocks` links, with one entrance and one exit; report any extra internal links. If the available client cannot write rank, say the visible order remains unset instead of treating dependency links as sufficient.
-
-## Issue / project description body (HARD RULE — FLT-61)
+## Issue / project description body (hard rule)
 
 `-d` / `--description` takes the **markdown text itself**, never a filesystem path.
 Writing a body to `/tmp/foo.md` is fine as a **staging step**; the Linear call must still
@@ -109,7 +88,7 @@ is not done until Linear holds the full content.
 
 ## Project dependencies (project ↔ project)
 
-Project-level dependencies are a **separate mechanism** from issue relations, and there's no convenience wrapper: the **Linear MCP exposes no project-relation tool** and `linear-cli rel` only does *issue* relations. Create them with raw GraphQL via `linear-cli api mutate` (`projectRelationCreate`). Every new epic should get **≥1** of these unless it's genuinely foundational.
+Project-level dependencies are a **separate mechanism** from issue relations, and there's no convenience wrapper: the **Linear MCP exposes no project-relation tool** and `linear-cli rel` only does *issue* relations. Create them with raw GraphQL via `linear-cli api mutate` (`projectRelationCreate`). Add them only when a real dependency on another project exists; many projects have none.
 
 **Orientation is load-bearing and silently fails if wrong.** A dependency is a **finish-to-start** link: the prerequisite's `end` connects to the dependent's `start`. `type` has exactly one valid value, `"dependency"`; anchors are `start | end | milestone`.
 
@@ -128,11 +107,10 @@ linear-cli api mutate -v p=<PREREQUISITE_ID> -v r=<DEPENDENT_ID> '
 - **Get the anchors right.** `end → start` (above) is the normal "blocks" dependency and is the ONLY orientation that renders on the roadmap and in the projects-list **Dependencies** column. The reverse, `start → end`, is a valid *start-to-finish* relation that the mutation happily accepts but which **never shows up in the column** — a silent no-op that looks done but isn't. If a link isn't appearing, this is almost always why.
 - **Pairs are deduped / undirected.** Creating A↔B when a relation already exists in *either* direction fails with "a dependency of the same type already exists between the two projects." Read the existing one first (`project{ relations{ nodes{ id anchorType relatedProject{ name } } } }`) — it may be stored on the other project's `relations` list.
 - **Reversible:** `mutation{ projectRelationDelete(id:"<REL_ID>"){ success } }`.
-- **Only one project has no dependency in a healthy tree — the foundation.** If several new projects come out solo, you probably skipped this step.
 
 ## Gotchas specific to the CLI
 
-- **Description is content, not a path (FLT-61).** `-d /tmp/foo.md` writes the *string* `/tmp/foo.md` into Linear. Always `-d "$(cat /tmp/foo.md)"` or (on create) `-d - < /tmp/foo.md`. Verify after write that the issue body is real markdown, not a path.
-- **Convex/Linear team vs project:** the *team* (e.g. `FTD`, `DOJO`) is the top namespace; the *project* is the epic inside it. Create issues against the right **team** AND set the **project** — an issue can be in a team but orphaned from any project, which violates the parent rule.
-- **Estimate scales cap silently.** Some Fibonacci presets store 13 as 8 (or similar). That's a display artifact — it does not license a >3-point issue. Split anyway.
+- **Description is content, not a path.** `-d /tmp/foo.md` writes the *string* `/tmp/foo.md` into Linear. Always `-d "$(cat /tmp/foo.md)"` or (on create) `-d - < /tmp/foo.md`. Verify after write that the issue body is real markdown, not a path.
+- **Team vs project:** the *team* (for example `ENG`) is the top namespace; the *project* is the epic inside it. Create issues against the right **team** AND set the **project** — an issue can be in a team but orphaned from any project, which violates the parent rule.
+- **Estimate scales cap silently.** Some presets store 13 as 8 (or similar). Estimates are for planning only; check that the stored value is what you meant.
 - **Attachments must actually upload**, not just be linked in text. A design issue needs the image on the ticket; verify it rendered.
