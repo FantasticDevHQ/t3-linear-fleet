@@ -54,7 +54,7 @@ Check the project and every not-started ticket against `fleet-plan`:
 - **Unlinked duplicates:** tickets with the same title or the same requirements and no duplicate relation. Merge them into the one with history.
 - **Work no agent can finish in a PR:** external setup, staging checks, live-service checks, release acceptance, and runbooks for the owner. They are release checks. List them in the brief's Release checks. Keep their tickets if the user tracks them as tickets, but they are outside the run.
 - **Old delivery rules that conflict with the fleet:** rules in the old description such as "merges after owner authorization", a point cap, or a fixed reviewer model. Keep what still applies. Ask about each conflict in the question batch.
-- **Work outside the definition of done:** tickets the launch does not need (tooling, flaky tests, lint, follow-ups). They do not belong in this project. Propose moving them to another project of the same team, creating one (for example "<team> — Maintenance") if none fits, with a comment on each.
+- **Work outside the definition of done:** tickets the launch does not need (tooling, flaky tests, lint, follow-ups). They do not belong in this project. Propose, in the question batch, which project of the same team they move to, or a new one (for example "<team> — Maintenance") if none fits. Move them only after the user approves, with a comment on each. Release-check tickets the user tracks stay in the project.
 - **Dates:** deadlines or a season that limits the schedule. Put them in Constraints, and say in the question batch if the plan cannot fit them.
 
 ## Step 3: Draft the change plan
@@ -92,7 +92,7 @@ Prefer **patches over rewrites**. When a ticket mostly meets the standard, chang
 1. **Preserve the old text.** Before you change a ticket's description, add a comment to it that contains the old description in full, under a heading such as "Description before the fleet refresh (<date>)". Do the same for the project description, as a project document or a project update. If that comment already exists, the ticket was refreshed before: compare, and do not save it twice.
 2. **Rewrite the project description** with the new intent brief.
 3. **Rewrite tickets** to the ticket template. Keep the ID, assignee, comments, attachments, and links. Update the title to the outcome when the old title was a task. Move post-merge criteria to the intent brief's release checks.
-4. **Merge** each sliver: fold its requirements and criteria into the surviving ticket, move its blocker links to the survivor, then mark it a duplicate of the survivor. If the duplicate link does not appear on read-back, cancel the ticket with a comment that names the survivor instead. Never delete a ticket.
+4. **Merge** each sliver: fold its requirements and criteria into the surviving ticket, move its blocker links to the survivor, then mark it a duplicate of the survivor. If the duplicate link does not appear on read-back, first move the sliver's blocker links to the survivor and read them back, then cancel the sliver with a comment that names the survivor and says the duplicate link could not be created. If a dependent still points at the sliver and cannot be relinked, ask the user instead of canceling. Never delete a ticket.
 5. **Split** and **create** tickets, parented to the project, with labels and estimates.
 6. **Relations:** add missing blocker links and fix reversed ones. Remove a link only when it is clearly wrong, and say so in the ticket's comment. Confirm there is no cycle.
 7. **Labels:** create the t3-fleet group only if it does not exist, at the workspace or top-most parent team, as `fleet-plan` Step 7 describes. Add and remove individual labels; never replace a ticket's whole label set, so unrelated labels survive.
@@ -102,12 +102,14 @@ Prefer **patches over rewrites**. When a ticket mostly meets the standard, chang
 
 Run this skill again whenever a refreshed project may have drifted. The saved-description comments show which tickets were refreshed before; do not save them twice. Compare the project with its approved state and fix only the drift:
 
-- **Tickets that entered the run:** moved out of Backlog, or created since the `Approved:` date. Refresh them to the standard, or move them out of the project if the definition of done does not need them.
-- **Tickets that left the run or finished:** merged, canceled, or moved. Update notes in the brief that mention them (for example "has an open PR"), and the dependency graph.
+- **The approved run** is the set of tickets in the brief's dependency graph. The **current run** uses `project-run`'s rule: tickets in a not-started or started state, minus Backlog, Done, canceled, and duplicate tickets and those under Release checks.
+- **Tickets that entered the run:** in the current run but not the approved one. Refresh them to the standard, or propose moving them out of the project if the definition of done does not need them.
+- **Tickets that finished:** Done since approval. This is progress, not a scope change. Update notes in the brief that mention them (for example "has an open PR").
+- **Tickets that left the run unfinished:** in the approved run, not Done, and no longer in the current run (moved, canceled, or back in Backlog).
 - **Prerequisites still open:** report them; they block `project-run`.
 - **Writes that never applied:** read back the links, states, and labels the last refresh set.
 
-Scope changes (tickets added to or removed from the run) need the user's approval in the question batch; then set `Approved:` to the new date. Fixes that only restore the approved plan do not.
+A **scope change** adds a ticket to the run, removes an unfinished ticket from it, or changes a ticket's outcome or acceptance criteria. It needs the user's approval in the question batch; then update the dependency graph and set `Approved:` to the new date. Finished tickets, and fixes that only restore the approved plan, do not.
 
 ## Step 6: Readiness gate
 
