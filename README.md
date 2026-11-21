@@ -20,7 +20,7 @@
   <a href="LICENSE"><img src="https://img.shields.io/github/license/FantasticDevHQ/t3-linear-fleet?style=flat-square" alt="License" /></a>
 </p>
 
-<p align="center"><a href="#quick-start">Quick start</a> · <a href="#how-i-work">How I work</a> · <a href="#how-it-works">How it works</a> · <a href="#why-it-works-this-way">Why</a> · <a href="#linear-setup">Linear setup</a> · <a href="#skills">Skills</a></p>
+<p align="center"><a href="#quick-start">Quick start</a> · <a href="#how-i-work">How I work</a> · <a href="#how-it-works">How it works</a> · <a href="#why-it-works-this-way">Why</a> · <a href="#linear-setup">Linear setup</a> · <a href="#usage">Usage</a> · <a href="#skills">Skills</a></p>
 
 ---
 
@@ -184,6 +184,65 @@ Two Linear settings cannot be changed through the API, so `fleet-setup` walks yo
 Your repository's CI must also run on pull requests into `feat/**` and on pushes to `feat/**`, not only on the default branch. `fleet-refresh` plans this as a prerequisite, and `fleet-run` checks it before it starts.
 
 See [Linear's GitHub integration docs](https://linear.app/docs/github) for details.
+
+## Usage
+
+Each skill runs from a prompt in your agent (in T3 Code for `fleet-run`). Slash forms work in agents that support them; plain sentences work everywhere.
+
+**First time: set up and rate your models**
+
+```text
+/fleet-setup
+```
+
+Checks Linear, T3 Code, and GitHub access, creates the `t3-fleet` labels, and asks you once to confirm ratings for your favorite models. Run it again any time something seems off. To change a rating later: "reclassify my models" (`fleet-models`).
+
+**Plan a new feature**
+
+```text
+/fleet-plan Members can bulk-archive from the members table
+```
+
+The planner reads the code, writes the intent brief and tickets, has a fresh agent cold-read them, and asks you every question in one batch. It creates the Linear project only after you approve.
+
+**Bring an existing Linear project up to the standard**
+
+```text
+/fleet-refresh https://linear.app/acme/project/billing-export-1a2b3c4d5e6f
+```
+
+Audits the project, shows a change plan (what it keeps, rewrites, merges, moves out, or adds), asks you once, and patches the tickets in place. Run it again later to catch drift since approval.
+
+**Build it**
+
+```text
+/fleet-run https://linear.app/acme/project/billing-export-1a2b3c4d5e6f
+```
+
+The orchestrator checks your machines and the plan, creates `feat/billing-export`, dispatches tickets as their blockers merge, gets each one reviewed and green, and ends with a feature PR and an evidence packet for you to review. Limits and overrides go in the same request:
+
+```text
+/fleet-run <project URL> — max 4 workers, fix budget 2
+/fleet-run <project URL> — everything on Codex
+/fleet-run <project URL> — max effort for ENG-42
+```
+
+**Reviews on demand**
+
+```text
+/fleet-review https://github.com/acme/app/pull/123
+/fleet-panel-review the plan in https://linear.app/acme/project/billing-export-1a2b3c4d5e6f
+```
+
+`fleet-review` gets an independent review from a different provider than the one that wrote the code. `fleet-panel-review` asks three flagship models from three providers for scored verdicts on a plan or a large feature.
+
+**Build one ticket yourself**
+
+```text
+/fleet-worker ENG-123
+```
+
+Builds a single ticket to the worker contract: the smallest change, proof for every criterion, one PR, and a report line. Useful outside a run.
 
 ## Skills
 
