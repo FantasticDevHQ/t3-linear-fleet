@@ -4,6 +4,7 @@
   "skills": [
     "./skills/fleet-models",
     "./skills/fleet-plan",
+    "./skills/fleet-setup",
     "./skills/panel-review",
     "./skills/pr-gate",
     "./skills/project-refresh",

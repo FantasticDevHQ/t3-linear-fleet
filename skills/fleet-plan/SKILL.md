@@ -3,7 +3,7 @@ name: fleet-plan
 description: "Plan a feature as a Linear project that the T3 Linear Fleet (project-run) can build unattended. Researches the codebase, writes an intent brief (problem, users, definition of done, non-goals, decisions), drafts the fewest reviewable tickets with EARS requirements and traceable acceptance criteria that can be proven inside the PR before merge, has a fresh agent cold-read them, asks the user every open question in one batch with recommended defaults, and only creates the tickets once a readiness gate passes. Use when the user wants to plan a feature for the fleet, for project-run, or for parallel agents in T3 Code, or asks for fleet-plan by name. Works with the Linear MCP or linear-cli, or as drafts."
 metadata:
   author: kellykampen
-  version: "3.1.0"
+  version: "3.1.2"
 ---
 
 # Fleet Plan
@@ -180,7 +180,7 @@ Ask the user **once**, in a single batch, through your harness's question tool (
 
 1. **Decisions needed**, each with your recommended default first, grounded in what you found in Step 1.
 2. **Assumptions** you will make unless the user objects.
-3. **Non-code checklist**, which causes most unattended stalls: credentials and external accounts, secrets in the project's secrets manager, seed or fixture data, design assets, copy and wording, feature flags, preview-deploy and sandbox availability.
+3. **Non-code checklist**, which causes most unattended stalls. If the **t3-fleet** label group does not exist yet, include where to create it (workspace or top-most parent team, per `fleet-setup` Step 3) here, so Step 7 needs no new question. Also include any question `fleet-models` needs. The rest: credentials and external accounts, secrets in the project's secrets manager, seed or fixture data, design assets, copy and wording, feature flags, preview-deploy and sandbox availability.
 
 Put full context in each question so it reads on its own. Fold every answer into the intent brief's Decisions and the affected tickets. Ask a follow-up only when an answer opens a genuinely new product decision.
 
@@ -218,7 +218,7 @@ Labels: discover before you create.
 
 1. Read the team hierarchy, and the issue-label catalog with each label's owning team, parent group, and `inheritedFrom`. Follow every page. Project labels are a separate catalog and do not label issues.
 2. Reuse workspace and inherited parent-team labels. Do not create a local variant such as `platform:cli` when an applicable workspace `cli` exists. A child team's copy with `inheritedFrom` set is an inherited definition, not a duplicate.
-3. If the **t3-fleet** group does not exist yet, create it once at the workspace (when unrelated teams will use the fleet) or at the top-most parent team (when only that parent's teams will), as a multi-select group with the four labels above. Never create it on a leaf team. If a team-local copy already exists, tell the user and use it rather than adding another.
+3. If the **t3-fleet** group does not exist yet, create it with `fleet-setup` Step 3 (multi-select, at the workspace or the top-most parent team, never on a leaf team), using the placement decided in Step 5. If a copy exists on a team that has a parent, do not use it and do not add another: report it to the user as `fleet-setup` does, and leave the tickets' t3-fleet labels unset until it is fixed.
 4. A catalog read can miss labels that belong to other teams' label groups. Read each relevant team's labels with the team filter, ask for groups too, and treat a name-clash error on create as the final check.
 5. Verify labels and a provisional estimate on every ticket you create or revise.
 
