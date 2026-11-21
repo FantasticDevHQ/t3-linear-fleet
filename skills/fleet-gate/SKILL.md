@@ -3,7 +3,7 @@ name: fleet-gate
 description: "Merge gates and PR event handling for a feature built by parallel agents. Defines when a ticket PR may merge into the feature's integration branch, when the final PR to the default branch is ready for the human (agents never merge it), how to watch PRs without polling (one watcher per PR, owned by the thread that owns the PR, never by delegated children), how to route failures back to the owning worker, how to recheck when the base moved under a PR, and how to freeze merges when integration CI goes red. Use when merging or watching PRs in the fleet workflow, deciding whether a PR is ready, handling a red integration branch, or acting as the orchestrator for a Linear project."
 metadata:
   author: kellykampen
-  version: "2.0.0"
+  version: "2.1.0"
 ---
 
 # Fleet Gate
@@ -16,6 +16,8 @@ A feature has two kinds of PRs:
 The thread that owns a PR decides on it. A watcher wake-up is news, not a decision: always check the gate yourself on the latest head before you act.
 
 ## Ticket gate
+
+A **stacked** ticket PR (its base is another ticket's branch) never merges while that base is unmerged: merge the bottom PR first (`gh stack merge <bottom PR> --yes --squash`), rebase the stacked one onto the integration branch, then run this gate on it.
 
 Merge a ticket PR into the integration branch only when **all** of these are true on its **latest head commit**:
 

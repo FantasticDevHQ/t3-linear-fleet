@@ -3,7 +3,7 @@ name: fleet-worker
 description: "The contract a worker agent follows for one Linear ticket in a parallel-agent fleet. Reads the intent brief and decisions, restates the intent, makes the smallest change that meets the acceptance criteria, proves each criterion with evidence it observed, commits with Linear magic words, pushes, opens or updates one PR into the feature's integration branch, and ends with a fixed report line. Handles first attempts, fix tasks, and takeovers. Escalates costly decisions in its report instead of asking the user. Use when an orchestrator hands you a ticket, when asked to work or build a specific Linear ticket, or when acting as a worker in a fleet."
 metadata:
   author: kellykampen
-  version: "2.0.1"
+  version: "2.1.0"
 ---
 
 # Fleet Worker
@@ -35,6 +35,7 @@ Read the repository's agent instructions (`AGENTS.md`, `CLAUDE.md`, or similar) 
 Work in your own checkout. Never share a working tree with another agent.
 
 - **First attempt:** fetch, then create your branch from the latest integration branch tip, using Linear's branch name for the ticket (it contains the ticket ID).
+- **Stacked attempt** (the brief names a **PR base**, another ticket's branch): create your branch from that branch's tip instead, and open your PR into that branch, not the integration branch. The orchestrator links and later retargets it.
 - **Fix task or takeover:** continue the **existing** branch. Another worktree may still have it checked out, so do not check it out by name:
 
   ```sh

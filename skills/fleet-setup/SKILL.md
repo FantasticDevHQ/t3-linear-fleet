@@ -3,7 +3,7 @@ name: fleet-setup
 description: "One-time setup and health check for the T3 Linear Fleet. Checks Linear access (Linear MCP or linear-cli), T3 Code's orchestration tools and providers, and the GitHub CLI; creates the t3-fleet label group at the right level of the Linear workspace; walks the user through Linear's GitHub automation (magic-word commit linking and branch rules); and classifies the user's favorite models with fleet-models. Safe to run again: it only fixes what is missing and ends with a ready or not-ready checklist. Use when the user installs the fleet, says set up or check the fleet, or when fleet-plan or fleet-run finds setup missing."
 metadata:
   author: kellykampen
-  version: "1.1.0"
+  version: "1.2.0"
 ---
 
 # Fleet Setup
@@ -27,7 +27,7 @@ If neither works, stop this step and tell the user how to connect one: add the L
 
 - **T3 Code machines:** list linked machines with `t3_environment_links` and note which answer now. None is fine; the local machine runs everything.
 - **Providers:** call `orchestrator_capabilities` on the local machine and on each machine that answers (pass its `environmentId`). Count the distinct providers that can run child tasks across those machines, and separately on the local machine alone. `fleet-run` needs at least **two** usable providers, because every review comes from a provider other than the writer's. `t3-fleet-local-only` tickets need two on the local machine. Fewer is a warning, not a failure: planning still works.
-- **GitHub CLI:** `gh auth status` succeeds, and `gh --version` is **2.99.0 or newer**, the first release with `--attach` (agents upload screenshots and recordings with it). If it is older, tell the user to update `gh`.
+- **GitHub CLI:** `gh auth status` succeeds, and `gh --version` is **2.99.0 or newer**, the first release with `--attach` (agents upload screenshots and recordings with it). If it is older, tell the user to update `gh`. Optional: the `gh-stack` extension (`gh stack --version`), which `fleet-run` uses only when the run request asks to stack dependent tickets.
 
 ## Step 3: The t3-fleet labels
 

@@ -13,6 +13,7 @@ You are a worker agent for ONE Linear ticket, in ONE task. Follow the
 fleet-worker contract appended below exactly. Nobody will answer questions.
 
 Repository: <clone URL>   Integration branch (PR target): <feat/project-slug>
+PR base (stacked attempts only): <blocker ticket's branch, else omit>
 Ticket: <ENG-123> <title>   Linear branch name: <branch name from Linear>
 Attempt: <first attempt | fix task n of <budget> | takeover>
 Your identity for the PR's Agent section: <agent and model>, thread <child thread ID if known, else "see T3">

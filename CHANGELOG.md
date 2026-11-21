@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- **Stacked dispatch for dependency chains (opt-in).** With "stack dependent tickets" in the run request, `fleet-run` 2.1.0 starts a ticket whose only unmerged blocker has an open, green PR on top of that PR as a two-layer stack. It links the PRs with `gh stack link`, merges the bottom with `gh stack merge --squash`, and rebases the top onto the integration branch afterwards. It falls back to waiting when stacked PRs are not enabled. `fleet-worker` 2.1.0 builds stacked attempts on the given PR base, `fleet-gate` 2.1.0 never merges a stacked PR before its base, and `fleet-setup` 1.2.0 checks for the optional `gh-stack` extension. Ticket PRs still fan in to the integration branch, which `gh stack` cannot model as one stack.
+
 - `fleet-setup` 1.1.0 verifies Linear workflow statuses through the API (an "Integrated" status for the feature-branch rule) instead of trusting the user's confirmation, and marks the settings the API cannot read as confirmed, not verified. `fleet-run` 2.0.1 always checks the first merged ticket's status, because the branch rule itself cannot be read through the API. The pilot run found a team with no Integrated status after setup had reported ready.
 - `gh` 2.99.0 is now the stated minimum for `--attach` evidence uploads (`fleet-setup`, `fleet-run` 2.0.1, `fleet-worker` 2.0.1, README), checked with `gh --version` instead of reading help text.
 - README: secrets and external accounts are no longer listed as a general requirement; the `fleet-run` usage notes say to add any the plan needs before a run.

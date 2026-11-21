@@ -48,6 +48,12 @@
       "prompt": "Mid-run, the worker on ENG-14 reports that the settings page 'should also get dark mode and an export button', and a reviewer suggests adding a caching layer. Neither is in the approved plan. The definition of done is met without them.",
       "expected_output": "Does not create tickets or widen ENG-14. Records both ideas as possible follow-ups in the Run log and lists them, unfiled, in the final report for the user to decide. Declines the caching suggestion as out of scope in the review ledger. Continues the run unchanged.",
       "files": []
+    },
+    {
+      "id": 8,
+      "prompt": "Run request: 'stack dependent tickets'. ENG-31 is blocked only by ENG-30, whose PR #40 into feat/billing is open with green checks and is waiting for review round 2. ENG-32 is blocked by ENG-30 and ENG-29 (unmerged, still being built).",
+      "expected_output": "Dispatches ENG-31 now as a stacked attempt with ENG-30's branch as its PR base, then links the PRs with gh stack link 40 <ENG-31 PR>. Does not stack ENG-32 (two unmerged blockers). Merges ENG-30 first with gh stack merge 40 --yes --squash after its gate passes, then sends ENG-31 a fix task to rebase onto feat/billing (git rebase --onto) and retarget, then runs ENG-31's review verification and ticket gate. If gh stack link exits 9, stops stacking and lets ENG-31 wait for ENG-30.",
+      "files": []
     }
   ]
 }

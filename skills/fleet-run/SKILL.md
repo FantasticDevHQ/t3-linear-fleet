@@ -3,7 +3,7 @@ name: fleet-run
 description: "Orchestrate a planned Linear project to a ready feature PR with no human in the loop. Checks the plan was approved, discovers machines, providers, and projects through T3 Code at run time, runs a preflight smoke test per machine, creates the integration branch, runs the foundation ticket first, then dispatches tickets to worker agents as their blockers merge, load-balanced across machines and providers. Merges through the merge gate, freezes on red CI, hands stuck tickets to fresh agents, asks the few escalations in one batch, runs a cross-provider feature review, assembles the evidence packet, and stops for the human to merge. Use when the user asks to run, execute, build, or ship a Linear project or feature with agents, or to orchestrate a fleet across machines and providers."
 metadata:
   author: kellykampen
-  version: "2.0.1"
+  version: "2.1.0"
 ---
 
 # Fleet Run
@@ -86,6 +86,13 @@ If the foundation changed a planned contract or schema, treat it as an escalatio
 ## Phase 3: Dispatch loop
 
 A ticket is **ready** when every blocker is merged into the integration branch. While ready tickets exist and capacity is free, dispatch them.
+
+**Stacked dispatch (opt-in).** Only when the run request asks for it ("stack dependent tickets"): a ticket B whose only unmerged blocker is ticket A may start before A merges, if A's PR is open, its checks are green, and no blocker or should finding is open on it. Stacks are at most two layers (`integration branch ← A ← B`).
+1. Needs the `gh-stack` extension on this machine (`gh extension install github/gh-stack`). Dispatch B with A's branch as its **PR base** (worker brief), so B's PR shows only B's diff.
+2. Link the two PRs: `gh stack link <A's PR> <B's PR>`. If it exits 9 (stacked PRs are not enabled on the repository), stop stacking for this run: B waits for A as usual, and its PR is retargeted to the integration branch.
+3. Merge A through the ticket gate with `gh stack merge <A's PR> --yes --squash`, which merges only A, the bottom layer. Never merge B before A.
+4. After A merges, or whenever A's head changes, dispatch a fix task on B: rebase onto the new base with `git rebase --onto <new base> <A's previous head>`, push, and make sure B's PR targets the integration branch once A is merged. Then B goes through its review verification round and the ticket gate like any ticket.
+5. If A gets a takeover, is stuck, or is escalated, B pauses with it.
 
 **Choose a machine.** Respect the worker limits. `t3-fleet-local-only` tickets run locally. Otherwise prefer a remote machine with free capacity, so the local machine stays free for local-only work.
 
