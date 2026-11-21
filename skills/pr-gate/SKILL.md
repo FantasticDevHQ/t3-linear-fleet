@@ -21,7 +21,7 @@ Merge a ticket PR into the integration branch only when **all** of these are tru
 
 - [ ] Every check on the PR has completed and passed, and at least one check ran. Branch protection is often configured only for the default branch, so do not rely on "required" checks alone.
 - [ ] The PR's acceptance checklist shows every criterion with a Verify result and Evidence.
-- [ ] An independent reviewer from another provider approved the latest head through `review-loop` (2 rounds for tickets labeled `t3-fleet-risky`), and no **blocker** or **should** finding is open.
+- [ ] `review-loop` ended **Approved** on the latest head: a reviewer from a provider that wrote none of the PR's commits verified every acceptance criterion, and no **blocker** or **should** finding is open. Tickets labeled `t3-fleet-risky` used the strongest reviewer.
 - [ ] Every commit carries a Linear magic word, and the PR summary declares the ticket.
 - [ ] GitHub reports the PR mergeable, and not DIRTY (conflicting).
 - [ ] The integration branch is not frozen, or this is a **repair PR** (a fix-forward or revert during a freeze), which is exempt.

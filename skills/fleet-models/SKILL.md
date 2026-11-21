@@ -86,14 +86,14 @@ Candidates are the classified favorites that the run can reach. Choose by the ti
 
 **Ties:** spread tickets across providers so one rate limit cannot stall the run: prefer the provider with fewer tickets chosen so far, then the model ID that sorts first. Write the reason in the ticket's `Why` line.
 
-**Choosing a reviewer** (for `review-loop`): only candidates from a provider other than the one that wrote the code.
+**Choosing a reviewer** (for `review-loop`): only candidates from a provider that wrote none of the PR's commits.
 
 | Review | Choose | Effort |
 | --- | --- | --- |
 | Ordinary ticket | Intelligence 7 or more, then the highest cost score | `medium` |
 | `t3-fleet-risky` ticket, or the whole feature | The highest intelligence, then taste | `high` |
 
-If no candidate from another provider has intelligence 7 or more, use the highest one there is and note it in the review's evidence. Without ratings, apply the same rule with your own judgment.
+If no eligible candidate has intelligence 7 or more, use the highest one there is and note it in the review's evidence. **Ties:** prefer the provider with fewer reviews in this run, then the model ID that sorts first. **Without ratings:** rank eligible models by your own judgment of intelligence, then cost, apply the same rule, and say so in the review's evidence.
 
 **Closest replacement** (for `project-run`, when a ticket's model is not available): the available candidate with the smallest difference in intelligence, then in taste, then the same tie rule. If the missing model has no ratings, judge its strength from its family and tier, and pick the candidate closest to that.
 
