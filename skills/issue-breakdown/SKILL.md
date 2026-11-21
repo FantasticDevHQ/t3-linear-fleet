@@ -3,7 +3,7 @@ name: issue-breakdown
 description: "Plan a feature as a Linear project that agents can build unattended. Researches the codebase, writes an intent brief (problem, users, definition of done, non-goals, decisions), drafts the fewest reviewable tickets with EARS requirements and traceable acceptance criteria that can be proven inside the PR before merge, has a fresh agent cold-read them, asks the user every open question in one batch with recommended defaults, and only creates the tickets once a readiness gate passes. Use whenever the user wants to break down, scope, plan, or ticket a feature, epic, or initiative, write Linear issues or acceptance criteria, or prepare work for parallel agents, even if they don't say Linear. Works with the Linear MCP or linear-cli, or as drafts."
 metadata:
   author: kellykampen
-  version: "2.2.0"
+  version: "2.3.0"
 ---
 
 # Issue Breakdown
@@ -105,6 +105,11 @@ A user story ("As a <role>, I want <action>, so <result>") is a good way to writ
 
 ## Design
 <screenshot/PNG of the target, plus optional source link (UI tickets only)>
+
+## Fleet
+- Model: <model ID, exactly as T3 Code lists it, e.g. claude-fable-5-2>
+- Effort: <low | medium | high | xhigh | max>
+- Why: <optional: one line on why this model and effort>
 ```
 
 Plus, as Linear fields: parent project, labels (an area and a type, from the team's existing labels), estimate, and **blocker links** for every real dependency.
@@ -125,6 +130,21 @@ Create the **t3-fleet** group once, at the **workspace** or the **top-most paren
 Linear label names are unique across the workspace and every team, ignoring case and group. That is why each label carries the `t3-fleet-` prefix: a plain `risky` or `foundation` often exists already on some team. If a create still fails on a name clash, report it; do not rename another team's label without asking.
 
 Describe **what**, not **how**. Name decisions already made; leave the implementation to the agent. A ticket that dictates files, functions, and patterns invites both over-engineering and wrong guesses about the codebase.
+
+### Model and effort
+
+Every ticket says which model builds it and how hard that model thinks, in its **Fleet** section. `Model` and `Effort` are required; `Why` is optional. The section is plain text, so the user changes a ticket's model by editing one line. `project-run` reads it and checks it at preflight.
+
+1. **Get the candidate models.** Use the user's favorite models in T3 Code: the `favorites` list (`[{provider, model}]`) in T3 Code's settings file on the planning machine, usually `~/.t3/userdata/settings.json`. Drop favorites whose provider is disabled in `orchestrator_capabilities`. If no favorites remain (no settings file, an empty list, or every provider disabled), use every model `orchestrator_capabilities` lists. Outside T3 Code, ask for the candidate models in the question batch (Step 5).
+2. **Choose per ticket.** If a model-classification skill is installed (for example `model-classifier`), use it to choose among the candidates. Otherwise weigh, in this order, **intelligence, then taste, then cost**:
+   - Mechanical, fully specified work: the cheapest capable candidate, `low` or `medium`.
+   - Ordinary work: the everyday workhorse candidate, `medium`.
+   - User-facing UI, copy, or API design: a candidate with strong design judgment, `medium` or `high`.
+   - `t3-fleet-foundation`, `t3-fleet-risky`, or genuinely novel work: the strongest candidate, `high` or `xhigh`. Keep `max` for the few tickets where being wrong is expensive and hard to detect.
+   - Spread similar tickets across providers when candidates are equal, so one rate limit does not stall the run.
+3. **Effort** is one of five levels: `low`, `medium`, `high`, `xhigh`, `max`. `project-run` maps it to each provider's own option. Special modes (for example "ultra" or "ultrathink") are never set here; the user asks for them in the run request.
+
+Use the model ID exactly as `orchestrator_capabilities` lists it. Do not name a provider: the same model often runs under several, and `project-run` picks one that has capacity.
 
 ### Acceptance criteria that can be proven before merge
 
@@ -181,6 +201,7 @@ Do not create tickets in Linear until every box is checked. Show the user the br
 - [ ] Every criterion has a Verify that runs on the PR and an Evidence that CI or a preview produces. None depends on production, "after deploy," real users, time windows, dashboards, or another ticket merging.
 - [ ] Post-release checks are in the brief's Release checks, not in tickets.
 - [ ] Dependencies are blocker links, and they form no cycle. Shared groundwork is in a ticket labeled `t3-fleet-foundation`.
+- [ ] Every ticket has a Fleet section with a `Model` from the candidate models and an `Effort` from `low`, `medium`, `high`, `xhigh`, `max`.
 - [ ] t3-fleet labels are set where they apply (`t3-fleet-foundation`, `t3-fleet-local-only`, `t3-fleet-schema-change`, `t3-fleet-risky`).
 - [ ] UI tickets have a design screenshot attached.
 - [ ] Risky steps carry WARNING or CAUTION, and every WARNING decision is settled.
