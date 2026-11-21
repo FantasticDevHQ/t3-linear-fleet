@@ -135,7 +135,7 @@ Describe **what**, not **how**. Name decisions already made; leave the implement
 
 Every ticket says which model builds it and how hard that model thinks, in its **Fleet** section. `Model` and `Effort` are required; `Why` is optional. The section is plain text, so the user changes a ticket's model by editing one line. `project-run` reads it and checks it at preflight.
 
-1. **Get the candidate models.** Use the user's favorite models in T3 Code: the `favorites` list (`[{provider, model}]`) in T3 Code's settings file on the planning machine, usually `~/.t3/userdata/settings.json`. Drop favorites whose provider is disabled in `orchestrator_capabilities`. If there is no settings file or no favorites, use every model `orchestrator_capabilities` lists. Outside T3 Code, ask for the candidate models in the question batch (Step 5).
+1. **Get the candidate models.** Use the user's favorite models in T3 Code: the `favorites` list (`[{provider, model}]`) in T3 Code's settings file on the planning machine, usually `~/.t3/userdata/settings.json`. Drop favorites whose provider is disabled in `orchestrator_capabilities`. If no favorites remain (no settings file, an empty list, or every provider disabled), use every model `orchestrator_capabilities` lists. Outside T3 Code, ask for the candidate models in the question batch (Step 5).
 2. **Choose per ticket.** If a model-classification skill is installed (for example `model-classifier`), use it to choose among the candidates. Otherwise weigh, in this order, **intelligence, then taste, then cost**:
    - Mechanical, fully specified work: the cheapest capable candidate, `low` or `medium`.
    - Ordinary work: the everyday workhorse candidate, `medium`.
