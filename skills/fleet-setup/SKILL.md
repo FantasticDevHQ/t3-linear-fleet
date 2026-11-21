@@ -67,9 +67,10 @@ End with one checklist, each line **ready**, **fixed now**, or **needs you** (wi
 ```text
 Linear access           ready (Linear MCP)
 T3 Code providers       ready (3 providers can run child tasks)
-GitHub CLI              ready (--attach available)
+GitHub CLI              ready (gh 2.100.0, --attach available)
 t3-fleet labels         fixed now (created at the workspace)
-GitHub automation       needs you: turn on magic-word linking for team WEB
+GitHub automation       confirmed, not verified (WEB has an Integrated status; fleet-run checks the first merge)
+GitHub automation       needs you: add an Integrated status to team OPS (or confirm "no action")
 Models                  ready (5 favorites classified)
 ```
 
