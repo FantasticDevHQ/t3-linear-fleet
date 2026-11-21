@@ -208,14 +208,19 @@ function uiEvidenceErrors(text, files) {
   const video = text.match(
     /^\s*(?:[-*]\s*)?Video:[^\n]*?(https:\/\/[^\s)<>]+)/im,
   )?.[1];
+  // GitHub attachment uploads, or GitHub Actions artifacts (for example
+  // recordings from an end-to-end job), which headless agents can produce.
   const uploaded = (url) =>
     !!url &&
-    /^https:\/\/(github\.com\/user-attachments\/assets\/|(?:user-images|private-user-images)\.githubusercontent\.com\/)[^\s]+$/.test(
+    (/^https:\/\/(github\.com\/user-attachments\/assets\/|(?:user-images|private-user-images)\.githubusercontent\.com\/)[^\s]+$/.test(
       url,
-    );
+    ) ||
+      /^https:\/\/github\.com\/[\w.-]+\/[\w.-]+\/actions\/runs\/\d+\/artifacts\/\d+$/.test(
+        url,
+      ));
   if (!uploaded(screenshot) && !uploaded(video))
     errors.push(
-      "UI changes require screenshots and/or video uploaded through GitHub attachments. In Evidence, include `Screenshot: ![description](https://github.com/user-attachments/assets/...)` and/or `Video: https://github.com/user-attachments/assets/...`. At least one is required.",
+      "UI changes require screenshots and/or video uploaded through GitHub attachments, or a GitHub Actions artifact. In Evidence, include `Screenshot: ![description](https://github.com/user-attachments/assets/...)` and/or `Video: https://github.com/user-attachments/assets/...` (or `Video: https://github.com/<owner>/<repo>/actions/runs/<run>/artifacts/<id>`). At least one is required.",
     );
   return errors;
 }

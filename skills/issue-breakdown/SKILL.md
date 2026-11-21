@@ -3,7 +3,7 @@ name: issue-breakdown
 description: "Plan a feature as a Linear project that agents can build unattended. Researches the codebase, writes an intent brief (problem, users, definition of done, non-goals, decisions), drafts the fewest reviewable tickets with EARS requirements and traceable acceptance criteria that can be proven inside the PR before merge, has a fresh agent cold-read them, asks the user every open question in one batch with recommended defaults, and only creates the tickets once a readiness gate passes. Use whenever the user wants to break down, scope, plan, or ticket a feature, epic, or initiative, write Linear issues or acceptance criteria, or prepare work for parallel agents, even if they don't say Linear. Works with the Linear MCP or linear-cli, or as drafts."
 metadata:
   author: kellykampen
-  version: "2.0.0"
+  version: "2.1.0"
 ---
 
 # Issue Breakdown
@@ -107,7 +107,20 @@ A user story ("As a <role>, I want <action>, so <result>") is a good way to writ
 <screenshot/PNG of the target, plus optional source link (UI tickets only)>
 ```
 
-Plus, as Linear fields: parent project, labels (`area:<domain>` and a type), estimate, and **blocker links** for every real dependency.
+Plus, as Linear fields: parent project, labels (an area and a type, from the team's existing labels), estimate, and **blocker links** for every real dependency.
+
+### Fleet labels
+
+The orchestrator reads these labels to schedule the work, so set them on every ticket they apply to. They belong to one multi-select label group named **Fleet**:
+
+| Label | Set it when |
+| --- | --- |
+| `foundation` | The ticket is shared groundwork that other tickets build on (schema, contracts, dependencies, registry stubs, spikes). |
+| `local-only` | The ticket needs something only the user's local machine has: a device, simulator, local service, or local credential. |
+| `schema-change` | The ticket changes the database schema after the foundation. These run one at a time. |
+| `risky` | The ticket touches security, permissions, auth, data, money, migrations, or concurrency, or has a WARNING step. It gets a cross-provider review before merge. |
+
+Create the **Fleet** group once, at the **workspace** or the **top-most parent team**, so every team below inherits it. Never create it, or any of its labels, on a leaf team. See Step 7.
 
 Describe **what**, not **how**. Name decisions already made; leave the implementation to the agent. A ticket that dictates files, functions, and patterns invites both over-engineering and wrong guesses about the codebase.
 
@@ -156,7 +169,7 @@ Put full context in each question so it reads on its own. Fold every answer into
 
 ## Step 6: Readiness gate
 
-Do not create tickets in Linear until every box is checked. Show the user the brief and ticket list for one approval.
+Do not create tickets in Linear until every box is checked. Show the user the brief and ticket list for one approval, as part of the question batch or right after it. When they approve, add `Approved: <date>` at the end of the intent brief. The orchestrator will not start without that line.
 
 - [ ] The intent brief has a problem, users, a definition of done, non-goals, constraints, and decisions.
 - [ ] No product decision is unresolved. Every cold-read guess is answered or explicitly delegated to the agent as a reversible choice.
@@ -165,7 +178,8 @@ Do not create tickets in Linear until every box is checked. Show the user the br
 - [ ] Traceability has no gaps: every REQ has at least one tagged criterion, and every criterion's Verify names its test or check.
 - [ ] Every criterion has a Verify that runs on the PR and an Evidence that CI or a preview produces. None depends on production, "after deploy," real users, time windows, dashboards, or another ticket merging.
 - [ ] Post-release checks are in the brief's Release checks, not in tickets.
-- [ ] Dependencies are blocker links. Shared groundwork is in a foundation ticket.
+- [ ] Dependencies are blocker links, and they form no cycle. Shared groundwork is in a ticket labeled `foundation`.
+- [ ] Fleet labels are set where they apply (`foundation`, `local-only`, `schema-change`, `risky`).
 - [ ] UI tickets have a design screenshot attached.
 - [ ] Risky steps carry WARNING or CAUTION, and every WARNING decision is settled.
 - [ ] The intent brief has the Mermaid dependency flowchart.
@@ -182,7 +196,12 @@ Order matters:
 4. Link **project-level dependencies** to the other projects this builds on.
 5. If the user gave an execution order, set the project's visible issue order to match. Blocker links do not reorder rows, and priority is not an ordering tool.
 
-Labels: inspect the workspace and inherited team label catalog first and reuse existing labels. Do not create local duplicates such as `platform:cli` when a workspace `cli` exists. Project labels are a separate catalog. Verify labels and a provisional estimate on every ticket you create or revise.
+Labels: discover before you create.
+
+1. Read the team hierarchy, and the issue-label catalog with each label's owning team, parent group, and `inheritedFrom`. Follow every page. Project labels are a separate catalog and do not label issues.
+2. Reuse workspace and inherited parent-team labels. Do not create a local variant such as `platform:cli` when an applicable workspace `cli` exists. A child team's copy with `inheritedFrom` set is an inherited definition, not a duplicate.
+3. If the **Fleet** group does not exist yet, create it once at the workspace (when unrelated teams will use the fleet) or at the top-most parent team (when only that parent's teams will), as a multi-select group with the four labels above. Never create it on a leaf team. If a team-local copy already exists, tell the user and use it rather than adding another.
+4. Verify labels and a provisional estimate on every ticket you create or revise.
 
 Tool notes for `linear-cli`, including project relations and the description-body pitfall, are in [references/linear-cli.md](references/linear-cli.md). With the Linear MCP or another client, map the same fields.
 

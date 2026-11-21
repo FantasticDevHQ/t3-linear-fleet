@@ -2,6 +2,25 @@
 
 ## Unreleased
 
+- Council review fixes (four cross-provider reviewers):
+  - `project-run` 1.1.0:
+    - No config file. Machines, providers, and per-machine projects are discovered through T3 Code at run time, and limits are set in the run request.
+    - Preflight adds a smoke test per machine and checks CI and previews on `feat/**`, the evidence upload path, and the Linear branch rule.
+    - The feature PR opens after the foundation merges.
+    - Every attempt gets a unique `clientRequestId`, and a one-time `schedule_task` wake-up catches hung workers.
+    - The orchestrator owns fix cycles. Escalations are batched only when nothing else can run.
+  - `ticket-worker` 1.1.0: one-shot attempts that always push. Fix tasks and takeovers continue the existing branch without checking it out by name. The PR follows the repo format. It is the single canonical worker contract; the worker brief now appends it instead of repeating it.
+  - `pr-gate` 1.1.0:
+    - The ticket gate requires completed checks.
+    - Squash messages are explicit.
+    - Repair PRs are exempt from the freeze.
+    - Evidence matches the feature type, and the feature PR is watched.
+  - `review-loop` 1.1.0: 2 rounds for risky tickets; "stuck" means an unresolved dispute; the brief works on remote machines.
+  - `issue-breakdown` 2.1.0:
+    - The Fleet label group (`foundation`, `local-only`, `schema-change`, `risky`) at the workspace or top-most parent team.
+    - An `Approved:` line and a cycle check.
+    - A trimmed `linear-cli` reference with personal names removed.
+  - The PR standard accepts GitHub Actions artifact links as UI evidence.
 - `project-run` 1.0.0: the orchestrator. It runs preflight, creates the integration branch and a draft feature PR with a Run log, runs the foundation first, dispatches tickets on blockers across T3 Code machines and providers using the fleet config, merges through `pr-gate`, freezes on red CI, hands stuck tickets to fresh agents, batches escalations, runs the feature review and evidence agent, and stops for the human. Includes the worker brief, evidence packet, and example fleet config.
 - `ticket-worker` 1.0.0: the brief a worker agent follows, from the intent restatement to a merged, green PR, with escalation to the orchestrator and a fixed final report line.
 - `pr-gate` 1.0.0: the ticket and final merge gates, PR watching without polling, event routing, and the freeze on a red integration branch.

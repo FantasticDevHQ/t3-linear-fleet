@@ -1,12 +1,17 @@
 # Evidence packet template
 
-Write this into the feature PR description, inside the repository's PR format (its Evidence section, or right after the summary when the format allows). Order matters: the human should be able to verify the core behavior and every consequential decision in about five minutes.
+Write this into the feature PR description, inside the repository's PR format: use `###` subheadings inside its Evidence section, and never add top-level headings the format does not define. Order matters: the human should be able to verify the core behavior and every consequential decision in about five minutes.
 
 ```markdown
 ### 1. See it work
+User-facing feature:
 - Video: <recording of the definition of done, end to end, on the preview deploy, made by an agent that did not write the code>
 - Preview: <preview deploy URL>
-- Reviewed head: <sha>
+
+Backend feature:
+- <fenced command, API, or test transcripts that prove each part of the definition of done>
+
+- Reviewed head: <sha> (all evidence was captured on this head)
 
 ### 2. Decisions made for you
 | Decision | Reason | Ticket |

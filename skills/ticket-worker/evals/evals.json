@@ -15,20 +15,20 @@
     },
     {
       "id": 2,
-      "prompt": "Worker on ENG-145. CI failed three times after three fix attempts on the same integration test.",
-      "expected_output": "Stops at the 3-cycle fix budget, reports blocked with what was tried, and ends with the exact line 'PR <url>, head <sha>, checks failing'. Does not keep looping or retry a flake more than once.",
+      "prompt": "FIX TASK on PR #57, branch kellykampen/eng-145-search-filters. Fix only this: the integration test 'filters by date' fails (log link attached). This is fix task 2 of 3. Another worktree on this machine may still have the branch checked out.",
+      "expected_output": "Does not check the branch out by name. Fetches, detaches at origin/<branch>, fixes only the listed failure, rebases onto origin/<branch>, runs the fast check, and pushes with git push origin HEAD:<branch>. Ends with the exact report line. Does not count or manage the fix budget itself; the orchestrator does.",
       "files": []
     },
     {
       "id": 3,
       "prompt": "Worker on ENG-77. The ticket needs a migration that drops a column; the ticket marks it WARNING but no decision was recorded on keeping a backup.",
-      "expected_output": "Treats the WARNING step without a recorded decision as a costly decision and escalates it to the orchestrator instead of deciding. Does not touch production data.",
+      "expected_output": "Treats the WARNING step without a recorded decision as a costly decision. Finishes and pushes the parts that do not depend on it, then reports an ESCALATION block in its final message and ends. Never asks the user and does not touch production data.",
       "files": []
     },
     {
       "id": 4,
       "prompt": "You finished ENG-90: tests pass locally and the PR is open. Report back.",
-      "expected_output": "Gives a summary of criteria met with evidence, decisions, escalations, and deviations, then ends with exactly 'PR <url>, head <sha>, checks <state>' matching GitHub. Every commit has 'Fixes ENG-90' or 'Refs ENG-90' in the body, and the PR targets the integration branch, not main.",
+      "expected_output": "Gives a summary of criteria met with evidence, decisions, escalations, and deviations, then ends with exactly 'PR <url>, head <sha>, checks <state>' matching GitHub. Every commit has 'Fixes ENG-90' or 'Refs ENG-90' in the body, the PR targets the integration branch, and it uses the repository's PR format without adding top-level headings (decisions go in subsections).",
       "files": []
     }
   ]

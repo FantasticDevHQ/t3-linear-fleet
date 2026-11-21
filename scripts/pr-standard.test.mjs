@@ -369,3 +369,27 @@ for (const newline of ["\n", "\r\n", "\r"]) {
     );
   });
 }
+
+test("accepts a GitHub Actions artifact as UI video evidence", () => {
+  const uiBody = body.replace("UI changes: No", "UI changes: Yes");
+  const withVideo = (url) =>
+    uiBody.replace("## Agent", `- Video: ${url}\n## Agent`);
+  assert.deepEqual(
+    validatePullRequest({
+      title,
+      body: withVideo("https://github.com/acme/app/actions/runs/123456/artifacts/7890"),
+    }),
+    [],
+  );
+  for (const url of [
+    "https://github.com/acme/app/actions/runs/123456",
+    "https://example.com/acme/app/actions/runs/1/artifacts/2",
+    "https://github.com/acme/app/actions/runs/abc/artifacts/2",
+  ])
+    assert.ok(
+      validatePullRequest({ title, body: withVideo(url) }).some((error) =>
+        error.includes("UI changes require"),
+      ),
+      url,
+    );
+});
