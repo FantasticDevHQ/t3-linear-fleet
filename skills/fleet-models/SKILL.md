@@ -52,16 +52,16 @@ Every rating is 1 to 9, and **higher is always better**, including cost:
 1. Read the favorites from the settings file. They alone decide `favorite: true` or `false`; provider availability does not.
 2. Read the classification file. If it does not exist, every favorite is new. If it cannot be parsed, or an entry lacks a model ID or has a rating outside 1 to 9, **do not overwrite it**: report the problem and the file's path, and treat the broken entries (or the whole file) as unclassified for now. Planning and setup may offer to reclassify in their question batch; `project-run` never asks.
 3. Compare, by model ID:
-   - **New favorites** (no entry yet) need a classification.
+   - **Favorites to classify:** those with no entry yet, and those whose entry is broken (step 2).
    - **Removed favorites** get `"favorite": false`. Keep their ratings in case they come back.
    - A removed favorite that returns gets `"favorite": true` with its old ratings.
    - Set each entry's `providers` to the providers the settings list for that model; when the same model is a favorite under several providers, list them all.
 4. **Candidates for this run** are the favorites that are classified and offered by a usable provider in `orchestrator_capabilities` (when it is available). A favorite whose provider is disabled stays a favorite in the file; it is just not a candidate today.
-5. If nothing is new, you are done. Do not ask anything.
+5. If no favorite needs classifying, you are done. Do not ask anything.
 
-If there are no favorites at all, say so, and use every model `orchestrator_capabilities` lists as candidates for this run without saving them. Without ratings, choose among them by your own judgment of each model's intelligence, taste, and cost, in that order, and say so in the ticket's `Why`.
+**If there are no candidates** (no favorites, or none of them is classified and offered by a usable provider), say why, and use every model `orchestrator_capabilities` lists as candidates for this run, without saving them. Without ratings, choose among them by your own judgment of each model's intelligence, taste, and cost, in that order, and say so in the ticket's `Why`.
 
-## Step 2: Classify the new models (once)
+## Step 2: Classify new or broken entries (once)
 
 1. **Propose defaults** for each new model: intelligence, taste, cost, and a one-line best use. Base them on what you know about the model and its family, its public pricing, and the provider's quota. Say plainly which ratings are guesses.
 2. **Show one table** of the new models with your defaults, and the existing ones for context.

@@ -8,12 +8,25 @@ export function metadataVersion(text) {
   return metadata?.match(/^[ \t]+version:\s*"?([^"\s]+)"?\s*$/m)?.[1];
 }
 
+// The lines of the README's "## Skills" section, outside fenced code blocks.
+function skillsSection(readme) {
+  const lines = [];
+  let inSection = false;
+  let inFence = false;
+  for (const line of readme.split("\n")) {
+    if (/^```/.test(line)) inFence = !inFence;
+    else if (!inFence && /^## /.test(line)) inSection = line.trim() === "## Skills";
+    else if (inSection && !inFence) lines.push(line);
+  }
+  return lines;
+}
+
 // Returns the version shown in the README skills table row for a skill, or
-// undefined when the table has no row for it. Only a row that starts with the
-// skill's link counts; a link elsewhere in the README does not.
+// undefined when the table has no row for it. Only a row in the "## Skills"
+// section that starts with the skill's link counts.
 export function readmeVersion(readme, skill) {
   const prefix = `| [${skill}](./skills/${skill}/SKILL.md) |`;
-  const row = readme.split("\n").find((line) => line.startsWith(prefix));
+  const row = skillsSection(readme).find((line) => line.startsWith(prefix));
   if (!row) return undefined;
   return row.slice(prefix.length).match(/^\s*[^|]*?\((\d+\.\d+\.\d+)\)\s*\|/)?.[1];
 }
