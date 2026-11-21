@@ -206,8 +206,8 @@ Each ticket names its model and effort in its Fleet section.
   | `t3-fleet-foundation`, `t3-fleet-risky`, or novel work | smartest, then best taste | `high` or `xhigh` |
   | Money, security, or permanent data | smartest | `xhigh` or `max` |
 
-- **Effort levels.** `low`, `medium`, `high`, `xhigh`, `max`. Each provider names its setting differently (`effort`, `reasoningEffort`, `thought_level`, `thinking`); `fleet-run` maps the level to it, or to the nearest lower level the model offers. Special modes such as "ultra" or "ultrathink" are used only if you ask for them in the run request.
-- **Reviewers.** Every ticket is reviewed by a model from a provider that wrote none of its code: a capable, inexpensive one (intelligence 7+, then cheapest) for ordinary tickets, the strongest one for risky tickets and the whole feature.
+- **Effort levels.** `low`, `medium`, `high`, `xhigh`, `max`. Each provider names its setting differently (`effort`, `reasoningEffort`, `thought_level`, `thinking`); `fleet-run` maps the level to it, or to the nearest lower level the model offers (the lowest one if none is lower). A model with no effort setting runs without one. Special modes such as "ultra" or "ultrathink" are used only if you ask for them in the run request.
+- **Reviewers.** Every ticket is reviewed by a model from a provider that wrote none of its code: a capable, inexpensive one (intelligence 7+, then cheapest) for ordinary tickets, and the strongest one for risky tickets. The whole feature is reviewed by the strongest model from a provider other than the one that wrote most of it.
 - **When a model is missing.** If no machine offers a ticket's model, `fleet-run` uses the closest rated favorite and notes the swap in the Run log.
 - **Overrides.** Edit a ticket's Fleet lines, or say it in the run request: "everything on Codex", "max effort for ENG-42". The run request wins.
 
@@ -225,7 +225,7 @@ Each ticket names its model and effort in its Fleet section.
 - **Intent brief:** the Linear project's description. It states the problem, users, definition of done, non-goals, constraints, decisions, release checks, and a graph of every ticket, and ends with an `Approved:` line.
 - **Definition of done:** what a user can see or do when the feature ships. Every ticket serves part of it; nothing else is built.
 - **Integration branch:** `feat/<project>`. Ticket PRs merge here; one feature PR takes it to `main`.
-- **Run log:** the record of every attempt (worker, machine, model, PR, decisions), kept on the feature PR and in Linear comments.
+- **Run log:** the record of every attempt (worker, machine, model, PR, decisions). It starts as comments on the Linear tickets and moves to the feature PR once that PR exists.
 - **Evidence packet:** what you review at the end: a recording or transcripts of the feature working, each acceptance criterion linked to its proof, and the decisions made for you.
 - **Escalation batch:** the few questions only you can answer, asked together when nothing else can move.
 - **Release checks:** things that can only be checked after release (live services, production metrics). They never block a merge.
