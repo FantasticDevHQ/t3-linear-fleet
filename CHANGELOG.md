@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Every ticket is now verified and reviewed by an independent model from another provider before it merges, not only risky tickets. `review-loop` 1.2.0 gives ordinary tickets one round with a capable, inexpensive reviewer that checks each acceptance criterion's Verify and Evidence on the latest head, and keeps two rounds with the strongest reviewer for risky tickets. `fleet-models` 1.1.0 adds the rule for choosing a reviewer, `pr-gate` 1.2.0 requires an approved review in the ticket gate, and `project-run` 1.6.0 reviews every green ticket PR. The review brief tells reviewers that pending CI is not a finding, because the merge gate checks CI.
+
 - Lessons from re-running `/project-refresh` on an already refreshed project:
   - `project-refresh` 1.4.0 adds **Running it again**. It handles tickets that entered or left the run since approval, stale brief notes, open prerequisites, and writes that never applied. It re-approves only for scope changes. Work outside the definition of done now moves to another project instead of staying in the run. Every write is read back, and a merge whose duplicate link fails becomes a cancel with a comment.
   - `references/linear-notes.md` notes that `duplicateOf` and `relatedTo` can report success without applying, and that `list_issues` rejects some `get_issue` fields.

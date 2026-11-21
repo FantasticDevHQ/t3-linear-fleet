@@ -3,7 +3,7 @@ name: review-loop
 description: "Budgeted code review by a model from a different provider than the author. Sends a self-contained, read-only brief; grades findings blocker / should / nit; checks for bugs, missed acceptance criteria, over-engineering, weakened tests, and non-goal leakage; answers each finding with the smallest fix or a written reason; keeps a ledger; and stops on approval, budget end, or a stuck dispute. Two rounds for risky tickets, up to three for a whole feature. Use before merging a risky ticket PR, before the final feature PR, or whenever the user asks for an independent or cross-provider review loop."
 metadata:
   author: kellykampen
-  version: "1.1.0"
+  version: "1.2.0"
 ---
 
 # Review Loop
@@ -14,15 +14,16 @@ An author reviewing its own diff repeats its own blind spots. This loop gets an 
 
 | Target | Budget |
 | --- | --- |
-| **Risky ticket PR** (labeled risky in planning: security, permissions, auth, data, money, migrations, concurrency, any WARNING item) | 2 rounds before the ticket gate: one review, and one to verify the fixes |
+| **Risky ticket PR** (labeled `t3-fleet-risky` in planning: security, permissions, auth, data, money, migrations, concurrency, any WARNING item) | 2 rounds before the ticket gate, by the strongest available reviewer: one review, and one to verify the fixes |
 | **Whole feature** (the integration branch against the default branch) | Up to 3 rounds, before the final gate |
-| Ordinary ticket PRs | No review-loop. The fast check and the feature review cover them. |
+| **Every other ticket PR** | 1 round before the ticket gate, by a capable, inexpensive reviewer. Add a second round only to verify fixes for a blocker or should finding. |
 
 Extend a budget to 5 rounds only for security, data, or concurrency problems where a blocker or should finding stays open with evidence, or when the user asks. Stop early if a round returns only nits.
 
 ## Choose the reviewer
 
-- Use a model from a **different provider** than the one that wrote most of the code. In T3 Code, call `orchestrator_capabilities` and pick that provider's latest flagship model. Never hardcode a model ID.
+- Use a model from a **different provider** than the one that wrote the code under review. Choose it with `fleet-models` ("Choosing a reviewer") from the models `orchestrator_capabilities` offers: a capable, inexpensive model for ordinary tickets, and the strongest one for risky tickets and the whole feature. Never hardcode a model ID.
+- Every ticket review **verifies acceptance**: for each criterion, the reviewer checks that its Verify result and Evidence on the PR actually prove it on the latest head, then reviews the diff.
 - Start each round as a **new** read-only task: in T3 Code, `delegate_task` with a review role. Elsewhere, use your harness's subagent. Do not send review rounds as messages into an old thread.
 - **One reviewer per round.** The reviewer must not start its own subagents.
 - Do not edit the files under review while a round runs. A timeout, an error, or no reply is **not** approval.
@@ -47,7 +48,8 @@ Read the surrounding code. Find:
 - code, tests, guards, options, or abstractions the intent does not need (over-engineering);
 - tests that were weakened, skipped, or deleted compared with the base;
 - work that a non-goal excludes.
-Skip style unless it hides a bug.
+Skip style unless it hides a bug. Judge the code and the evidence on the PR. Pending or
+running CI is not a finding: the merge gate checks CI separately.
 
 Severity:
 - blocker: the intended case is wrong, a criterion is not met, or there is a security or data-loss risk.

@@ -3,7 +3,7 @@ name: project-run
 description: "Orchestrate a planned Linear project to a ready feature PR with no human in the loop. Checks the plan was approved, discovers machines, providers, and projects through T3 Code at run time, runs a preflight smoke test per machine, creates the integration branch, runs the foundation ticket first, then dispatches tickets to worker agents as their blockers merge, load-balanced across machines and providers. Merges through the merge gate, freezes on red CI, hands stuck tickets to fresh agents, asks the few escalations in one batch, runs a cross-provider feature review, assembles the evidence packet, and stops for the human to merge. Use when the user asks to run, execute, build, or ship a Linear project or feature with agents, or to orchestrate a fleet across machines and providers."
 metadata:
   author: kellykampen
-  version: "1.5.0"
+  version: "1.6.0"
 ---
 
 # Project Run
@@ -66,7 +66,7 @@ Stop and report, without starting any work, if a check fails.
    - `t3-fleet-foundation` tickets go first.
    - `t3-fleet-local-only` tickets run on the local machine.
    - `t3-fleet-schema-change` tickets after the foundation run one at a time.
-   - `t3-fleet-risky` tickets get a `review-loop` before their merge.
+   - Every ticket gets a `review-loop` round before its merge; `t3-fleet-risky` tickets get two rounds with the strongest reviewer.
    If a ticket clearly needs one of these labels and lacks it, add it and note it in the Run log.
 
 ## Phase 1: Day 0
@@ -118,7 +118,7 @@ After the **first** ticket merges into the integration branch, check its Linear 
 | --- | --- |
 | A worker reports `PR <url>, head <sha>, checks <state>` | Confirm the PR, head, and checks on GitHub; never trust the line alone. Delete its scheduled wake-up. Watch the PR (`pr-gate`). Handle any `ESCALATION` blocks it reported. |
 | A ticket PR needs a fix (failed check, conflict, accepted findings) | Dispatch a **fix task**: a new attempt on the same branch, with the failure and the worker's summary. Each fix task is one fix cycle. Count them here; workers do not. |
-| A `t3-fleet-risky` ticket PR is green | Run `review-loop` on it (2 rounds) before the ticket gate. |
+| A ticket PR is green | Run `review-loop` on it before the ticket gate: 1 round with a capable, inexpensive reviewer, or 2 rounds with the strongest reviewer for a `t3-fleet-risky` ticket. The reviewer comes from a provider other than the ticket's writer. |
 | The fix budget is spent, or a worker reports blocked | Dispatch **one takeover**, preferably on another provider. It continues the same branch and keeps the earlier commits. |
 | The takeover is blocked too | Mark the ticket blocked in Linear and the Run log, pause its dependents, put it in the escalation batch, and keep everything else moving. |
 | A scheduled wake-up fires | If that attempt already reported, ignore it. Otherwise read its thread once. If it is still working, schedule one more wake-up for half the budget. If it is stuck or gone, `task_cancel` it and dispatch a takeover. |

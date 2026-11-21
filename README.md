@@ -113,7 +113,7 @@ flowchart LR
   M --> N[4. You review<br/>evidence and merge]
 ```
 
-Workers spread across your machines and model providers. The orchestrator picks each ticket's model from the ticket's Fleet section. Every PR must pass its checks; risky tickets and the finished feature are also reviewed by a different provider than the one that wrote them:
+Workers spread across your machines and model providers. The orchestrator picks each ticket's model from the ticket's Fleet section. Every ticket PR must pass its checks and an independent review by a capable model from a different provider than the one that wrote it. Risky tickets and the finished feature get the strongest reviewer:
 
 ```mermaid
 flowchart TB
@@ -125,7 +125,7 @@ flowchart TB
   M2 --> W3[Worker: Codex] & W4[Worker: Gemini]
   M3 --> W5[Worker: Claude]
   W1 & W2 & W3 & W4 & W5 -->|one PR each| GH[(GitHub:<br/>feat/project-name)]
-  GH -->|checks; review for risky tickets| O
+  GH -->|checks + independent review| O
   O -->|status, Run log| L[(Linear project)]
 ```
 
@@ -139,7 +139,7 @@ Each choice answers a problem that shows up when agents build features unattende
 - **One integration branch per feature.** Ticket PRs merge into `feat/<project>`, not `main`. The feature lands as one PR you review once, with the evidence for the whole feature. `main` stays releasable the whole time.
 - **Commits carry the ticket, not PR titles.** Every commit says `Fixes ENG-123` or `Refs ENG-123`, which Linear's GitHub integration reads. Branch rules move a ticket to an "Integrated" status (or take no action) when it merges into the feature branch, and to Done when the feature reaches `main`. If those rules are missing, `project-run` corrects the statuses by hand.
 - **The right model for each ticket.** You rate your favorite models once for intelligence, taste, and cost (`fleet-models`). Each ticket then gets the candidate that fits its risk and kind of work, weighing intelligence first, then taste, then cost: mechanical work can go to a cheaper model, and money, security, or permanent-data work needs a high intelligence rating. The choice reflects your own experience, not a hardcoded table.
-- **Review by a different provider.** A model reviewing its own provider's code shares its blind spots. Ordinary tickets pass on green checks; risky tickets and the whole feature also get a reviewer from another provider.
+- **Review by a different provider.** A model reviewing its own provider's code shares its blind spots. Every ticket is verified and reviewed by a model from another provider: a capable, inexpensive one for ordinary tickets, and the strongest one for risky tickets and the whole feature.
 - **No config file for machines.** Machines and models change often, so `project-run` discovers them through T3 Code every time it runs.
 - **Read changes back.** APIs sometimes report success for a write they did not apply. When `project-refresh` and `fleet-setup` change Linear, they read each change back before they report it.
 
@@ -177,12 +177,12 @@ flowchart TB
 | --- | --- | --- |
 | [fleet-setup](./skills/fleet-setup/SKILL.md) | Ready (1.0.1) | One-time setup and health check: Linear access (MCP or linear-cli), T3 Code providers, the GitHub CLI, the t3-fleet labels, Linear's GitHub automation, and your model ratings. Safe to rerun. |
 | [fleet-plan](./skills/fleet-plan/SKILL.md) | Ready (3.1.3) | Plans a feature as a Linear project: intent brief, one batch of questions with defaults, a cold read, the fewest tickets, EARS requirements traced to acceptance criteria provable inside the PR, and a readiness gate. |
-| [fleet-models](./skills/fleet-models/SKILL.md) | Ready (1.0.0) | Classifies your favorite models in T3 Code once (intelligence, taste, cost, best use) from suggested defaults you confirm, asks again only about new favorites, and holds the rule for picking each ticket's model. |
-| [project-run](./skills/project-run/SKILL.md) | Ready (1.5.0) | The orchestrator: preflight, integration branch, foundation first, dispatch on blockers across T3 Code machines and providers, merge and freeze rules, takeovers, batched escalation, feature review, and the evidence packet. |
+| [fleet-models](./skills/fleet-models/SKILL.md) | Ready (1.1.0) | Classifies your favorite models in T3 Code once (intelligence, taste, cost, best use) from suggested defaults you confirm, asks again only about new favorites, and holds the rule for picking each ticket's model. |
+| [project-run](./skills/project-run/SKILL.md) | Ready (1.6.0) | The orchestrator: preflight, integration branch, foundation first, dispatch on blockers across T3 Code machines and providers, merge and freeze rules, takeovers, batched escalation, feature review, and the evidence packet. |
 | [project-refresh](./skills/project-refresh/SKILL.md) | Ready (1.4.0) | `/project-refresh <Linear project URL>`: audits a project written to an older standard and rewrites it in place to the fleet spec, keeping IDs and history, so `project-run` can execute it. |
 | [ticket-worker](./skills/ticket-worker/SKILL.md) | Ready (1.2.0) | The worker brief: intent, smallest change, proof, ownership through green, escalation to the orchestrator, fixed report line. |
-| [pr-gate](./skills/pr-gate/SKILL.md) | Ready (1.1.1) | Ticket and final merge gates, PR watching without polling, event routing, and the freeze on a red integration branch. |
-| [review-loop](./skills/review-loop/SKILL.md) | Ready (1.1.0) | Budgeted review by a different provider, with blocker / should / nit severity, a ledger, and checks for over-engineering and weakened tests. |
+| [pr-gate](./skills/pr-gate/SKILL.md) | Ready (1.2.0) | Ticket and final merge gates, PR watching without polling, event routing, and the freeze on a red integration branch. |
+| [review-loop](./skills/review-loop/SKILL.md) | Ready (1.2.0) | Independent review of every ticket and the feature by a different provider, with acceptance verification, with blocker / should / nit severity, a ledger, and checks for over-engineering and weakened tests. |
 | [panel-review](./skills/panel-review/SKILL.md) | Ready (1.0.0) | Optional review by a panel of three flagship models from three providers, with scores per round, synthesis, and firm scope control. For plans, contracts, and large features. |
 
 The skills require Linear, through the [Linear MCP server](https://linear.app/docs/mcp) or [linear-cli](https://github.com/nesszer/linear-cli), and [T3 Code](https://github.com/pingdotgg/t3code) for orchestration. No config file lists your machines or models: `project-run` discovers your linked machines, their providers and models, and the repository's project on each machine through T3 Code every time it runs, so machines can come and go. Set limits in the request itself, for example "run this project, max 8 workers". Each ticket names the model that builds it and an effort level (`low` to `max`) in a short Fleet section. Planning picks them from your favorite models in T3 Code, using the ratings you gave each one through `fleet-models`, which keeps them in one file, `~/.config/t3-linear-fleet/models.json`. Edit that section to change a ticket's model, or override it in the run request. The skills never assume a specific secrets manager; they use whatever your project declares.
