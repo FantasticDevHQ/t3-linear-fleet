@@ -3,7 +3,7 @@ name: fleet-plan
 description: "Plan a feature as a Linear project that the T3 Linear Fleet (project-run) can build unattended. Researches the codebase, writes an intent brief (problem, users, definition of done, non-goals, decisions), drafts the fewest reviewable tickets with EARS requirements and traceable acceptance criteria that can be proven inside the PR before merge, has a fresh agent cold-read them, asks the user every open question in one batch with recommended defaults, and only creates the tickets once a readiness gate passes. Use when the user wants to plan a feature for the fleet, for project-run, or for parallel agents in T3 Code, or asks for fleet-plan by name. Works with the Linear MCP or linear-cli, or as drafts."
 metadata:
   author: kellykampen
-  version: "3.1.2"
+  version: "3.1.3"
 ---
 
 # Fleet Plan
@@ -62,7 +62,7 @@ The intent brief is the Linear project description. Every agent reads it before 
 - <things only provable after release: production metrics, rollout, live third-party behavior>
 
 ## Ticket dependencies
-<Mermaid flowchart: foundation ticket first, A --> B means A blocks B>
+<Mermaid flowchart of every ticket in the run, including tickets with no links: foundation ticket first, A --> B means A blocks B>
 ```
 
 Also record **project-level dependencies**: which other existing projects this one builds on. Most projects depend on at least one; link them in Step 7.
@@ -200,7 +200,7 @@ Do not create tickets in Linear until every box is checked. Show the user the br
 - [ ] t3-fleet labels are set where they apply (`t3-fleet-foundation`, `t3-fleet-local-only`, `t3-fleet-schema-change`, `t3-fleet-risky`).
 - [ ] UI tickets have a design screenshot attached.
 - [ ] Risky steps carry WARNING or CAUTION, and every WARNING decision is settled.
-- [ ] The intent brief has the Mermaid dependency flowchart.
+- [ ] The intent brief has the Mermaid dependency flowchart, and it lists every ticket in the run, including tickets with no links.
 - [ ] Text follows ASD-STE100 style.
 - [ ] Nothing is planned that the definition of done does not need.
 
