@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- Lessons from re-running `/project-refresh` on an already refreshed project:
+  - `project-refresh` 1.4.0 adds **Running it again**. It handles tickets that entered or left the run since approval, stale brief notes, open prerequisites, and writes that never applied. It re-approves only for scope changes. Work outside the definition of done now moves to another project instead of staying in the run. Every write is read back, and a merge whose duplicate link fails becomes a cancel with a comment.
+  - `references/linear-notes.md` notes that `duplicateOf` and `relatedTo` can report success without applying, and that `list_issues` rejects some `get_issue` fields.
+  - `fleet-plan` 3.1.3 requires the brief's dependency graph to list every ticket in the run, so a later refresh can tell approved scope from new scope.
+  - `fleet-setup` 1.0.1 recognizes the t3-fleet group by its four labels and renames an old group name instead of creating a second group.
+
 - `fleet-setup` 1.0.0: one-time setup and health check. It checks Linear access (MCP or linear-cli), T3 Code providers (two needed for cross-provider review), and `gh` with `--attach`. It creates the `t3-fleet` label group at the right level, walks the user through Linear's GitHub automation, runs `fleet-models`, and ends with a ready checklist. The README's setup section now points to it. `fleet-plan` 3.1.2 asks where to create a missing label group in its single question batch, then creates it with `fleet-setup`.
 
 - `fleet-models` 1.0.0: classifies the user's favorite models in T3 Code once. It proposes intelligence, taste, cost and best-use defaults, the user confirms or edits them in one question, and the result is saved to `~/.config/t3-linear-fleet/models.json`. Only favorites added later are asked about; removed favorites keep their ratings. It also holds the rule for choosing a ticket's model and the closest replacement.
