@@ -86,7 +86,7 @@ Expected result: `fleet-plan` appears in the list for your agents. Then ask your
 
 ## How it works
 
-A feature goes through four stages. You talk to the agent in the first stage and review in the last. The middle runs unattended; it pauses only if a costly decision needs you, and then it asks all such questions in one batch.
+A feature goes through four stages. You talk to the agent in the first stage and review in the last. The middle runs unattended. It pauses only when something needs you: a costly or irreversible decision, a review dispute or a ticket that stays blocked after a takeover, or a provider failure it cannot route around. It then asks all such questions in one batch.
 
 ```mermaid
 flowchart LR
@@ -133,7 +133,7 @@ flowchart TB
 
 Each choice answers a problem that shows up when agents build features unattended.
 
-- **Almost all talking happens up front.** An agent that has to ask a question halfway through either stops or guesses. So `fleet-plan` settles every product decision before a ticket exists. It asks one short question first if the goal is unclear, then the rest in one batch with recommended defaults, and records the answers in the brief. During the run, workers never ask you; only costly or irreversible decisions are escalated, batched, and asked when nothing else can proceed.
+- **Almost all talking happens up front.** An agent that has to ask a question halfway through either stops or guesses. So `fleet-plan` settles every product decision before a ticket exists. It asks one short question first if the goal is unclear, then the rest in one batch with recommended defaults, and records the answers in the brief. During the run, workers never ask you. The orchestrator escalates only what it cannot settle itself (costly or irreversible decisions, unresolved review disputes, tickets still blocked after a takeover, and provider failures it cannot route around), batches them, and asks when nothing else can proceed.
 - **Acceptance happens inside the PR.** A criterion that can only be checked after merge or in production blocks the merge forever, so an unattended agent loops, skips it, or asks. Every criterion has a `Verify` line that runs on the PR (a test, CI, a remote end-to-end run) and an `Evidence` line it produces. Things that can only be checked after release go in a separate, non-blocking list.
 - **Few, meaningful tickets.** One ticket is one reviewable PR with one outcome. There is no point cap: splitting work to fit an estimate makes slivers that share context and multiply review overhead.
 - **One integration branch per feature.** Ticket PRs merge into `feat/<project>`, not `main`. The feature lands as one PR you review once, with the evidence for the whole feature. `main` stays releasable the whole time.
