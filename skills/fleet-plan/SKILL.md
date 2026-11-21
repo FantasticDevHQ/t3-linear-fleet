@@ -13,7 +13,7 @@ Turn a feature into **one Linear project and the fewest tickets that agents can 
 Three rules shape everything below:
 
 - **Decide now, not later.** Every product decision is settled before a ticket is created. Agents may make reversible implementation choices on their own; they should never have to guess what the user wants.
-- **Plan only what the feature needs, with the least change.** No speculative requirements, options, or "while we're here" work. Each ticket's scope is the least change that meets its outcome, and the ticket set is the least that meets the definition of done. Over-planned tickets become over-engineered code. Non-goals are as important as goals. The plan is complete when it is approved: the run never adds tickets, so anything the definition of done needs must be in the plan.
+- **Plan only what the feature needs, with the least change.** No speculative requirements, options, or "while we're here" work. Each ticket's scope is the least change that meets its outcome, and the ticket set is the least that meets the definition of done. Over-planned tickets become over-engineered code. Non-goals are as important as goals. The plan is complete when it is approved: the run adds a ticket only if the user approves one for a gap the plan missed, so anything the definition of done needs must be in the plan.
 - **Acceptance happens inside the PR.** Every acceptance criterion can be proven from the PR's branch, CI, or preview deploy before merge. Anything that can only be checked after release goes on a separate, non-blocking list.
 
 Precision is not over-engineering. Exact requirements and plain wording are what let an agent build the right thing without asking; over-engineering is scope or code the feature does not need.

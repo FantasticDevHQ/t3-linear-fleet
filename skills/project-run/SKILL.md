@@ -132,6 +132,8 @@ Workers report costly decisions in their final message (`ESCALATION` blocks) and
 1. **Answer it yourself** when the intent brief, its Decisions, or the ticket answers it, or when it is reversible and the worker gave a recommendation that fits the intent brief and non-goals. Record the answer in the project's Decisions section; the evidence packet lists it under "Decisions made for you". Continue the ticket with a new attempt that carries the answer.
 2. **Batch it for the user** only when it is an irreversible or external action, a conflict with the intent or a non-goal, a ticket that stayed blocked after a takeover, a review that `review-loop` ended as **stuck** (an unsettled dispute, or the verification-round limit reached), a provider pinned in the run request that failed or ran out of quota, a review with no provider left that wrote none of the PR's commits, or a **planning gap** (the definition of done cannot be met without work no ticket covers). Options for the provider cases: wait for the provider, allow another provider, or stop those tickets. Options for a planning gap: approve one new ticket for exactly that gap, change the definition of done, or stop the run.
 
+When the user changes the definition of done, update the intent brief (definition of done, affected tickets' criteria, release checks), set `Approved:` to today's date, record the decision, and only then resume the work it affects; the final gate and the evidence agent use the updated brief.
+
 When the user approves a new ticket, write it to the `fleet-plan` ticket standard (Verify and Evidence on every criterion, a Fleet section, labels, blocker links), add it to the brief's dependency graph, set `Approved:` to today's date, record the decision, and dispatch it like any other ticket. Work that does not depend on the gap keeps running while you wait for the answer.
 
 Ask the batch when **nothing else can dispatch or merge**, not before. Unwatch PRs, then ask **once** through your harness's question tool (`AskUserQuestion`, `request_user_input`, or similar), so the thread visibly waits. Each question carries its full context, the options, and your recommendation first. The run pauses while you wait; say so in the question. Record each answer in Decisions, watch the PRs again, and continue the affected tickets with new attempts.
@@ -160,7 +162,7 @@ Rebuild the state before acting: the Run log in the feature PR (or the ticket co
 
 ## Never
 
-- Create tickets, or widen a ticket's scope, during the run. The approved plan is the whole scope. Collect out-of-scope ideas from workers and reviewers as **possible follow-ups** in the Run log and the final report, without filing them. If the definition of done truly cannot be met without new work, that is a planning gap: put it in the escalation batch.
+- Create tickets, or widen a ticket's scope, during the run, except a ticket the user approves for a planning gap (see Escalations). The approved plan is the whole scope. Collect out-of-scope ideas from workers and reviewers as **possible follow-ups** in the Run log and the final report, without filing them. If the definition of done truly cannot be met without new work, that is a planning gap: put it in the escalation batch.
 - Merge the feature PR without the user's explicit instruction for this feature.
 - Ask the user anything outside the escalation batch, or ask in a plain message instead of the question tool.
 - Poll or sleep-loop. Wake on task completion, PR events, and scheduled wake-ups only.
