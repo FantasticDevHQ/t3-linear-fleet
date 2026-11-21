@@ -1,0 +1,35 @@
+{
+  "skill_name": "project-run",
+  "evals": [
+    {
+      "id": 0,
+      "prompt": "Run the Linear project 'Billing export' with the fleet. Tickets: ENG-1 foundation (schema + API contract), ENG-2 export endpoint (blocked by ENG-1), ENG-3 export button (blocked by ENG-2), ENG-4 email digest (blocked by ENG-1).",
+      "expected_output": "Runs preflight (readiness gate, repo checks, orchestrator_capabilities, environment links). Creates feat/billing-export and a draft feature PR with 'Fixes ENG-1, ENG-2, ENG-3, ENG-4' and a Run log. Dispatches ENG-1 alone first, merges it through the ticket gate, then dispatches ENG-2 and ENG-4 in parallel, and ENG-3 only after ENG-2 merges. Does not poll dispatched tasks.",
+      "files": []
+    },
+    {
+      "id": 1,
+      "prompt": "Fleet config: local (2 workers, localOnly), cloud-1 (3 workers). Providers prefer claudeAgent, codex, antigravity. Ticket ENG-9 needs the iOS simulator. ENG-10 and ENG-11 are self-contained API tickets. ENG-12 alters a table after the foundation, and ENG-13 also alters a table.",
+      "expected_output": "Sends ENG-9 to the local machine. Sends ENG-10 and ENG-11 to cloud-1 on different providers. Runs ENG-12 and ENG-13 one at a time because both change the schema. Each delegate_task uses isolation worktree, the environmentId for cloud-1, a clientRequestId of <ticket>-<attempt>, and a complete worker brief. Records which provider wrote each ticket so its reviewer differs.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "ENG-21's worker spent its 3 fix cycles and reported blocked. A fresh agent on another provider took over and is also blocked on the same failing integration test.",
+      "expected_output": "Marks ENG-21 blocked in Linear and the Run log, pauses the tickets that depend on it, adds it to the escalation batch with options and a recommendation, and keeps every unrelated ticket moving. Does not start a third attempt or keep looping.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "Two workers escalated: ENG-30 asks whether exported amounts include tax (the intent brief says exports are for accountants, Decisions says 'amounts are pre-tax'), and ENG-31 asks to drop a legacy column in production. Other tickets are still running.",
+      "expected_output": "Answers ENG-30 from the Decisions section without asking the user, and continues it with a new delegate_task carrying the answer. Puts ENG-31 in the batch because it is irreversible and external. Asks the batch once through the question tool with full context and a recommendation first, after unwatching PRs, while unaffected tickets keep moving.",
+      "files": []
+    },
+    {
+      "id": 4,
+      "prompt": "All tickets are merged into feat/billing-export, the feature review approved, and full CI is green with main merged in. Finish the run.",
+      "expected_output": "Dispatches an evidence agent on a different provider to record the definition of done on the preview deploy, writes the evidence packet in the documented order, marks the feature PR ready, checks the final gate, unwatches all PRs, and reports ready with decisions made and release checks. Does not merge the feature PR into main without the user's explicit instruction.",
+      "files": []
+    }
+  ]
+}

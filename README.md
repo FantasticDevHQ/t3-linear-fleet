@@ -78,7 +78,7 @@ Expected result: `issue-breakdown` appears in the list for your agents. Ask your
 | Skill | Status | What it does |
 | --- | --- | --- |
 | [issue-breakdown](./skills/issue-breakdown/SKILL.md) | Ready (2.0) | Plans a feature as a Linear project: intent brief, one batch of questions with defaults, a cold read, the fewest tickets, EARS requirements traced to acceptance criteria provable inside the PR, and a readiness gate. |
-| project-run | Planned | Orchestrator: dispatch, load balancing across machines and providers, merge and freeze rules, escalation, evidence packet. |
+| [project-run](./skills/project-run/SKILL.md) | Ready (1.0) | The orchestrator: preflight, integration branch, foundation first, dispatch on blockers across T3 Code machines and providers, merge and freeze rules, takeovers, batched escalation, feature review, and the evidence packet. |
 | [ticket-worker](./skills/ticket-worker/SKILL.md) | Ready (1.0) | The worker brief: intent, smallest change, proof, ownership through green, escalation to the orchestrator, fixed report line. |
 | [pr-gate](./skills/pr-gate/SKILL.md) | Ready (1.0) | Ticket and final merge gates, PR watching without polling, event routing, and the freeze on a red integration branch. |
 | [review-loop](./skills/review-loop/SKILL.md) | Ready (1.0) | Budgeted review by a different provider, with blocker / should / nit severity, a ledger, and checks for over-engineering and weakened tests. |
@@ -86,7 +86,7 @@ Expected result: `issue-breakdown` appears in the list for your agents. Ask your
 | ticket-takeover | Planned | A fresh agent takes over a stuck ticket. |
 | pr-writing | Planned | PR descriptions, evidence packets, and comment attribution. |
 
-The skills require Linear (MCP server or `linear-cli`) and T3 Code for orchestration. They never assume a specific secrets manager; they use whatever your project declares.
+The skills require Linear (MCP server or `linear-cli`) and T3 Code for orchestration. To spread work across machines and providers, copy [the example fleet config](./skills/project-run/references/fleet.config.example.json) to `~/.config/t3-linear-fleet/config.json` and edit it; without it, `project-run` uses the local machine only. They never assume a specific secrets manager; they use whatever your project declares.
 
 ## Linear setup
 

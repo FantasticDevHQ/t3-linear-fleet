@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- `project-run` 1.0.0: the orchestrator. It runs preflight, creates the integration branch and a draft feature PR with a Run log, runs the foundation first, dispatches tickets on blockers across T3 Code machines and providers using the fleet config, merges through `pr-gate`, freezes on red CI, hands stuck tickets to fresh agents, batches escalations, runs the feature review and evidence agent, and stops for the human. Includes the worker brief, evidence packet, and example fleet config.
 - `ticket-worker` 1.0.0: the brief a worker agent follows, from the intent restatement to a merged, green PR, with escalation to the orchestrator and a fixed final report line.
 - `pr-gate` 1.0.0: the ticket and final merge gates, PR watching without polling, event routing, and the freeze on a red integration branch.
 - `review-loop` 1.0.0: budgeted review by a different provider, with blocker / should / nit severity, a ledger, and checks for over-engineering and weakened tests.
