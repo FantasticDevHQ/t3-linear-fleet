@@ -9,6 +9,13 @@ This repo is a skill set. It has no app, backend, build step, or dev services.
 - **Small and plain.** Prefer the shortest instruction that changes agent behavior. No speculative options or features. Skills must practice the anti-over-engineering rules they teach.
 - **One skill per folder** under `skills/<name>/` with a `SKILL.md`, plus `references/` and `evals/` only when needed. Register every skill in `.claude-plugin/plugin.json` and the README table.
 
+## Checks, CI, and PRs
+
+- Run `node scripts/check.mjs` (Node.js 22 or newer, no install). It validates skill frontmatter and listings and runs the PR standard tests.
+- Follow `docs/pull-request-standard.md`: a Conventional Commit PR title (ticket ID optional), every commit carrying a Linear magic word (`Fixes ENG-123` / `Refs ENG-123`) or a `No-ticket: <reason>` footer, a Summary that declares every ticket the commits reference, the five ordered sections, real evidence, and the actual agent/session identity. Evidence belongs in the PR, never in the repo.
+- CI runs on `ubicloud-standard-2-ubuntu-2404`. The PR standard workflow executes trusted base code only; never check out the PR head with write permissions.
+- The README follows the Fantastic.Dev header and Quick start standard. Keep `assets/fantastic-dev-logo.svg` byte-identical (SHA-256 `4869b13bae195ef7f934fb3a1dd2b37e86700ce33bf88f9c863e7597e20c2075`). Add project-fact badges only once they are verifiable from a public repo.
+
 ## Changes
 
 - Never reset, stash, or discard user changes.
