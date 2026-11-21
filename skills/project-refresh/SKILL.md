@@ -3,7 +3,7 @@ name: project-refresh
 description: "Bring an existing Linear project up to the fleet spec so project-run can execute it. Invoked as /project-refresh <Linear project URL>. Audits a project whose tickets were written to an older standard (user stories, 3-point slivers, post-merge acceptance criteria, missing intent brief, no t3-fleet labels), proposes a change plan, asks every open question in one batch, then rewrites the intent brief and tickets in place: it keeps ticket IDs, links, and history, saves each old description as a comment first, merges slivers as duplicates, and ends at the readiness gate with an Approved line. Use when the user wants to refresh, upgrade, migrate, clean up, or rewrite an existing Linear project or backlog to the new ticket standard."
 metadata:
   author: kellykampen
-  version: "1.2.0"
+  version: "1.3.0"
 ---
 
 # Project Refresh
@@ -50,7 +50,7 @@ Check the project and every not-started ticket against `fleet-plan`:
 - **Dependencies:** missing blocker links, links that point the wrong way, and cycles.
 - **t3-fleet labels:** `t3-fleet-foundation`, `t3-fleet-local-only`, `t3-fleet-schema-change`, `t3-fleet-risky`, and whether the t3-fleet group exists at the right level.
 - **Design and risk:** UI tickets without a design image, and risky steps without WARNING or CAUTION.
-- **Model and effort:** tickets without a Fleet section (`Model`, `Effort`). Add one to every ticket in the run, including in-progress tickets (it does not change scope), as `fleet-plan` describes under Model and effort. List the choices in the change plan so the user can change them in one place.
+- **Model and effort:** tickets without a Fleet section (`Model`, `Effort`). Add one to every ticket in the run, including in-progress tickets (it does not change scope), as `fleet-plan` describes under Model and effort, with the candidates and rule from `fleet-models`. List the choices in the change plan so the user can change them in one place.
 - **Unlinked duplicates:** tickets with the same title or the same requirements and no duplicate relation. Merge them into the one with history.
 - **Work no agent can finish in a PR:** external setup, staging checks, live-service checks, release acceptance, and runbooks for the owner. They are release checks. List them in the brief's Release checks. Keep their tickets if the user tracks them as tickets, but they are outside the run.
 - **Old delivery rules that conflict with the fleet:** rules in the old description such as "merges after owner authorization", a point cap, or a fixed reviewer model. Keep what still applies. Ask about each conflict in the question batch.

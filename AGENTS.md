@@ -7,7 +7,7 @@ This repo is a skill set. It has no app, backend, build step, or dev services.
 - **Self-contained.** Every skill is written here, in this repo's own words. Do not wrap, call, or depend on skills from other collections. Borrowing ideas is fine. Do not reuse another collection's skill names (for example tstack's `council`, `full-send`, `sol-loop`, `babysit-pr`, `takeover`); pick distinct names.
 - **Agnostic about personal tooling.** Linear and T3 Code are supported dependencies. Do not hard-code a specific secrets manager, cloud provider, machine list, or model ID. Refer to "the project's secrets manager" and to the user's `fleet.config`. Discover models at runtime.
 - **Small and plain.** Prefer the shortest instruction that changes agent behavior. No speculative options or features. Skills must practice the anti-over-engineering rules they teach.
-- **One skill per folder** under `skills/<name>/` with a `SKILL.md`, plus `references/` and `evals/` only when needed. Register every skill in `.claude-plugin/plugin.json` and the README table.
+- **One skill per folder** under `skills/<name>/` with a `SKILL.md`, plus `references/` and `evals/` only when needed. Register every skill in `.claude-plugin/plugin.json` and the README table. In the same PR as any skill change, update that skill's README row: its version (checked by `scripts/validate-skills.mjs`) and its one-line description.
 
 ## Checks, CI, and PRs
 

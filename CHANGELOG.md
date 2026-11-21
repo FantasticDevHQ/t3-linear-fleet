@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- `fleet-models` 1.0.0: classifies the user's favorite models in T3 Code once. It proposes intelligence, taste, cost and best-use defaults, the user confirms or edits them in one question, and the result is saved to `~/.config/t3-linear-fleet/models.json`. Only favorites added later are asked about; removed favorites keep their ratings. It also holds the rule for choosing a ticket's model and the closest replacement.
+- `fleet-plan` 3.1.0 and `project-refresh` 1.3.0 choose models through `fleet-models`. `project-run` 1.5.0 uses its classification to replace an unavailable model and never asks for classification mid-run.
+- Reading favorites from T3 Code's `settings.json` is the supported source, not a stopgap.
+- The README skills table is up to date, and `scripts/validate-skills.mjs` now fails when a README version differs from the skill's `metadata.version`.
+
 - **Breaking:** `issue-breakdown` is renamed `fleet-plan` (3.0.0), and its description now targets fleet planning. Another widely installed skill named `issue-breakdown` made the two collide in skill managers, so only one could be installed. `project-run` and `project-refresh` now refer to `fleet-plan`. Reinstall to pick up the new name.
 
 - Model and effort per ticket: every ticket gets a required **Fleet** section (`Model`, `Effort`, optional `Why`). Labels were rejected because Linear label groups cannot nest, label names must be unique across the workspace, and model IDs and effort scales change too often.

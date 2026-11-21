@@ -56,8 +56,18 @@ if (JSON.stringify(listed) !== JSON.stringify(skills))
   errors.push(`.claude-plugin/plugin.json skills ${JSON.stringify(listed)} must equal ${JSON.stringify(skills)}`);
 
 const readme = read("README.md");
-for (const skill of skills)
-  if (!readme.includes(`(./skills/${skill}/SKILL.md)`)) errors.push(`README.md: no link to ./skills/${skill}/SKILL.md`);
+for (const skill of skills) {
+  if (!readme.includes(`(./skills/${skill}/SKILL.md)`)) {
+    errors.push(`README.md: no link to ./skills/${skill}/SKILL.md`);
+    continue;
+  }
+  const version = read(`skills/${skill}/SKILL.md`).match(/^\s+version:\s*"([^"]+)"/m)?.[1];
+  const row = readme.split("\n").find((line) => line.includes(`(./skills/${skill}/SKILL.md)`));
+  const shown = row?.match(/\((\d+\.\d+\.\d+)\)/)?.[1];
+  if (!version) errors.push(`skills/${skill}/SKILL.md: metadata.version is missing`);
+  else if (shown !== version)
+    errors.push(`README.md: ${skill} shows version ${shown ?? "none"}, but its SKILL.md is ${version}. Update the skills table.`);
+}
 
 if (errors.length) {
   for (const error of errors) console.error(`FAIL ${error}`);

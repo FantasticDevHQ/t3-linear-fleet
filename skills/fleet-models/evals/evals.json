@@ -1,0 +1,23 @@
+{
+  "skill_name": "fleet-models",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "First run. T3 Code's settings.json lists favorites claude-opus-5-5 (claudeAgent), gpt-6.1-sol (codex) and gemini-4-neon (antigravity). There is no classification file yet. fleet-plan is about to ask its question batch.",
+      "expected_output": "Reads favorites from settings.json without writing to it. Proposes intelligence, taste, cost and a best-use line for all three, says which ratings are guesses, shows one table, and puts a single accept-or-edit question into fleet-plan's batch instead of asking separately. Saves ~/.config/t3-linear-fleet/models.json with one entry per model and today's date, and reads it back.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "The classification file rates claude-opus-5-5, gpt-6.1-sol and gemini-4-neon. The user has since removed gemini-4-neon from favorites and added claude-fable-5-2.",
+      "expected_output": "Marks gemini-4-neon favorite:false and keeps its ratings. Asks only about claude-fable-5-2, with proposed defaults. Does not re-ask about Opus or Sol and does not change their ratings.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "During project-run, ticket ENG-40 names a model that no machine offers. Classified favorites: model A (intelligence 9, taste 8), model B (intelligence 8, taste 9), model C (intelligence 6, taste 6). ENG-40's model was rated intelligence 9, taste 9. A new favorite D is not classified yet.",
+      "expected_output": "Swaps ENG-40 to model A (smallest intelligence difference, then taste), logs the swap, and does not ask the user to classify D mid-run; D is listed as unclassified in the final report.",
+      "files": []
+    }
+  ]
+}
