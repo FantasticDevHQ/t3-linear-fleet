@@ -8,7 +8,7 @@ metadata:
 
 # Project Refresh
 
-Turn an existing Linear project into one that `project-run` can execute: a real intent brief, the fewest tickets, acceptance criteria provable inside the PR, and t3-fleet labels. The **target standard is `issue-breakdown`** from this skill set; read it first. This skill adds what is different about starting from tickets that already exist: auditing them, preserving their history, and changing them **in place**.
+Turn an existing Linear project into one that `project-run` can execute: a real intent brief, the fewest tickets, acceptance criteria provable inside the PR, and t3-fleet labels. The **target standard is `fleet-plan`** from this skill set; read it first. This skill adds what is different about starting from tickets that already exist: auditing them, preserving their history, and changing them **in place**.
 
 ## Input
 
@@ -40,7 +40,7 @@ An in-progress ticket whose PR targets the default branch stays as it is: its ow
 
 ## Step 2: Audit against the standard
 
-Check the project and every not-started ticket against `issue-breakdown`:
+Check the project and every not-started ticket against `fleet-plan`:
 
 - **Intent brief:** problem, users, definition of done, non-goals, constraints, decisions, release checks, the dependency flowchart. Most old projects have only a summary; the gaps become drafts or questions.
 - **Size:** slivers that only exist to stay under a point cap (merge them), and tickets with two independent outcomes (split them).
@@ -50,7 +50,7 @@ Check the project and every not-started ticket against `issue-breakdown`:
 - **Dependencies:** missing blocker links, links that point the wrong way, and cycles.
 - **t3-fleet labels:** `t3-fleet-foundation`, `t3-fleet-local-only`, `t3-fleet-schema-change`, `t3-fleet-risky`, and whether the t3-fleet group exists at the right level.
 - **Design and risk:** UI tickets without a design image, and risky steps without WARNING or CAUTION.
-- **Model and effort:** tickets without a Fleet section (`Model`, `Effort`). Add one to every ticket in the run, including in-progress tickets (it does not change scope), as `issue-breakdown` describes under Model and effort. List the choices in the change plan so the user can change them in one place.
+- **Model and effort:** tickets without a Fleet section (`Model`, `Effort`). Add one to every ticket in the run, including in-progress tickets (it does not change scope), as `fleet-plan` describes under Model and effort. List the choices in the change plan so the user can change them in one place.
 - **Unlinked duplicates:** tickets with the same title or the same requirements and no duplicate relation. Merge them into the one with history.
 - **Work no agent can finish in a PR:** external setup, staging checks, live-service checks, release acceptance, and runbooks for the owner. They are release checks. List them in the brief's Release checks. Keep their tickets if the user tracks them as tickets, but they are outside the run.
 - **Old delivery rules that conflict with the fleet:** rules in the old description such as "merges after owner authorization", a point cap, or a fixed reviewer model. Keep what still applies. Ask about each conflict in the question batch.
@@ -75,7 +75,7 @@ Also draft the new intent brief, and the rewritten text of every ticket you will
 
 ## Step 4: Cold read and one batch of questions
 
-Run `issue-breakdown` Step 4 (a cold read by a fresh agent, ideally on another provider) on the drafts. Then ask **one batch** through the question tool, as in `issue-breakdown` Step 5: decisions with defaults, assumptions, the non-code checklist, plus:
+Run `fleet-plan` Step 4 (a cold read by a fresh agent, ideally on another provider) on the drafts. Then ask **one batch** through the question tool, as in `fleet-plan` Step 5: decisions with defaults, assumptions, the non-code checklist, plus:
 
 - approval of the change plan, showing every merge, split, cancel, and new ticket;
 - each in-progress ticket whose scope conflicts with the new plan.
@@ -94,12 +94,12 @@ Prefer **patches over rewrites**. When a ticket mostly meets the standard, chang
 4. **Merge** each sliver: fold its requirements and criteria into the surviving ticket, move its blocker links to the survivor, then mark it a duplicate of the survivor. Never delete a ticket.
 5. **Split** and **create** tickets, parented to the project, with labels and estimates.
 6. **Relations:** add missing blocker links and fix reversed ones. Remove a link only when it is clearly wrong, and say so in the ticket's comment. Confirm there is no cycle.
-7. **Labels:** create the t3-fleet group only if it does not exist, at the workspace or top-most parent team, as `issue-breakdown` Step 7 describes. Add and remove individual labels; never replace a ticket's whole label set, so unrelated labels survive.
+7. **Labels:** create the t3-fleet group only if it does not exist, at the workspace or top-most parent team, as `fleet-plan` Step 7 describes. Add and remove individual labels; never replace a ticket's whole label set, so unrelated labels survive.
 8. **Cancel** out-of-scope tickets with a comment that names the non-goal.
 
 ## Step 6: Readiness gate
 
-Run the `issue-breakdown` readiness gate over the whole project. When it passes and the user approved the plan, add `Approved: <date>` at the end of the intent brief. `project-run` will not start without it.
+Run the `fleet-plan` readiness gate over the whole project. When it passes and the user approved the plan, add `Approved: <date>` at the end of the intent brief. `project-run` will not start without it.
 
 Report: the project link, a table of every ticket with its action and new state, the merges and splits, any remaining open items, and whether the project is ready for `project-run`.
 

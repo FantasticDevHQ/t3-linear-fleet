@@ -44,7 +44,7 @@ for my coding agents, using the public `skills` CLI (https://skills.sh).
 3. Install them globally for the agents I use:
    `npx skills@latest add FantasticDevHQ/t3-linear-fleet --global --skill '*'`
    Ask me which agents to target if the CLI cannot detect them.
-4. Verify with `npx skills@latest list --global` that `issue-breakdown` is installed.
+4. Verify with `npx skills@latest list --global` that `fleet-plan` is installed.
 5. Check whether my agent can reach Linear, through either:
    - the Linear MCP server (https://linear.app/docs/mcp), at
      https://mcp.linear.app/mcp, or
@@ -82,7 +82,7 @@ Verify the install:
 npx skills@latest list --global
 ```
 
-Expected result: `issue-breakdown` appears in the list for your agents. Ask your agent to "break down" a feature to start a Linear plan.
+Expected result: `fleet-plan` appears in the list for your agents. Ask your agent to "plan this feature with fleet-plan" to start a Linear plan.
 
 ## The workflow
 
@@ -94,7 +94,7 @@ Expected result: `issue-breakdown` appears in the list for your agents. Ask your
 
 | Skill | Status | What it does |
 | --- | --- | --- |
-| [issue-breakdown](./skills/issue-breakdown/SKILL.md) | Ready (2.0) | Plans a feature as a Linear project: intent brief, one batch of questions with defaults, a cold read, the fewest tickets, EARS requirements traced to acceptance criteria provable inside the PR, and a readiness gate. |
+| [fleet-plan](./skills/fleet-plan/SKILL.md) | Ready (2.0) | Plans a feature as a Linear project: intent brief, one batch of questions with defaults, a cold read, the fewest tickets, EARS requirements traced to acceptance criteria provable inside the PR, and a readiness gate. |
 | [project-run](./skills/project-run/SKILL.md) | Ready (1.0) | The orchestrator: preflight, integration branch, foundation first, dispatch on blockers across T3 Code machines and providers, merge and freeze rules, takeovers, batched escalation, feature review, and the evidence packet. |
 | [project-refresh](./skills/project-refresh/SKILL.md) | Ready (1.0) | `/project-refresh <Linear project URL>`: audits a project written to an older standard and rewrites it in place to the fleet spec, keeping IDs and history, so `project-run` can execute it. |
 | [ticket-worker](./skills/ticket-worker/SKILL.md) | Ready (1.0) | The worker brief: intent, smallest change, proof, ownership through green, escalation to the orchestrator, fixed report line. |
@@ -110,7 +110,7 @@ The fleet tracks tickets on commits, not PR titles. Every commit carries a Linea
 
 1. Turn on **Link commits to issues with magic words** and add the GitHub push webhook that Linear shows.
 2. Add branch-specific rules: a merge into `^feat/.*` moves the ticket to an "Integrated" status (or "no action"), and a merge into `main` moves it to Done.
-3. Create the **t3-fleet** label group once, as a multi-select group with four labels: `t3-fleet-foundation`, `t3-fleet-local-only`, `t3-fleet-schema-change`, and `t3-fleet-risky`. Put it at the **workspace** if unrelated teams will use the fleet, or at the **top-most parent team** if only that parent's teams will. Teams below inherit it. Never create it on a leaf team. `issue-breakdown` sets these labels during planning, and `project-run` schedules from them. If the group is missing, `issue-breakdown` creates it at the right level.
+3. Create the **t3-fleet** label group once, as a multi-select group with four labels: `t3-fleet-foundation`, `t3-fleet-local-only`, `t3-fleet-schema-change`, and `t3-fleet-risky`. Put it at the **workspace** if unrelated teams will use the fleet, or at the **top-most parent team** if only that parent's teams will. Teams below inherit it. Never create it on a leaf team. `fleet-plan` sets these labels during planning, and `project-run` schedules from them. If the group is missing, `fleet-plan` creates it at the right level.
 
 Your repository's CI must also run on pull requests into `feat/**` and on pushes to `feat/**`, not only on the default branch. `project-run` checks this before it starts.
 
