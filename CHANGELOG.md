@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- `fleet-setup` 1.1.0 verifies Linear workflow statuses through the API (an "Integrated" status for the feature-branch rule) instead of trusting the user's confirmation, and marks the settings the API cannot read as confirmed, not verified. `fleet-run` 2.0.1 always checks the first merged ticket's status, because the branch rule itself cannot be read through the API. The pilot run found a team with no Integrated status after setup had reported ready.
+- `gh` 2.99.0 is now the stated minimum for `--attach` evidence uploads (`fleet-setup`, `fleet-run` 2.0.1, `fleet-worker` 2.0.1, README), checked with `gh --version` instead of reading help text.
+- README: secrets and external accounts are no longer listed as a general requirement; the `fleet-run` usage notes say to add any the plan needs before a run.
+
 - **Breaking: every skill now starts with `fleet-`.** Generic names were hard to find and could collide with other skill collections. Renamed (each to 2.0.0):
 
   | Before | After |
