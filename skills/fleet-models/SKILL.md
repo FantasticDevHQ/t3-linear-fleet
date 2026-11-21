@@ -50,7 +50,7 @@ Every rating is 1 to 9, and **higher is always better**, including cost:
 ## Step 1: Sync
 
 1. Read the favorites from the settings file. They alone decide `favorite: true` or `false`; provider availability does not.
-2. Read the classification file. If it does not exist, every favorite is new. If it cannot be parsed, or an entry lacks a model ID or has a rating outside 1 to 9, **do not overwrite it**: report the problem and the file's path, and treat the broken entries (or the whole file) as unclassified for now. Planning and setup may offer to reclassify in their question batch; `project-run` never asks.
+2. Read the classification file. If it does not exist, every favorite is new. If it cannot be parsed, or an entry lacks a model ID or has a rating outside 1 to 9, report the problem and the file's path, and treat the broken entries (or the whole file) as unclassified for now. Planning and setup may offer to reclassify in their question batch; `project-run` never asks and never writes the file. **Before saving over a broken file, copy it** to `models.json.broken-<date>` next to it, then write a valid file that keeps every valid entry and adds the new answers.
 3. Compare, by model ID:
    - **Favorites to classify:** those with no entry yet, and those whose entry is broken (step 2).
    - **Removed favorites** get `"favorite": false`. Keep their ratings in case they come back.

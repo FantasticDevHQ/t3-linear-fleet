@@ -19,6 +19,7 @@ test("ignores a version in the body", () => {
 const readme = [
   "## Skills",
   "See [demo](./skills/demo/SKILL.md) (9.9.9) in the text.",
+  "",
   "| Skill | Status | What it does |",
   "| --- | --- | --- |",
   "| [demo](./skills/demo/SKILL.md) | Ready (1.2.3) | Does things (2.0.0). |",
@@ -43,5 +44,23 @@ test("a row in a fenced example does not count", () => {
 });
 
 test("a row without a version has none", () => {
-  assert.equal(readmeVersion("## Skills\n| [demo](./skills/demo/SKILL.md) | Ready | Does things. |", "demo"), undefined);
+  assert.equal(readmeVersion("## Skills\n| Skill | Status | What it does |\n| --- | --- | --- |\n| [demo](./skills/demo/SKILL.md) | Ready | Does things. |", "demo"), undefined);
+});
+
+test("a standalone row in the Skills section does not count", () => {
+  assert.equal(readmeVersion("## Skills\n| [demo](./skills/demo/SKILL.md) | Ready (1.2.3) | x |", "demo"), undefined);
+});
+
+test("a row in another table in the Skills section does not count", () => {
+  const other = [
+    "## Skills",
+    "| Name | Note |",
+    "| --- | --- |",
+    "| [demo](./skills/demo/SKILL.md) | Ready (9.9.9) | x |",
+    "",
+    "| Skill | Status | What it does |",
+    "| --- | --- | --- |",
+    "| [demo](./skills/demo/SKILL.md) | Ready (1.2.3) | x |",
+  ].join("\n");
+  assert.equal(readmeVersion(other, "demo"), "1.2.3");
 });
