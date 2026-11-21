@@ -3,7 +3,7 @@ name: project-refresh
 description: "Bring an existing Linear project up to the fleet spec so project-run can execute it. Invoked as /project-refresh <Linear project URL>. Audits a project whose tickets were written to an older standard (user stories, 3-point slivers, post-merge acceptance criteria, missing intent brief, no t3-fleet labels), proposes a change plan, asks every open question in one batch, then rewrites the intent brief and tickets in place: it keeps ticket IDs, links, and history, saves each old description as a comment first, merges slivers as duplicates, and ends at the readiness gate with an Approved line. Use when the user wants to refresh, upgrade, migrate, clean up, or rewrite an existing Linear project or backlog to the new ticket standard."
 metadata:
   author: kellykampen
-  version: "1.3.0"
+  version: "1.4.0"
 ---
 
 # Project Refresh
@@ -54,6 +54,7 @@ Check the project and every not-started ticket against `fleet-plan`:
 - **Unlinked duplicates:** tickets with the same title or the same requirements and no duplicate relation. Merge them into the one with history.
 - **Work no agent can finish in a PR:** external setup, staging checks, live-service checks, release acceptance, and runbooks for the owner. They are release checks. List them in the brief's Release checks. Keep their tickets if the user tracks them as tickets, but they are outside the run.
 - **Old delivery rules that conflict with the fleet:** rules in the old description such as "merges after owner authorization", a point cap, or a fixed reviewer model. Keep what still applies. Ask about each conflict in the question batch.
+- **Work outside the definition of done:** tickets the launch does not need (tooling, flaky tests, lint, follow-ups). They do not belong in this project. Propose moving them to another project of the same team, creating one (for example "<team> — Maintenance") if none fits, with a comment on each.
 - **Dates:** deadlines or a season that limits the schedule. Put them in Constraints, and say in the question batch if the plan cannot fit them.
 
 ## Step 3: Draft the change plan
@@ -84,18 +85,29 @@ Fold the answers into the drafts. Ask a follow-up only for a genuinely new produ
 
 ## Step 5: Apply in place
 
-Make the changes in this order, and read each one back:
+Make the changes in this order. **Read every write back** and compare it with what you meant to change: the Linear API can report success for a write it did not apply (for example a rename, or a duplicate or related link). Never report a change you did not see in a read-back.
 
 Prefer **patches over rewrites**. When a ticket mostly meets the standard, change only the sections that need it: insert Verify and Evidence lines under each criterion, replace an old Entry or Exit line, add a WARNING or CAUTION line. The Linear MCP `save_issue` takes `patch` operations (`insert_after`, `replace`, `replace_range`). Patches keep inline images and text you did not mean to touch. A full rewrite sends back image markup with signed upload URLs that can expire. Generate the patches with a script, apply them to a local copy first, check that every anchor occurs exactly once, and keep the patched copies as the drafts for the cold read.
 
 1. **Preserve the old text.** Before you change a ticket's description, add a comment to it that contains the old description in full, under a heading such as "Description before the fleet refresh (<date>)". Do the same for the project description, as a project document or a project update. If that comment already exists, the ticket was refreshed before: compare, and do not save it twice.
 2. **Rewrite the project description** with the new intent brief.
 3. **Rewrite tickets** to the ticket template. Keep the ID, assignee, comments, attachments, and links. Update the title to the outcome when the old title was a task. Move post-merge criteria to the intent brief's release checks.
-4. **Merge** each sliver: fold its requirements and criteria into the surviving ticket, move its blocker links to the survivor, then mark it a duplicate of the survivor. Never delete a ticket.
+4. **Merge** each sliver: fold its requirements and criteria into the surviving ticket, move its blocker links to the survivor, then mark it a duplicate of the survivor. If the duplicate link does not appear on read-back, cancel the ticket with a comment that names the survivor instead. Never delete a ticket.
 5. **Split** and **create** tickets, parented to the project, with labels and estimates.
 6. **Relations:** add missing blocker links and fix reversed ones. Remove a link only when it is clearly wrong, and say so in the ticket's comment. Confirm there is no cycle.
 7. **Labels:** create the t3-fleet group only if it does not exist, at the workspace or top-most parent team, as `fleet-plan` Step 7 describes. Add and remove individual labels; never replace a ticket's whole label set, so unrelated labels survive.
 8. **Cancel** out-of-scope tickets with a comment that names the non-goal.
+
+## Running it again
+
+Run this skill again whenever a refreshed project may have drifted. The saved-description comments show which tickets were refreshed before; do not save them twice. Compare the project with its approved state and fix only the drift:
+
+- **Tickets that entered the run:** moved out of Backlog, or created since the `Approved:` date. Refresh them to the standard, or move them out of the project if the definition of done does not need them.
+- **Tickets that left the run or finished:** merged, canceled, or moved. Update notes in the brief that mention them (for example "has an open PR"), and the dependency graph.
+- **Prerequisites still open:** report them; they block `project-run`.
+- **Writes that never applied:** read back the links, states, and labels the last refresh set.
+
+Scope changes (tickets added to or removed from the run) need the user's approval in the question batch; then set `Approved:` to the new date. Fixes that only restore the approved plan do not.
 
 ## Step 6: Readiness gate
 

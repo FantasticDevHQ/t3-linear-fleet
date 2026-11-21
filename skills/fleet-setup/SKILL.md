@@ -3,7 +3,7 @@ name: fleet-setup
 description: "One-time setup and health check for the T3 Linear Fleet. Checks Linear access (Linear MCP or linear-cli), T3 Code's orchestration tools and providers, and the GitHub CLI; creates the t3-fleet label group at the right level of the Linear workspace; walks the user through Linear's GitHub automation (magic-word commit linking and branch rules); and classifies the user's favorite models with fleet-models. Safe to run again: it only fixes what is missing and ends with a ready or not-ready checklist. Use when the user installs the fleet, says set up or check the fleet, or when fleet-plan or project-run finds setup missing."
 metadata:
   author: kellykampen
-  version: "1.0.0"
+  version: "1.0.1"
 ---
 
 # Fleet Setup
@@ -41,10 +41,11 @@ The orchestrator schedules from one multi-select label group named **t3-fleet** 
 | `t3-fleet-risky` | Security, auth, data, money, migrations, or concurrency; reviewed by another provider before merge |
 
 1. **Read the hierarchy and labels, every page.** List teams and follow `parentId` to find the top-level teams. Read the label catalog with groups included, and each team's labels too; a plain read can miss labels inside another team's group. Follow pagination to the end of every list before you decide anything; never create on a partial read.
-2. **If the group exists,** check that it is multi-select, sits at the workspace or a top-level team, and is visible to every team that will run fleet projects (read each of those teams' labels). If all holds, add any missing labels to it, and it is ready. If not, report the exact conflict (for example "single-select" or "on team Ops, not inherited by Web") as **needs you**; do not create a second group.
-3. **If it does not exist,** decide where it goes: the **workspace** when more than one top-level team may run fleet projects, or that **top-level team** when only its teams will. Ask if it is not clear from the hierarchy. Never put it on a team that has a parent.
-4. **Create** the group (multi-select) and its four labels, then read them back as seen by one team below it.
-5. **Name clash.** Linear label names are unique across the workspace and every team, ignoring case and group. If a create fails because a name exists, tell the user which team owns it. Do not rename another team's label without asking.
+2. **Find the group by its labels too.** If the four labels exist under a group with another name (for example one created before the group was renamed), that group is the t3-fleet group: rename it to `t3-fleet` and read the name back. Never create a second group while the four labels exist.
+3. **If the group exists,** check that it is multi-select, sits at the workspace or a top-level team, and is visible to every team that will run fleet projects (read each of those teams' labels). If all holds, add any missing labels to it, and it is ready. If not, report the exact conflict (for example "single-select" or "on team Ops, not inherited by Web") as **needs you**; do not create a second group.
+4. **If it does not exist,** decide where it goes: the **workspace** when more than one top-level team may run fleet projects, or that **top-level team** when only its teams will. Ask if it is not clear from the hierarchy. Never put it on a team that has a parent.
+5. **Create** the group (multi-select) and its four labels, then read them back as seen by one team below it.
+6. **Name clash.** Linear label names are unique across the workspace and every team, ignoring case and group. If a create fails because a name exists, tell the user which team owns it. Do not rename another team's label without asking.
 
 ## Step 4: Linear's GitHub automation
 

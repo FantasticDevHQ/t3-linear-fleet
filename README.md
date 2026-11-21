@@ -94,11 +94,11 @@ Expected result: `fleet-plan` appears in the list for your agents. Then ask your
 
 | Skill | Status | What it does |
 | --- | --- | --- |
-| [fleet-setup](./skills/fleet-setup/SKILL.md) | Ready (1.0.0) | One-time setup and health check: Linear access (MCP or linear-cli), T3 Code providers, the GitHub CLI, the t3-fleet labels, Linear's GitHub automation, and your model ratings. Safe to rerun. |
+| [fleet-setup](./skills/fleet-setup/SKILL.md) | Ready (1.0.1) | One-time setup and health check: Linear access (MCP or linear-cli), T3 Code providers, the GitHub CLI, the t3-fleet labels, Linear's GitHub automation, and your model ratings. Safe to rerun. |
 | [fleet-plan](./skills/fleet-plan/SKILL.md) | Ready (3.1.2) | Plans a feature as a Linear project: intent brief, one batch of questions with defaults, a cold read, the fewest tickets, EARS requirements traced to acceptance criteria provable inside the PR, and a readiness gate. |
 | [fleet-models](./skills/fleet-models/SKILL.md) | Ready (1.0.0) | Classifies your favorite models in T3 Code once (intelligence, taste, cost, best use) from suggested defaults you confirm, asks again only about new favorites, and holds the rule for picking each ticket's model. |
 | [project-run](./skills/project-run/SKILL.md) | Ready (1.5.0) | The orchestrator: preflight, integration branch, foundation first, dispatch on blockers across T3 Code machines and providers, merge and freeze rules, takeovers, batched escalation, feature review, and the evidence packet. |
-| [project-refresh](./skills/project-refresh/SKILL.md) | Ready (1.3.0) | `/project-refresh <Linear project URL>`: audits a project written to an older standard and rewrites it in place to the fleet spec, keeping IDs and history, so `project-run` can execute it. |
+| [project-refresh](./skills/project-refresh/SKILL.md) | Ready (1.4.0) | `/project-refresh <Linear project URL>`: audits a project written to an older standard and rewrites it in place to the fleet spec, keeping IDs and history, so `project-run` can execute it. |
 | [ticket-worker](./skills/ticket-worker/SKILL.md) | Ready (1.2.0) | The worker brief: intent, smallest change, proof, ownership through green, escalation to the orchestrator, fixed report line. |
 | [pr-gate](./skills/pr-gate/SKILL.md) | Ready (1.1.1) | Ticket and final merge gates, PR watching without polling, event routing, and the freeze on a red integration branch. |
 | [review-loop](./skills/review-loop/SKILL.md) | Ready (1.1.0) | Budgeted review by a different provider, with blocker / should / nit severity, a ledger, and checks for over-engineering and weakened tests. |
