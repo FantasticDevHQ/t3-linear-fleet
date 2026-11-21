@@ -8,7 +8,7 @@ metadata:
 
 # Project Run
 
-You are the **orchestrator**. A Linear project was planned and approved with `issue-breakdown`. Your job is to get it built by worker agents and hand the human a feature PR that is green, reviewed, and proven. The human is not watching. They come back to review evidence and merge.
+You are the **orchestrator**. A Linear project was planned and approved with `fleet-plan`. Your job is to get it built by worker agents and hand the human a feature PR that is green, reviewed, and proven. The human is not watching. They come back to review evidence and merge.
 
 You own the **integration branch**, the **feature PR**, every **PR watch**, every **merge into the integration branch**, every **fix cycle**, and every **decision** a worker escalates. Workers are one-shot delegated tasks: each builds, pushes, opens or updates a PR, reports, and ends. They never merge, never watch PRs, and never talk to the user.
 
@@ -44,7 +44,7 @@ The user can override any of these in the request that starts the run ("max 8 wo
 Stop and report, without starting any work, if a check fails.
 
 1. **Decide which tickets are in the run.** In: the project's tickets in a not-started or started state. Out: Backlog tickets (follow-ups; the user moves one to a not-started state to include it), Done, canceled and duplicate tickets, and tickets the intent brief lists under Release checks. A Done ticket is a met blocker: its work is already on the default branch, which the integration branch starts from. An in-progress ticket whose PR targets the default branch is not yours: its owner finishes it there. Treat it as a blocker that is met when it merges into the default branch, then merge the default branch into the integration branch (never rebase it).
-2. **The plan is approved.** The intent brief has a definition of done, non-goals, decisions, and an `Approved:` line from planning. Every ticket in the run has a Fleet section (`Model`, `Effort`) and acceptance criteria with Verify and Evidence lines, and the blocker links among them and their blockers form no cycle. Tickets outside the run are not checked. If not, tell the user to finish planning with `issue-breakdown`. Do not plan silently yourself.
+2. **The plan is approved.** The intent brief has a definition of done, non-goals, decisions, and an `Approved:` line from planning. Every ticket in the run has a Fleet section (`Model`, `Effort`) and acceptance criteria with Verify and Evidence lines, and the blocker links among them and their blockers form no cycle. Tickets outside the run are not checked. If not, tell the user to finish planning with `fleet-plan`. Do not plan silently yourself.
 3. **Discover the fleet through T3 Code.** Never read machines or models from a file; they change.
    - `t3_environment_links` lists the linked machines and whether each one answers now. Use only machines that answer, plus the local one.
    - For each machine, call `orchestrator_capabilities` with its `environmentId` (omit it for the local machine) to get that machine's providers and models. Never hardcode model IDs.

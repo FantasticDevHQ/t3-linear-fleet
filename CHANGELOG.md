@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- **Breaking:** `issue-breakdown` is renamed `fleet-plan` (3.0.0), and its description now targets fleet planning. Another widely installed skill named `issue-breakdown` made the two collide in skill managers, so only one could be installed. `project-run` and `project-refresh` now refer to `fleet-plan`. Reinstall to pick up the new name.
+
 - Model and effort per ticket: every ticket gets a required **Fleet** section (`Model`, `Effort`, optional `Why`). Labels were rejected because Linear label groups cannot nest, label names must be unique across the workspace, and model IDs and effort scales change too often.
   - `issue-breakdown` 2.3.0 picks the model from the user's T3 Code favorites (the `favorites` list in T3 Code's settings file, until T3 Code exposes favorites to agents). It uses a model-classification skill if one is installed, or a built-in rule of intelligence, then taste, then cost. Effort is `low`, `medium`, `high`, `xhigh`, or `max`. The readiness gate requires the section.
   - `project-refresh` 1.2.0 adds the section to every ticket in the run.

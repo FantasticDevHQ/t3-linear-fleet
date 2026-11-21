@@ -4,7 +4,7 @@
     {
       "id": 0,
       "prompt": "/project-refresh https://linear.app/acme/project/checkout-v2 — the project has 14 tickets written as user stories, most 1-2 points, with ACs like 'conversion improves after launch' and no intent brief.",
-      "expected_output": "Reads everything before changing anything, including the repo. Audits against issue-breakdown. Drafts an intent brief, merges point-cap slivers into fewer tickets (survivor keeps history), moves 'conversion improves after launch' to release checks, adds EARS requirements and three-part ACs, and proposes t3-fleet labels. Shows the change plan in one question batch before applying anything.",
+      "expected_output": "Reads everything before changing anything, including the repo. Audits against fleet-plan. Drafts an intent brief, merges point-cap slivers into fewer tickets (survivor keeps history), moves 'conversion improves after launch' to release checks, adds EARS requirements and three-part ACs, and proposes t3-fleet labels. Shows the change plan in one question batch before applying anything.",
       "files": []
     },
     {
