@@ -80,7 +80,7 @@ test("a commit without a Linear reference fails with actionable feedback", async
   ]);
   assert.equal(await run(), false);
   const comment = calls.find((call) => call.path === "/issues/65/comments");
-  assert.match(comment.data.body, /Commit deadbee "ci: tweak" has no Linear reference/);
+  assert.match(comment.data.body, /Commit deadbee "ci: tweak" has no ticket or issue reference/);
 });
 
 test("merge commits are exempt from the commit rule", async () => {
