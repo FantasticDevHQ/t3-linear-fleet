@@ -3,13 +3,13 @@
   "evals": [
     {
       "id": 0,
-      "prompt": "Run the Linear project 'Billing export' with the fleet. Tickets: ENG-1 foundation (schema + API contract), ENG-2 export endpoint (blocked by ENG-1), ENG-3 export button (blocked by ENG-2), ENG-4 email digest (blocked by ENG-1).",
-      "expected_output": "Runs preflight: checks the Approved line, discovers machines with t3_environment_links and, per machine, providers with orchestrator_capabilities and the repo's projectId with t3_project_list, smoke-tests each machine, and confirms CI runs on feat/** PRs and pushes. Creates feat/billing-export but does not open the feature PR until ENG-1 merges. Dispatches ENG-1 (label foundation) alone, then ENG-2 and ENG-4 in parallel, and ENG-3 only after ENG-2 merges. Schedules a one-time wake-up per dispatch and does not poll.",
+      "prompt": "Run the Linear project 'Billing export' with the fleet. Tickets: ENG-1 foundation (schema + API contract, label t3-fleet-foundation), ENG-2 export endpoint (blocked by ENG-1), ENG-3 export button (blocked by ENG-2), ENG-4 email digest (blocked by ENG-1).",
+      "expected_output": "Runs preflight: checks the Approved line, discovers machines with t3_environment_links and, per machine, providers with orchestrator_capabilities and the repo's projectId with t3_project_list, smoke-tests each machine, and confirms CI runs on feat/** PRs and pushes. Creates feat/billing-export but does not open the feature PR until ENG-1 merges. Dispatches ENG-1 (label t3-fleet-foundation) alone, then ENG-2 and ENG-4 in parallel, and ENG-3 only after ENG-2 merges. Schedules a one-time wake-up per dispatch and does not poll.",
       "files": []
     },
     {
       "id": 1,
-      "prompt": "Linked machines: local and cloud-1 (both answer). Ticket ENG-9 has the local-only label. ENG-10 and ENG-11 are self-contained API tickets. ENG-12 and ENG-13 both have the schema-change label. The user said 'max 4 workers'.",
+      "prompt": "Linked machines: local and cloud-1 (both answer). Ticket ENG-9 has the t3-fleet-local-only label. ENG-10 and ENG-11 are self-contained API tickets. ENG-12 and ENG-13 both have the t3-fleet-schema-change label. The user said 'max 4 workers'.",
       "expected_output": "Uses no config file. Sends ENG-9 to the local machine. Sends ENG-10 and ENG-11 to cloud-1 on different providers taken from cloud-1's orchestrator_capabilities, passing cloud-1's projectId and environmentId. Runs ENG-12 and ENG-13 one at a time. Never exceeds 4 workers. Each attempt gets a unique clientRequestId such as ENG-10-impl-1, and records which provider wrote each ticket so its reviewer differs.",
       "files": []
     },

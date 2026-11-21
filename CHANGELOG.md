@@ -5,11 +5,11 @@
 - Lessons from the first `/project-refresh` pilot, on a real 42-ticket project:
   - The fleet labels are now `t3-fleet-foundation`, `t3-fleet-local-only`, `t3-fleet-schema-change`, and `t3-fleet-risky`, in a group named `t3-fleet`. Linear label names are unique across the workspace and every team, so plain names such as `foundation` clash with labels that already exist (`issue-breakdown` 2.2.0, `project-run` 1.3.0, `project-refresh` 1.1.0, `pr-gate` 1.1.1, README).
   - `project-refresh` 1.1.0:
-    - Audits whether the repository is ready for `project-run` (CI on `feat/**`, which tests CI runs), plus unlinked duplicates, work no PR can prove (it moves to Release checks), old delivery rules that conflict with the fleet, and deadlines.
+    - Audits whether the repository is ready for `project-run` (CI on `feat/**`, which tests CI runs). A gap becomes a prerequisite ticket that merges into the default branch before the run, plus unlinked duplicates, work no PR can prove (it moves to Release checks), old delivery rules that conflict with the fleet, and deadlines.
     - Backlog tickets stay out of the run unless the user includes them.
     - Prefers section patches to full rewrites, so inline images and untouched text survive.
     - New `references/linear-notes.md` covers relations needing two flags, team `parentId`, label catalog gaps, Markdown normalization, chunked bulk writes, and write-once programs. It works with any Linear MCP host.
-  - `project-run` 1.3.0: a preflight step decides which tickets are in the run. Backlog, Done, canceled, duplicate, and release-check tickets are out. An in-progress PR into the default branch is a blocker that is met when it merges there.
+  - `project-run` 1.3.0: preflight first decides which tickets are in the run, then validates only those tickets. Backlog, Done, canceled, duplicate, and release-check tickets are out. An in-progress PR into the default branch is a blocker that is met when it merges there.
   - `issue-breakdown` 2.2.0: reads team label groups and treats a name-clash error as the final label check.
 
 - Publish prep: CI and license badges in the README header, and neutral example workspace URLs in the validator tests.
