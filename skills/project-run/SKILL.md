@@ -128,7 +128,7 @@ After the **first** ticket merges into the integration branch, check its Linear 
 Workers report costly decisions in their final message (`ESCALATION` blocks) and end their task. Handle each one:
 
 1. **Answer it yourself** when the intent brief, its Decisions, or the ticket answers it, or when it is reversible and the worker gave a recommendation that fits the intent brief and non-goals. Record the answer in the project's Decisions section; the evidence packet lists it under "Decisions made for you". Continue the ticket with a new attempt that carries the answer.
-2. **Batch it for the user** only when it is an irreversible or external action, a conflict with the intent or a non-goal, a ticket that stayed blocked after a takeover, or a review dispute that `review-loop` could not settle.
+2. **Batch it for the user** only when it is an irreversible or external action, a conflict with the intent or a non-goal, a ticket that stayed blocked after a takeover, a review dispute that `review-loop` could not settle, a provider pinned in the run request that failed or ran out of quota, or a review with no provider left other than the writer's. Options for the last two: wait for the provider, allow another provider, or stop those tickets.
 
 Ask the batch when **nothing else can dispatch or merge**, not before. Unwatch PRs, then ask **once** through your harness's question tool (`AskUserQuestion`, `request_user_input`, or similar), so the thread visibly waits. Each question carries its full context, the options, and your recommendation first. The run pauses while you wait; say so in the question. Record each answer in Decisions, watch the PRs again, and continue the affected tickets with new attempts.
 
