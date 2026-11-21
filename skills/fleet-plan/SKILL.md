@@ -3,7 +3,7 @@ name: fleet-plan
 description: "Plan a feature as a Linear project that the T3 Linear Fleet (project-run) can build unattended. Researches the codebase, writes an intent brief (problem, users, definition of done, non-goals, decisions), drafts the fewest reviewable tickets with EARS requirements and traceable acceptance criteria that can be proven inside the PR before merge, has a fresh agent cold-read them, asks the user every open question in one batch with recommended defaults, and only creates the tickets once a readiness gate passes. Use when the user wants to plan a feature for the fleet, for project-run, or for parallel agents in T3 Code, or asks for fleet-plan by name. Works with the Linear MCP or linear-cli, or as drafts."
 metadata:
   author: kellykampen
-  version: "3.1.1"
+  version: "3.1.2"
 ---
 
 # Fleet Plan
@@ -218,7 +218,7 @@ Labels: discover before you create.
 
 1. Read the team hierarchy, and the issue-label catalog with each label's owning team, parent group, and `inheritedFrom`. Follow every page. Project labels are a separate catalog and do not label issues.
 2. Reuse workspace and inherited parent-team labels. Do not create a local variant such as `platform:cli` when an applicable workspace `cli` exists. A child team's copy with `inheritedFrom` set is an inherited definition, not a duplicate.
-3. If the **t3-fleet** group does not exist yet, create it with `fleet-setup` Step 3 (multi-select, at the workspace or the top-most parent team, never on a leaf team), using the placement decided in Step 5. If a team-local copy already exists, tell the user and use it rather than adding another.
+3. If the **t3-fleet** group does not exist yet, create it with `fleet-setup` Step 3 (multi-select, at the workspace or the top-most parent team, never on a leaf team), using the placement decided in Step 5. If a copy exists on a team that has a parent, do not use it and do not add another: report it to the user as `fleet-setup` does, and leave the tickets' t3-fleet labels unset until it is fixed.
 4. A catalog read can miss labels that belong to other teams' label groups. Read each relevant team's labels with the team filter, ask for groups too, and treat a name-clash error on create as the final check.
 5. Verify labels and a provisional estimate on every ticket you create or revise.
 

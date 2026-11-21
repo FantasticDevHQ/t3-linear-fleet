@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-- `fleet-setup` 1.0.0: one-time setup and health check. It checks Linear access (MCP or linear-cli), T3 Code providers (two needed for cross-provider review), and `gh` with `--attach`. It creates the `t3-fleet` label group at the right level, walks the user through Linear's GitHub automation, runs `fleet-models`, and ends with a ready checklist. The README's setup section now points to it. `fleet-plan` 3.1.1 asks where to create a missing label group in its single question batch, then creates it with `fleet-setup`.
+- `fleet-setup` 1.0.0: one-time setup and health check. It checks Linear access (MCP or linear-cli), T3 Code providers (two needed for cross-provider review), and `gh` with `--attach`. It creates the `t3-fleet` label group at the right level, walks the user through Linear's GitHub automation, runs `fleet-models`, and ends with a ready checklist. The README's setup section now points to it. `fleet-plan` 3.1.2 asks where to create a missing label group in its single question batch, then creates it with `fleet-setup`.
 
 - `fleet-models` 1.0.0: classifies the user's favorite models in T3 Code once. It proposes intelligence, taste, cost and best-use defaults, the user confirms or edits them in one question, and the result is saved to `~/.config/t3-linear-fleet/models.json`. Only favorites added later are asked about; removed favorites keep their ratings. It also holds the rule for choosing a ticket's model and the closest replacement.
 - `fleet-plan` 3.1.0 and `project-refresh` 1.3.0 choose models through `fleet-models`. `project-run` 1.5.0 uses its classification to replace an unavailable model and never asks for classification mid-run.
