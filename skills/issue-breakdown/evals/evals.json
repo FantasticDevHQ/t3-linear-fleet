@@ -4,7 +4,7 @@
     {
       "id": 0,
       "prompt": "we're building a notifications feature for our SaaS app: users get in-app notifications when someone comments on their post, mentions them, or when their subscription is about to expire, plus a notification bell with an unread count and a settings page to toggle each type. break this into a Linear project and tickets agents can build without asking me things.",
-      "expected_output": "Researches the codebase first. Drafts an intent brief (problem, users, definition of done, non-goals, constraints, decisions, release checks). Proposes a foundation ticket for the shared notification model and contracts that blocks the rest. Keeps the ticket count small: no ticket is split only to stay under a point cap. Every acceptance criterion has a Verify that runs on the PR and an Evidence line. Asks one batch of questions with recommended defaults, assumptions, and the non-code checklist before creating anything.",
+      "expected_output": "Researches the codebase first. Drafts an intent brief (problem, users, definition of done, non-goals, constraints, decisions, release checks). Proposes a foundation ticket for the shared notification model and contracts that blocks the rest. Keeps the ticket count small: no ticket is split only to stay under a point cap. Every acceptance criterion has a Verify that runs on the PR and an Evidence line. Asks one batch of questions with recommended defaults, assumptions, and the non-code checklist before creating anything. Behavioral tickets carry numbered EARS requirements, each acceptance criterion is tagged with its REQ and names its test, the text follows STE100 style, and the intent brief has a Mermaid dependency flowchart.",
       "files": []
     },
     {
@@ -29,6 +29,12 @@
       "id": 4,
       "prompt": "Here's a ticket: 'Build the reporting dashboard. AC: dashboard is live for all customers, uses a repository pattern with a caching layer and an event bus, and the export ticket ENG-41 is merged first.' Is it ready for an agent?",
       "expected_output": "Says it is not ready. 'Live for all customers' is not provable before merge, so it moves to release checks or becomes a preview/flag check. The repository pattern, caching layer, and event bus are 'how' with no stated need, so they are removed unless a decision requires them. 'ENG-41 is merged first' becomes a blocker link, not a criterion. Rewrites the ticket with an outcome, scope, decisions, and three-part criteria.",
+      "files": []
+    },
+    {
+      "id": 5,
+      "prompt": "Plan a ticket that migrates our users table to split full_name into first_name and last_name, backfills existing rows, and drops the old column.",
+      "expected_output": "Marks the destructive column drop with WARNING and treats it as a costly decision settled in planning (for example, keep the old column until a later release check) rather than left to the agent. Writes EARS requirements for the migration behavior and acceptance criteria provable before merge: forward and back migration on a production-shaped fixture in CI. Moves verification against production data to release checks.",
       "files": []
     }
   ]

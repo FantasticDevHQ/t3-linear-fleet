@@ -1,6 +1,6 @@
 ---
 name: issue-breakdown
-description: "Plan a feature as a Linear project that agents can build unattended. Researches the codebase, writes an intent brief (problem, users, definition of done, non-goals, decisions), drafts the fewest reviewable tickets with acceptance criteria that can be proven inside the PR before merge, has a fresh agent cold-read them, asks the user every open question in one batch with recommended defaults, and only creates the tickets once a readiness gate passes. Use whenever the user wants to break down, scope, plan, or ticket a feature, epic, or initiative, write Linear issues or acceptance criteria, or prepare work for parallel agents, even if they don't say Linear. Works with the Linear MCP or linear-cli, or as drafts."
+description: "Plan a feature as a Linear project that agents can build unattended. Researches the codebase, writes an intent brief (problem, users, definition of done, non-goals, decisions), drafts the fewest reviewable tickets with EARS requirements and traceable acceptance criteria that can be proven inside the PR before merge, has a fresh agent cold-read them, asks the user every open question in one batch with recommended defaults, and only creates the tickets once a readiness gate passes. Use whenever the user wants to break down, scope, plan, or ticket a feature, epic, or initiative, write Linear issues or acceptance criteria, or prepare work for parallel agents, even if they don't say Linear. Works with the Linear MCP or linear-cli, or as drafts."
 metadata:
   author: kellykampen
   version: "2.0.0"
@@ -15,6 +15,19 @@ Three rules shape everything below:
 - **Decide now, not later.** Every product decision is settled before a ticket is created. Agents may make reversible implementation choices on their own; they should never have to guess what the user wants.
 - **Plan only what the feature needs.** No speculative requirements, options, or "while we're here" work. Over-planned tickets become over-engineered code. Non-goals are as important as goals.
 - **Acceptance happens inside the PR.** Every acceptance criterion can be proven from the PR's branch, CI, or preview deploy before merge. Anything that can only be checked after release goes on a separate, non-blocking list.
+
+Precision is not over-engineering. Exact requirements and plain wording are what let an agent build the right thing without asking; over-engineering is scope or code the feature does not need.
+
+## Writing standards
+
+Every ticket and the intent brief use the same standards:
+
+- **Wording: ASD-STE100.** Write all text you put in Linear in Simplified Technical English: short sentences, active voice, one meaning per word, the same term for the same thing. Use it as a style guide, not a certified process. Do not rewrite text you quote verbatim. See [references/ste-writing.md](references/ste-writing.md).
+- **Requirements: EARS, for behavioral tickets.** Number them `REQ-001` and up, one requirement per ID, using the ubiquitous, event-driven ("When X, the system shall Y"), state-driven, unwanted-behavior, or optional-feature pattern. Config, chore, and migration tickets can skip numbered requirements. See [references/requirements-ears.md](references/requirements-ears.md).
+- **Quality: ISO/IEC/IEEE 29148.** Each requirement is necessary, appropriate, unambiguous, complete, singular, feasible, verifiable, correct, and conforming. The readiness gate checks this. Same reference.
+- **Traceability: REQ → AC → TEST.** Every REQ has at least one acceptance criterion tagged with its ID, and every criterion's Verify line names its test or check. Nothing gets built without a check. See [references/traceability.md](references/traceability.md).
+- **Diagrams: Mermaid.** The intent brief carries a small flowchart of ticket dependencies. A complex ticket can add a REQ → AC → TEST graph. Same reference.
+- **Risky changes.** Put **WARNING:** (data loss, security, injury) or **CAUTION:** (damage to systems, money, schedule) first, then the step, then the risk. A WARNING item is a costly decision: it is settled in planning or escalated during execution, never decided silently by an agent.
 
 ## Step 1: Research before asking
 
@@ -47,6 +60,9 @@ The intent brief is the Linear project description. Every agent reads it before 
 
 ## Release checks (post-merge, non-blocking)
 - <things only provable after release: production metrics, rollout, live third-party behavior>
+
+## Ticket dependencies
+<Mermaid flowchart: foundation ticket first, A --> B means A blocks B>
 ```
 
 Also record **project-level dependencies**: which other existing projects this one builds on. Most projects depend on at least one; link them in Step 7.
@@ -69,7 +85,11 @@ When tickets share schema, contracts, types, new dependencies, or central regist
 **Title:** <the outcome, e.g. "Members can bulk-archive from the members table">
 
 ## Outcome
-<1-3 sentences: what this delivers, for whom, and which part of the definition of done it serves>
+<1-3 sentences: what this delivers, for whom, and which part of the definition of done it serves.
+A user story ("As a <role>, I want <action>, so <result>") is a good way to write this; it is optional.>
+
+## Requirements   (behavioral tickets)
+- **REQ-001:** When <trigger>, the <system> shall <response>.
 
 ## Scope
 - <what to build>
@@ -79,9 +99,9 @@ When tickets share schema, contracts, types, new dependencies, or central regist
 - <ticket-specific exclusions, if any beyond the project's>
 
 ## Acceptance criteria
-- [ ] **AC-1:** <one observable condition with real values>
-  - Verify: <test, preview-deploy check, or command that runs on the PR>
-  - Evidence: <what CI or the preview produces: test name, recording, output>
+- [ ] **AC-1 (REQ-001):** Given <state>, When <action>, Then <observable result with real values>.
+  - Verify: <test (file › name), preview-deploy check, or command that runs on the PR>
+  - Evidence: <what CI or the preview produces: test pass, recording, output>
 
 ## Design
 <screenshot/PNG of the target, plus optional source link (UI tickets only)>
@@ -95,8 +115,8 @@ Describe **what**, not **how**. Name decisions already made; leave the implement
 
 An acceptance criterion is a gate *before* merge. If it can only be checked after merge, it blocks the merge forever, and an unattended agent will loop, quietly skip it, or ask the user. So every criterion must be **provable from the PR alone**.
 
-- Write criteria as **concrete examples with real values**: "Given a cart with 2 items, paying with Stripe test card 4242… shows the order as Paid and queues a receipt email." Given/When/Then is useful for behavior, not required.
-- One observable condition per checkbox.
+- Write criteria as **concrete examples with real values**: "Given a cart with 2 items, When the user pays with Stripe test card 4242…, Then the order shows Paid and a receipt email is queued." Use Given/When/Then for behavior.
+- One observable condition per checkbox, tagged with the REQ it checks.
 - If you cannot fill in **Verify** with something that runs on the PR, rewrite the criterion or move it to Release checks.
 - A dependency on another ticket is a **blocker link**, never a criterion.
 
@@ -141,10 +161,15 @@ Do not create tickets in Linear until every box is checked. Show the user the br
 - [ ] The intent brief has a problem, users, a definition of done, non-goals, constraints, and decisions.
 - [ ] No product decision is unresolved. Every cold-read guess is answered or explicitly delegated to the agent as a reversible choice.
 - [ ] Every ticket has an outcome, scope with decisions, and at least one acceptance criterion.
+- [ ] Every behavioral ticket has numbered EARS requirements, and each passes the 29148 checks: necessary, appropriate, unambiguous, complete, singular, feasible, verifiable, correct, conforming.
+- [ ] Traceability has no gaps: every REQ has at least one tagged criterion, and every criterion's Verify names its test or check.
 - [ ] Every criterion has a Verify that runs on the PR and an Evidence that CI or a preview produces. None depends on production, "after deploy," real users, time windows, dashboards, or another ticket merging.
 - [ ] Post-release checks are in the brief's Release checks, not in tickets.
 - [ ] Dependencies are blocker links. Shared groundwork is in a foundation ticket.
 - [ ] UI tickets have a design screenshot attached.
+- [ ] Risky steps carry WARNING or CAUTION, and every WARNING decision is settled.
+- [ ] The intent brief has the Mermaid dependency flowchart.
+- [ ] Text follows ASD-STE100 style.
 - [ ] Nothing is planned that the definition of done does not need.
 
 ## Step 7: Create it in Linear
