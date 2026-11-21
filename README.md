@@ -86,7 +86,7 @@ Expected result: `fleet-plan` appears in the list for your agents. Then ask your
 
 ## How it works
 
-A feature goes through four stages. You talk to the agent in the first stage and review in the last; the middle runs without you.
+A feature goes through four stages. You talk to the agent in the first stage and review in the last. The middle runs unattended; it pauses only if a costly decision needs you, and then it asks all such questions in one batch.
 
 ```mermaid
 flowchart LR
@@ -95,7 +95,7 @@ flowchart LR
     B --> C{One batch of<br/>questions}
     C --> D[Approved: line<br/>in the brief]
   end
-  subgraph Run["2. Run (no human in the loop)"]
+  subgraph Run["2. Run (unattended)"]
     D --> E[project-run preflight:<br/>machines, models, CI]
     E --> F[Integration branch<br/>feat/project-name]
     F --> G[Dispatch ready tickets<br/>to workers]
@@ -113,7 +113,7 @@ flowchart LR
   M --> N[4. You review<br/>evidence and merge]
 ```
 
-Workers spread across your machines and model providers. The orchestrator picks each ticket's model from the ticket's Fleet section, and a reviewer always comes from a different provider than the writer:
+Workers spread across your machines and model providers. The orchestrator picks each ticket's model from the ticket's Fleet section. Every PR must pass its checks; risky tickets and the finished feature are also reviewed by a different provider than the one that wrote them:
 
 ```mermaid
 flowchart TB
@@ -125,7 +125,7 @@ flowchart TB
   M2 --> W3[Worker: Codex] & W4[Worker: Gemini]
   M3 --> W5[Worker: Claude]
   W1 & W2 & W3 & W4 & W5 -->|one PR each| GH[(GitHub:<br/>feat/project-name)]
-  GH -->|checks + cross-provider review| O
+  GH -->|checks; review for risky tickets| O
   O -->|status, Run log| L[(Linear project)]
 ```
 
@@ -133,15 +133,15 @@ flowchart TB
 
 Each choice answers a problem that shows up when agents build features unattended.
 
-- **All talking happens up front.** An agent that has to ask a question halfway through either stops or guesses. So `fleet-plan` settles every product decision before a ticket exists, asks them in one batch with recommended defaults, and records them in the brief. A question an agent asks during the run is a planning bug.
+- **Almost all talking happens up front.** An agent that has to ask a question halfway through either stops or guesses. So `fleet-plan` settles every product decision before a ticket exists. It asks one short question first if the goal is unclear, then the rest in one batch with recommended defaults, and records the answers in the brief. During the run, workers never ask you; only costly or irreversible decisions are escalated, batched, and asked when nothing else can proceed.
 - **Acceptance happens inside the PR.** A criterion that can only be checked after merge or in production blocks the merge forever, so an unattended agent loops, skips it, or asks. Every criterion has a `Verify` line that runs on the PR (a test, CI, a remote end-to-end run) and an `Evidence` line it produces. Things that can only be checked after release go in a separate, non-blocking list.
 - **Few, meaningful tickets.** One ticket is one reviewable PR with one outcome. There is no point cap: splitting work to fit an estimate makes slivers that share context and multiply review overhead.
 - **One integration branch per feature.** Ticket PRs merge into `feat/<project>`, not `main`. The feature lands as one PR you review once, with the evidence for the whole feature. `main` stays releasable the whole time.
-- **Commits carry the ticket, not PR titles.** Every commit says `Fixes ENG-123` or `Refs ENG-123`, which Linear's GitHub integration reads. Branch rules keep a ticket at "Integrated" when it merges into the feature branch, and move it to Done when the feature reaches `main`.
-- **The right model for each ticket.** Mechanical work goes to a cheap, fast model; money, security, and permanent-data work goes to the strongest one. You rate your own favorite models once (`fleet-models`), so the choice reflects your experience, not a hardcoded table.
-- **Review by a different provider.** A model reviewing its own provider's code shares its blind spots. Risky tickets and the whole feature get a reviewer from another provider.
+- **Commits carry the ticket, not PR titles.** Every commit says `Fixes ENG-123` or `Refs ENG-123`, which Linear's GitHub integration reads. Branch rules move a ticket to an "Integrated" status (or take no action) when it merges into the feature branch, and to Done when the feature reaches `main`. If those rules are missing, `project-run` corrects the statuses by hand.
+- **The right model for each ticket.** You rate your favorite models once for intelligence, taste, and cost (`fleet-models`). Each ticket then gets the candidate that fits its risk and kind of work, weighing intelligence first, then taste, then cost: mechanical work can go to a cheaper model, and money, security, or permanent-data work needs a high intelligence rating. The choice reflects your own experience, not a hardcoded table.
+- **Review by a different provider.** A model reviewing its own provider's code shares its blind spots. Ordinary tickets pass on green checks; risky tickets and the whole feature also get a reviewer from another provider.
 - **No config file for machines.** Machines and models change often, so `project-run` discovers them through T3 Code every time it runs.
-- **Read everything back.** APIs sometimes report success for a write they did not apply. The skills read back every change they make in Linear before they report it.
+- **Read changes back.** APIs sometimes report success for a write they did not apply. When `project-refresh` and `fleet-setup` change Linear, they read each change back before they report it.
 
 ## How I organize Linear
 
@@ -169,7 +169,7 @@ flowchart TB
 - **A project is one feature.** The project description is the intent brief: problem, users, definition of done, non-goals, constraints, decisions, release checks, and a dependency graph of every ticket. `fleet-plan` writes it; `project-refresh` brings older projects up to it.
 - **A ticket is one PR.** It has an outcome, numbered requirements, acceptance criteria with `Verify` and `Evidence`, a design image for UI work, and a Fleet section that names its model and effort.
 - **Work the feature doesn't need goes elsewhere.** Follow-ups found during a feature (tooling, flaky tests, lint) move to a separate maintenance project of the same team, so a feature's run stays focused on its definition of done.
-- **Done means merged.** A ticket is Done when its work reaches the default branch. Before that, a merge into the feature branch only makes it "Integrated".
+- **Done means merged.** A ticket is Done when its work reaches the default branch. Before that, a merge into the feature branch moves it to an "Integrated" status, or leaves it as it was if you chose "no action".
 
 ## Skills
 
