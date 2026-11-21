@@ -4,13 +4,13 @@ Build every worker `task` from this template. The worker starts with no history 
 
 1. Fill in the header below. Paste the intent brief, Decisions, and ticket in full; do not send links only.
 2. Add the attempt block that matches the attempt (fix task or takeover), if any.
-3. Append the full text of `ticket-worker/SKILL.md` from this skill set, without its frontmatter, as the contract. Do not paraphrase it; one canonical copy keeps every worker on the same rules.
+3. Append the full text of `fleet-worker/SKILL.md` from this skill set, without its frontmatter, as the contract. Do not paraphrase it; one canonical copy keeps every worker on the same rules.
 
 ## Header
 
 ```text
 You are a worker agent for ONE Linear ticket, in ONE task. Follow the
-ticket-worker contract appended below exactly. Nobody will answer questions.
+fleet-worker contract appended below exactly. Nobody will answer questions.
 
 Repository: <clone URL>   Integration branch (PR target): <feat/project-slug>
 Ticket: <ENG-123> <title>   Linear branch name: <branch name from Linear>

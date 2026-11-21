@@ -1,18 +1,18 @@
 ---
-name: project-run
+name: fleet-run
 description: "Orchestrate a planned Linear project to a ready feature PR with no human in the loop. Checks the plan was approved, discovers machines, providers, and projects through T3 Code at run time, runs a preflight smoke test per machine, creates the integration branch, runs the foundation ticket first, then dispatches tickets to worker agents as their blockers merge, load-balanced across machines and providers. Merges through the merge gate, freezes on red CI, hands stuck tickets to fresh agents, asks the few escalations in one batch, runs a cross-provider feature review, assembles the evidence packet, and stops for the human to merge. Use when the user asks to run, execute, build, or ship a Linear project or feature with agents, or to orchestrate a fleet across machines and providers."
 metadata:
   author: kellykampen
-  version: "1.7.0"
+  version: "2.0.0"
 ---
 
-# Project Run
+# Fleet Run
 
 You are the **orchestrator**. A Linear project was planned and approved with `fleet-plan`. Your job is to get it built by worker agents and hand the human a feature PR that is green, reviewed, and proven. The human is not watching. They come back to review evidence and merge.
 
 You own the **integration branch**, the **feature PR**, every **PR watch**, every **merge into the integration branch**, every **fix cycle**, and every **decision** a worker escalates. Workers are one-shot delegated tasks: each builds, pushes, opens or updates a PR, reports, and ends. They never merge, never watch PRs, and never talk to the user.
 
-The merge gates, PR watching, event routing, and the freeze procedure are defined once, in `pr-gate`. Reviews are defined in `review-loop`. This skill covers everything else.
+The merge gates, PR watching, event routing, and the freeze procedure are defined once, in `fleet-gate`. Reviews are defined in `fleet-review`. This skill covers everything else.
 
 ## What running this skill permits
 
@@ -20,7 +20,7 @@ The user asking you to run the project is the permission to:
 
 - create the integration branch and open the feature PR;
 - dispatch worker, fixer, reviewer, and evidence agents on the user's linked machines and providers;
-- merge ticket PRs and repair PRs into the integration branch when `pr-gate` allows it;
+- merge ticket PRs and repair PRs into the integration branch when `fleet-gate` allows it;
 - update ticket statuses, comments, and the project's Decisions section in Linear;
 - schedule one-time wake-ups for this thread.
 
@@ -55,7 +55,7 @@ Stop and report, without starting any work, if a check fails.
    - If it is not available, swap it for the closest candidate that an eligible machine offers. Candidates are the user's classified favorites from `fleet-models` that an eligible machine offers; "closest" is defined there, including for a model that has no rating. If the classification file is missing or broken, `fleet-models` reports it and you continue with your own judgment. If none is offered, or there is no classification, every model the eligible machines offer is a candidate, closest by your own judgment of strength. Log the swap and continue. Do not ask the user to classify models during a run; list unclassified favorites in the final report.
    - If no eligible machine offers any model, stop and report the ticket.
    - An `Effort` outside `low`, `medium`, `high`, `xhigh`, `max` counts as `medium`.
-   - **Reviewers:** `review-loop` needs a reviewer from a provider that wrote none of the PR's commits. If fewer than two providers are usable, stop and report. With only two, keep fix tasks and takeovers on the ticket's original provider.
+   - **Reviewers:** `fleet-review` needs a reviewer from a provider that wrote none of the PR's commits. If fewer than two providers are usable, stop and report. With only two, keep fix tasks and takeovers on the ticket's original provider.
    - **Provider override:** if the run request names a provider, check that it offers a candidate model on each ticket's eligible machines. Report any ticket where it does not before you start.
 6. **Check the repository's pipeline.**
    - CI runs on pull requests into `feat/**` and on pushes to `feat/**`, not only on the default branch. If it does not, stop: the ticket gate would pass with no checks. Name the prerequisite ticket that fixes it, if the plan has one; it merges into the default branch outside the run.
@@ -66,7 +66,7 @@ Stop and report, without starting any work, if a check fails.
    - `t3-fleet-foundation` tickets go first.
    - `t3-fleet-local-only` tickets run on the local machine.
    - `t3-fleet-schema-change` tickets after the foundation run one at a time.
-   - Every ticket gets a `review-loop` review before its merge; `t3-fleet-risky` tickets get up to two rounds with the strongest reviewer.
+   - Every ticket gets a `fleet-review` review before its merge; `t3-fleet-risky` tickets get up to two rounds with the strongest reviewer.
    If a ticket clearly needs one of these labels and lacks it, add it and note it in the Run log.
 
 ## Phase 1: Day 0
@@ -112,15 +112,15 @@ After the **first** ticket merges into the integration branch, check its Linear 
 
 ## Phase 4: Handle results
 
-`pr-gate` defines the PR events, the ticket gate, and the freeze. These events are specific to running the fleet:
+`fleet-gate` defines the PR events, the ticket gate, and the freeze. These events are specific to running the fleet:
 
 | Event | Action |
 | --- | --- |
-| A worker reports `PR <url>, head <sha>, checks <state>` | Confirm the PR, head, and checks on GitHub; never trust the line alone. Delete its scheduled wake-up. Watch the PR (`pr-gate`). Handle any `ESCALATION` blocks it reported. |
+| A worker reports `PR <url>, head <sha>, checks <state>` | Confirm the PR, head, and checks on GitHub; never trust the line alone. Delete its scheduled wake-up. Watch the PR (`fleet-gate`). Handle any `ESCALATION` blocks it reported. |
 | A ticket PR needs a fix (failed check, conflict, accepted findings) | Dispatch a **fix task**: a new attempt on the same branch, with the failure and the worker's summary. Each fix task is one fix cycle. Count them here; workers do not. |
-| A ticket PR is green | Run `review-loop` on it before the ticket gate: 1 round with a capable, inexpensive reviewer, or up to 2 with the strongest reviewer for a `t3-fleet-risky` ticket. The reviewer comes from a provider that wrote none of the PR's commits. |
-| `review-loop` ends **stuck** | Mark the ticket blocked in Linear and the Run log, pause its dependents, put it in the escalation batch with both sides of the dispute or the head changes that exhausted verification, and keep everything else moving. |
-| Review findings to fix | Dispatch a **fix task** for the accepted findings; it counts as one fix cycle, like a CI fix. When its new head is green, `review-loop` runs a verification round on it before the gate. Review rounds and fix cycles are counted separately. |
+| A ticket PR is green | Run `fleet-review` on it before the ticket gate: 1 round with a capable, inexpensive reviewer, or up to 2 with the strongest reviewer for a `t3-fleet-risky` ticket. The reviewer comes from a provider that wrote none of the PR's commits. |
+| `fleet-review` ends **stuck** | Mark the ticket blocked in Linear and the Run log, pause its dependents, put it in the escalation batch with both sides of the dispute or the head changes that exhausted verification, and keep everything else moving. |
+| Review findings to fix | Dispatch a **fix task** for the accepted findings; it counts as one fix cycle, like a CI fix. When its new head is green, `fleet-review` runs a verification round on it before the gate. Review rounds and fix cycles are counted separately. |
 | The fix budget is spent, or a worker reports blocked | Dispatch **one takeover**, preferably on another provider, as long as a third provider stays free to review it. It continues the same branch and keeps the earlier commits. |
 | The takeover is blocked too | Mark the ticket blocked in Linear and the Run log, pause its dependents, put it in the escalation batch, and keep everything else moving. |
 | A scheduled wake-up fires | If that attempt already reported, ignore it. Otherwise read its thread once. If it is still working, schedule one more wake-up for half the budget. If it is stuck or gone, `task_cancel` it and dispatch a takeover. |
@@ -130,7 +130,7 @@ After the **first** ticket merges into the integration branch, check its Linear 
 Workers report costly decisions in their final message (`ESCALATION` blocks) and end their task. Handle each one:
 
 1. **Answer it yourself** when the intent brief, its Decisions, or the ticket answers it, or when it is reversible and the worker gave a recommendation that fits the intent brief and non-goals. Record the answer in the project's Decisions section; the evidence packet lists it under "Decisions made for you". Continue the ticket with a new attempt that carries the answer.
-2. **Batch it for the user** only when it is an irreversible or external action, a conflict with the intent or a non-goal, a ticket that stayed blocked after a takeover, a review that `review-loop` ended as **stuck** (an unsettled dispute, or the verification-round limit reached), a provider pinned in the run request that failed or ran out of quota, a review with no provider left that wrote none of the PR's commits, or a **planning gap** (the definition of done cannot be met without work no ticket covers). Options for the provider cases: wait for the provider, allow another provider, or stop those tickets. Options for a planning gap: approve one new ticket for exactly that gap, change the definition of done, or stop the run.
+2. **Batch it for the user** only when it is an irreversible or external action, a conflict with the intent or a non-goal, a ticket that stayed blocked after a takeover, a review that `fleet-review` ended as **stuck** (an unsettled dispute, or the verification-round limit reached), a provider pinned in the run request that failed or ran out of quota, a review with no provider left that wrote none of the PR's commits, or a **planning gap** (the definition of done cannot be met without work no ticket covers). Options for the provider cases: wait for the provider, allow another provider, or stop those tickets. Options for a planning gap: approve one new ticket for exactly that gap, change the definition of done, or stop the run.
 
 When the user changes the definition of done, update the intent brief (definition of done, affected tickets' criteria, release checks), set `Approved:` to today's date, record the decision, and only then resume the work it affects; the final gate and the evidence agent use the updated brief.
 
@@ -143,10 +143,10 @@ Ask the batch when **nothing else can dispatch or merge**, not before. Unwatch P
 When every ticket is merged into the integration branch:
 
 1. Merge the latest default branch into the integration branch (never rebase it) and get the full suite green on that head.
-2. Run the **feature review** with `review-loop` (up to 3 rounds), with a reviewer from a provider other than the one that wrote most of the code. Sort each accepted finding: a defect in what a ticket delivered is fixed by a fix task on a repair branch whose commits carry `Refs <that ticket>`, merged into the integration branch through the ticket gate; an idea outside the plan becomes a possible follow-up; a part of the definition of done that no ticket covers is a planning gap for the escalation batch.
+2. Run the **feature review** with `fleet-review` (up to 3 rounds), with a reviewer from a provider other than the one that wrote most of the code. Sort each accepted finding: a defect in what a ticket delivered is fixed by a fix task on a repair branch whose commits carry `Refs <that ticket>`, merged into the integration branch through the ticket gate; an idea outside the plan becomes a possible follow-up; a part of the definition of done that no ticket covers is a planning gap for the escalation batch.
 3. Dispatch an **evidence agent** that did not write the code, on a different provider. For a user-facing feature it walks the definition of done on the preview deploy and records it. For a backend feature it captures the command, API, or test transcripts that prove the definition of done. It publishes media with `gh pr edit <n> --attach`, the path confirmed in preflight, never through a browser.
 4. Write the **evidence packet** into the feature PR, from [references/evidence-packet.md](references/evidence-packet.md). Update the summary so it declares every ticket (`Fixes ENG-1, ENG-2, …`).
-5. Mark the feature PR ready for review and check the **final gate** in `pr-gate`. If anything changed the head after the evidence was captured, refresh the evidence.
+5. Mark the feature PR ready for review and check the **final gate** in `fleet-gate`. If anything changed the head after the evidence was captured, refresh the evidence.
 6. Unwatch every PR and delete any remaining scheduled wake-ups. Report **ready** to the user: the feature PR link, head commit, evidence summary, decisions made on their behalf, any manual Linear corrections, the release checks for after merge, and the possible follow-ups (not filed; the user decides). Leave the PR open unless the user explicitly told you to merge this feature.
 
 ## Linear status

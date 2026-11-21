@@ -1,5 +1,5 @@
 {
-  "skill_name": "review-loop",
+  "skill_name": "fleet-review",
   "evals": [
     {
       "id": 0,
@@ -27,8 +27,8 @@
     },
     {
       "id": 4,
-      "prompt": "This ordinary ticket PR adds a settings toggle. Should it get a review-loop round before merging into the integration branch?",
-      "expected_output": "Yes. Every ticket PR gets one review-loop round before the ticket gate, from a capable, inexpensive model of a provider other than the writer's, chosen with fleet-models. The reviewer verifies each acceptance criterion's Verify and Evidence on the latest head and reviews the diff. A second round runs only to verify fixes for a blocker or should finding.",
+      "prompt": "This ordinary ticket PR adds a settings toggle. Should it get a fleet-review round before merging into the integration branch?",
+      "expected_output": "Yes. Every ticket PR gets one fleet-review round before the ticket gate, from a capable, inexpensive model of a provider other than the writer's, chosen with fleet-models. The reviewer verifies each acceptance criterion's Verify and Evidence on the latest head and reviews the diff. A second round runs only to verify fixes for a blocker or should finding.",
       "files": []
     },
     {

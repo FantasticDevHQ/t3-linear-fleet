@@ -1,12 +1,12 @@
 ---
-name: review-loop
+name: fleet-review
 description: "Budgeted code review by a model from a different provider than the author. Sends a self-contained, read-only brief; grades findings blocker / should / nit; checks for bugs, missed acceptance criteria, over-engineering, weakened tests, and non-goal leakage; answers each finding with the smallest fix or a written reason; keeps a ledger; and stops on approval, budget end, or a stuck dispute. One round for every ticket PR (up to two for risky tickets), up to three for a whole feature, plus verification of each new head. Use before merging any ticket PR, before the final feature PR, or whenever the user asks for an independent or cross-provider review loop."
 metadata:
   author: kellykampen
-  version: "1.2.1"
+  version: "2.0.0"
 ---
 
-# Review Loop
+# Fleet Review
 
 An author reviewing its own diff repeats its own blind spots. This loop gets an independent review from a **different model provider**, then fixes only what matters. It is a quality gate, not a way to grow the PR.
 
@@ -18,7 +18,7 @@ An author reviewing its own diff repeats its own blind spots. This loop gets an 
 | **Whole feature** (the integration branch against the default branch) | Up to 3 rounds, before the final gate |
 | **Every other ticket PR** | 1 review round before the ticket gate, by a capable, inexpensive reviewer. |
 
-**Verification rounds** are separate from the budget. The gate needs the reviewer's approval of the PR's **latest head**, or of an earlier head when every later commit is a merge of the integration branch with no conflicts. Whenever the head changes after a review (a fix for findings, a CI fix, a takeover, or a conflict resolved by hand), run a verification round on the new head. It checks only the change and the open finding IDs. A merge of the integration branch with no conflicts needs no new review; the approval carries over (`pr-gate` allows it). A ticket gets at most **3 verification rounds**. Another head change after that, or a verification round that raises a new blocker or should finding after the budget is spent, ends the loop as **stuck**.
+**Verification rounds** are separate from the budget. The gate needs the reviewer's approval of the PR's **latest head**, or of an earlier head when every later commit is a merge of the integration branch with no conflicts. Whenever the head changes after a review (a fix for findings, a CI fix, a takeover, or a conflict resolved by hand), run a verification round on the new head. It checks only the change and the open finding IDs. A merge of the integration branch with no conflicts needs no new review; the approval carries over (`fleet-gate` allows it). A ticket gets at most **3 verification rounds**. Another head change after that, or a verification round that raises a new blocker or should finding after the budget is spent, ends the loop as **stuck**.
 
 Extend a budget to 5 rounds only for security, data, or concurrency problems where a blocker or should finding stays open with evidence, or when the user asks. Stop early if a round returns only nits.
 

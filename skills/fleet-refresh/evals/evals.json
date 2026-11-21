@@ -1,9 +1,9 @@
 {
-  "skill_name": "project-refresh",
+  "skill_name": "fleet-refresh",
   "evals": [
     {
       "id": 0,
-      "prompt": "/project-refresh https://linear.app/acme/project/checkout-v2 — the project has 14 tickets written as user stories, most 1-2 points, with ACs like 'conversion improves after launch' and no intent brief.",
+      "prompt": "/fleet-refresh https://linear.app/acme/project/checkout-v2 — the project has 14 tickets written as user stories, most 1-2 points, with ACs like 'conversion improves after launch' and no intent brief.",
       "expected_output": "Reads everything before changing anything, including the repo. Audits against fleet-plan. Drafts an intent brief, merges point-cap slivers into fewer tickets (survivor keeps history), moves 'conversion improves after launch' to release checks, adds EARS requirements and three-part ACs, and proposes t3-fleet labels. Shows the change plan in one question batch before applying anything.",
       "files": []
     },
@@ -27,7 +27,7 @@
     },
     {
       "id": 4,
-      "prompt": "/project-refresh was run on this project last month. Run it again.",
+      "prompt": "/fleet-refresh was run on this project last month. Run it again.",
       "expected_output": "Detects the existing 'description before the fleet refresh' comments and does not save old text twice. Audits only what drifted from the standard since. Ends with the readiness gate and adds or keeps the Approved line only after the user approves.",
       "files": []
     }

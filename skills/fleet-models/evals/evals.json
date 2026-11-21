@@ -15,7 +15,7 @@
     },
     {
       "id": 3,
-      "prompt": "During project-run, ticket ENG-40 names a model that no machine offers. Classified favorites: model A (intelligence 9, taste 8), model B (intelligence 8, taste 9), model C (intelligence 6, taste 6). ENG-40's model was rated intelligence 9, taste 9. A new favorite D is not classified yet.",
+      "prompt": "During fleet-run, ticket ENG-40 names a model that no machine offers. Classified favorites: model A (intelligence 9, taste 8), model B (intelligence 8, taste 9), model C (intelligence 6, taste 6). ENG-40's model was rated intelligence 9, taste 9. A new favorite D is not classified yet.",
       "expected_output": "Swaps ENG-40 to model A (smallest intelligence difference, then taste), logs the swap, and does not ask the user to classify D mid-run; D is listed as unclassified in the final report.",
       "files": []
     }

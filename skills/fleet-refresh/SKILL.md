@@ -1,18 +1,18 @@
 ---
-name: project-refresh
-description: "Bring an existing Linear project up to the fleet spec so project-run can execute it. Invoked as /project-refresh <Linear project URL>. Audits a project whose tickets were written to an older standard (user stories, 3-point slivers, post-merge acceptance criteria, missing intent brief, no t3-fleet labels), proposes a change plan, asks every open question in one batch, then rewrites the intent brief and tickets in place: it keeps ticket IDs, links, and history, saves each old description as a comment first, merges slivers as duplicates, and ends at the readiness gate with an Approved line. Use when the user wants to refresh, upgrade, migrate, clean up, or rewrite an existing Linear project or backlog to the new ticket standard."
+name: fleet-refresh
+description: "Bring an existing Linear project up to the fleet spec so fleet-run can execute it. Invoked as /fleet-refresh <Linear project URL>. Audits a project whose tickets were written to an older standard (user stories, 3-point slivers, post-merge acceptance criteria, missing intent brief, no t3-fleet labels), proposes a change plan, asks every open question in one batch, then rewrites the intent brief and tickets in place: it keeps ticket IDs, links, and history, saves each old description as a comment first, merges slivers as duplicates, and ends at the readiness gate with an Approved line. Use when the user wants to refresh, upgrade, migrate, clean up, or rewrite an existing Linear project or backlog to the new ticket standard."
 metadata:
   author: kellykampen
-  version: "1.5.0"
+  version: "2.0.0"
 ---
 
-# Project Refresh
+# Fleet Refresh
 
-Turn an existing Linear project into one that `project-run` can execute: a real intent brief, the fewest tickets, acceptance criteria provable inside the PR, and t3-fleet labels. The **target standard is `fleet-plan`** from this skill set; read it first. This skill adds what is different about starting from tickets that already exist: auditing them, preserving their history, and changing them **in place**.
+Turn an existing Linear project into one that `fleet-run` can execute: a real intent brief, the fewest tickets, acceptance criteria provable inside the PR, and t3-fleet labels. The **target standard is `fleet-plan`** from this skill set; read it first. This skill adds what is different about starting from tickets that already exist: auditing them, preserving their history, and changing them **in place**.
 
 ## Input
 
-The Linear project URL, passed as the argument (`/project-refresh https://linear.app/<workspace>/project/<slug>`). If it is missing, ask for it once. If the user named a project without a URL, find it in Linear and confirm the match.
+The Linear project URL, passed as the argument (`/fleet-refresh https://linear.app/<workspace>/project/<slug>`). If it is missing, ask for it once. If the user named a project without a URL, find it in Linear and confirm the match.
 
 ## Step 1: Read everything (no changes yet)
 
@@ -22,7 +22,7 @@ Read, following every page:
 - every issue in the project, including completed and canceled ones: description, status, assignee, estimate, labels, comments, relations, and linked branches and PRs;
 - the team hierarchy and the label catalog, with owning team and `inheritedFrom`;
 - the repository the project builds on: structure, existing patterns, tests, CI, previews, and agent instructions. Do not ask what the code can answer.
-- whether the repository is ready for `project-run`: CI runs on pull requests into `feat/**` and on pushes to `feat/**`; which tests CI runs and which only run on demand (for example a remote end-to-end command); whether previews exist; and which PR standard the repository enforces. A gap here becomes a small **prerequisite ticket** whose PR targets the default branch and merges before `project-run` starts. `project-run` stops at preflight while the gap exists, so this ticket cannot be part of the run. Give it no t3-fleet label, name it under Constraints in the brief as a run prerequisite, and let it block the tickets it gates. Once it merges, it is Done and counts as a met blocker.
+- whether the repository is ready for `fleet-run`: CI runs on pull requests into `feat/**` and on pushes to `feat/**`; which tests CI runs and which only run on demand (for example a remote end-to-end command); whether previews exist; and which PR standard the repository enforces. A gap here becomes a small **prerequisite ticket** whose PR targets the default branch and merges before `fleet-run` starts. `fleet-run` stops at preflight while the gap exists, so this ticket cannot be part of the run. Give it no t3-fleet label, name it under Constraints in the brief as a run prerequisite, and let it block the tickets it gates. Once it merges, it is Done and counts as a met blocker.
 
 With the Linear MCP, `get_issue` returns relations only when you pass both `includeRelations: true` and `"relations"` in `fields`. Read relations in a separate pass and check that at least one ticket has some; an empty result for every ticket usually means the request was wrong, not that there are no links. See [references/linear-notes.md](references/linear-notes.md).
 
@@ -36,7 +36,7 @@ Sort the tickets by state, because each state gets different treatment:
 | **Not started** | The main target. Rewrite to the standard. |
 | **Backlog** (not started, not scheduled) | Usually follow-ups filed during the work. Ask whether each belongs in this run. A Backlog ticket is outside the run unless the user moves it to a not-started state. |
 
-An in-progress ticket whose PR targets the default branch stays as it is: its owner finishes it there. Record it in the plan, because `project-run` treats it as a blocker that is met when it merges into the default branch.
+An in-progress ticket whose PR targets the default branch stays as it is: its owner finishes it there. Record it in the plan, because `fleet-run` treats it as a blocker that is met when it merges into the default branch.
 
 ## Step 2: Audit against the standard
 
@@ -102,20 +102,20 @@ Prefer **patches over rewrites**. When a ticket mostly meets the standard, chang
 
 Run this skill again whenever a refreshed project may have drifted. The saved-description comments show which tickets were refreshed before; do not save them twice. Compare the project with its approved state and fix only the drift:
 
-- **The approved run** is the set of tickets in the brief's dependency graph, which `fleet-plan` requires to list every ticket in the run. If an older brief's graph leaves some out, list the tickets you believe were approved (the graph plus tickets that carry a Fleet section from the last refresh), ask the user to confirm that list once in the question batch, and add the missing tickets to the graph. This is not a scope change. The **current run** uses `project-run`'s rule: tickets in a not-started or started state, minus Backlog, Done, canceled, and duplicate tickets and those under Release checks.
+- **The approved run** is the set of tickets in the brief's dependency graph, which `fleet-plan` requires to list every ticket in the run. If an older brief's graph leaves some out, list the tickets you believe were approved (the graph plus tickets that carry a Fleet section from the last refresh), ask the user to confirm that list once in the question batch, and add the missing tickets to the graph. This is not a scope change. The **current run** uses `fleet-run`'s rule: tickets in a not-started or started state, minus Backlog, Done, canceled, and duplicate tickets and those under Release checks.
 - **Tickets that entered the run:** in the current run but not the approved one. Keep one only if the definition of done cannot be met without it (the same test as a New ticket); refresh it to the standard and ask for approval. Otherwise propose moving it out of the project.
 - **Tickets that finished:** Done since approval. This is progress, not a scope change. Update notes in the brief that mention them (for example "has an open PR").
 - **Tickets that left the run unfinished:** in the approved run, not Done, and no longer in the current run (moved, canceled, or back in Backlog).
-- **Prerequisites still open:** report them; they block `project-run`.
+- **Prerequisites still open:** report them; they block `fleet-run`.
 - **Writes that never applied:** read back the links, states, and labels the last refresh set.
 
 A **scope change** adds a ticket to the run, removes an unfinished ticket from it, or changes a ticket's outcome or acceptance criteria. It needs the user's approval in the question batch; then update the dependency graph and set `Approved:` to the new date. Finished tickets, and fixes that only restore the approved plan, do not.
 
 ## Step 6: Readiness gate
 
-Run the `fleet-plan` readiness gate over the whole project. When it passes and the user approved the plan, add `Approved: <date>` at the end of the intent brief. `project-run` will not start without it.
+Run the `fleet-plan` readiness gate over the whole project. When it passes and the user approved the plan, add `Approved: <date>` at the end of the intent brief. `fleet-run` will not start without it.
 
-Report: the project link, a table of every ticket with its action and new state, the merges and splits, any remaining open items, and whether the project is ready for `project-run`.
+Report: the project link, a table of every ticket with its action and new state, the merges and splits, any remaining open items, and whether the project is ready for `fleet-run`.
 
 ## Never
 

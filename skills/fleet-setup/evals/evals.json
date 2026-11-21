@@ -16,7 +16,7 @@
     {
       "id": 3,
       "prompt": "Neither the Linear MCP nor linear-cli works, and only one T3 provider can run child tasks.",
-      "expected_output": "Does not ask for an API key. Explains how to connect the Linear MCP or install and set up linear-cli, skips the Linear steps, still checks gh and models, warns that project-run needs two providers for reviews, and reports not ready to plan and not ready to run.",
+      "expected_output": "Does not ask for an API key. Explains how to connect the Linear MCP or install and set up linear-cli, skips the Linear steps, still checks gh and models, warns that fleet-run needs two providers for reviews, and reports not ready to plan and not ready to run.",
       "files": []
     }
   ]
