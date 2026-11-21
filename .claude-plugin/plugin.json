@@ -2,6 +2,9 @@
   "name": "t3-linear-fleet",
   "description": "Plan a feature in Linear, then run a fleet of agents across machines and providers in T3 Code to build it, get it green, and hand back evidence.",
   "skills": [
-    "./skills/issue-breakdown"
+    "./skills/issue-breakdown",
+    "./skills/pr-gate",
+    "./skills/review-loop",
+    "./skills/ticket-worker"
   ]
 }
