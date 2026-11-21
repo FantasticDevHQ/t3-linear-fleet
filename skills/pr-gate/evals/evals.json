@@ -1,0 +1,35 @@
+{
+  "skill_name": "pr-gate",
+  "evals": [
+    {
+      "id": 0,
+      "prompt": "Ticket PR #41 into feat/search is green, but three new commits landed on feat/search since its last green run, and one of them edits src/search/query.ts, which #41 also changes. Can I merge #41?",
+      "expected_output": "No. The base moved and touched a file in the PR, so the PR must update from feat/search and pass checks again before the ticket gate. If the new commits had touched none of its files, it could merge without updating.",
+      "files": []
+    },
+    {
+      "id": 1,
+      "prompt": "The full suite just failed on feat/search after merging ticket PR #44. Two more ticket PRs are green and waiting.",
+      "expected_output": "Reruns once to rule out a flake. If it fails again, freezes merges into feat/search while workers keep building, maps the failure to a ticket, dispatches one fix-forward agent with a time budget, and if that misses, reverts the newest merges until green and reopens their tickets. Unfreezes only when the full suite is green.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "I'm a worker agent delegated by the orchestrator. Should I call watch_pull_request on my PR so I can react to CI?",
+      "expected_output": "No. Only the thread that owns the PR watches it, which is the orchestrator. Delegated children never watch PRs; the orchestrator routes failures back.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "All ticket PRs for the feature are merged, full CI is green on feat/search with main merged in, and the evidence packet is written. Merge the feature PR to main.",
+      "expected_output": "Checks the final gate (no skipped foundation tests, feature review finished, bot threads resolved, the summary re-lists every ticket with magic words, the evidence packet leads with a recording). Merges only because the user explicitly asked for this feature; otherwise it stops at ready and leaves the PR open.",
+      "files": []
+    },
+    {
+      "id": 4,
+      "prompt": "Nothing changed on the PR since the last wake-up. What do you post?",
+      "expected_output": "Nothing. When an event needs no action, it stays silent and never posts 'still waiting'.",
+      "files": []
+    }
+  ]
+}

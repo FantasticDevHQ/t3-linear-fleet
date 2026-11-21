@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- `ticket-worker` 1.0.0: the brief a worker agent follows, from the intent restatement to a merged, green PR, with escalation to the orchestrator and a fixed final report line.
+- `pr-gate` 1.0.0: the ticket and final merge gates, PR watching without polling, event routing, and the freeze on a red integration branch.
+- `review-loop` 1.0.0: budgeted review by a different provider, with blocker / should / nit severity, a ledger, and checks for over-engineering and weakened tests.
 - `issue-breakdown` 2.0.0: rewritten for unattended agents. It adds an intent brief, research before questions, a cold read by a fresh agent, one batch of questions (decisions with defaults, assumptions, non-code checklist), a foundation ticket for shared groundwork, three-part acceptance criteria (criterion, Verify, Evidence) that can be proven inside the PR with post-release checks moved to the brief, a readiness gate, and commit-level Linear linking. It keeps the STE100 wording, EARS requirements (now for behavioral tickets), the ISO 29148 quality checks (now in the readiness gate), REQ → AC → TEST traceability (combined with the Verify and Evidence lines), the Mermaid dependency diagram, and WARNING/CAUTION markers. It removes the 3-point split rule and makes the user-story format optional.
 - Created the repo.
 - Applied the Fantastic.Dev OSS standards: standard header with the official logo, Quick start with an agent setup prompt and manual steps, the PR standard v2 (commit-level Linear linking: optional ticket in titles, a magic word or `No-ticket:` on every commit, Summary declares every ticket the commits reference), and a `Repository quality gates` check that validates skills.

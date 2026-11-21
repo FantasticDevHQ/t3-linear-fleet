@@ -79,9 +79,9 @@ Expected result: `issue-breakdown` appears in the list for your agents. Ask your
 | --- | --- | --- |
 | [issue-breakdown](./skills/issue-breakdown/SKILL.md) | Ready (2.0) | Plans a feature as a Linear project: intent brief, one batch of questions with defaults, a cold read, the fewest tickets, EARS requirements traced to acceptance criteria provable inside the PR, and a readiness gate. |
 | project-run | Planned | Orchestrator: dispatch, load balancing across machines and providers, merge and freeze rules, escalation, evidence packet. |
-| ticket-worker | Planned | The worker brief: intent, smallest change, proof, ownership through green. |
-| pr-gate | Planned | Merge gate and PR event handling. |
-| review-loop | Planned | Budgeted review by a different provider, with blocker / should / nit severity. |
+| [ticket-worker](./skills/ticket-worker/SKILL.md) | Ready (1.0) | The worker brief: intent, smallest change, proof, ownership through green, escalation to the orchestrator, fixed report line. |
+| [pr-gate](./skills/pr-gate/SKILL.md) | Ready (1.0) | Ticket and final merge gates, PR watching without polling, event routing, and the freeze on a red integration branch. |
+| [review-loop](./skills/review-loop/SKILL.md) | Ready (1.0) | Budgeted review by a different provider, with blocker / should / nit severity, a ledger, and checks for over-engineering and weakened tests. |
 | council | Planned | Optional review by several providers for large or risky work. |
 | ticket-takeover | Planned | A fresh agent takes over a stuck ticket. |
 | pr-writing | Planned | PR descriptions, evidence packets, and comment attribution. |
