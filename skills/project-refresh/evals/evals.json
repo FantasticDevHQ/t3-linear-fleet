@@ -4,7 +4,7 @@
     {
       "id": 0,
       "prompt": "/project-refresh https://linear.app/acme/project/checkout-v2 — the project has 14 tickets written as user stories, most 1-2 points, with ACs like 'conversion improves after launch' and no intent brief.",
-      "expected_output": "Reads everything before changing anything, including the repo. Audits against issue-breakdown. Drafts an intent brief, merges point-cap slivers into fewer tickets (survivor keeps history), moves 'conversion improves after launch' to release checks, adds EARS requirements and three-part ACs, and proposes Fleet labels. Shows the change plan in one question batch before applying anything.",
+      "expected_output": "Reads everything before changing anything, including the repo. Audits against issue-breakdown. Drafts an intent brief, merges point-cap slivers into fewer tickets (survivor keeps history), moves 'conversion improves after launch' to release checks, adds EARS requirements and three-part ACs, and proposes t3-fleet labels. Shows the change plan in one question batch before applying anything.",
       "files": []
     },
     {
@@ -16,13 +16,13 @@
     {
       "id": 2,
       "prompt": "The project has ENG-300 in progress with an open PR, and its scope conflicts with the new intent brief's non-goals.",
-      "expected_output": "Does not change ENG-300's scope. Only adds missing Verify/Evidence lines, Fleet labels, and blocker links, and puts the scope conflict in the single question batch with options and a recommendation.",
+      "expected_output": "Does not change ENG-300's scope. Only adds missing Verify/Evidence lines, t3-fleet labels, and blocker links, and puts the scope conflict in the single question batch with options and a recommendation.",
       "files": []
     },
     {
       "id": 3,
-      "prompt": "Refresh a project in team Web, under parent team Product. The workspace has no Fleet label group, but Web has a local label named 'risky'.",
-      "expected_output": "Reads the label catalog with owning team and inheritedFrom first. Creates the Fleet group at the Product parent team (or the workspace), not on Web, and tells the user about the existing team-local 'risky' label instead of creating another duplicate. Never replaces a ticket's full label set.",
+      "prompt": "Refresh a project in team Web, under parent team Product. The workspace has no t3-fleet label group, but Web has a local label named 't3-fleet-risky'.",
+      "expected_output": "Reads the label catalog with owning team and inheritedFrom first. Creates the t3-fleet group at the Product parent team (or the workspace), not on Web, and tells the user about the existing team-local 'risky' label instead of creating another duplicate. Never replaces a ticket's full label set.",
       "files": []
     },
     {

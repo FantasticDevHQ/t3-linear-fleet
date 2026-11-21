@@ -3,7 +3,7 @@ name: issue-breakdown
 description: "Plan a feature as a Linear project that agents can build unattended. Researches the codebase, writes an intent brief (problem, users, definition of done, non-goals, decisions), drafts the fewest reviewable tickets with EARS requirements and traceable acceptance criteria that can be proven inside the PR before merge, has a fresh agent cold-read them, asks the user every open question in one batch with recommended defaults, and only creates the tickets once a readiness gate passes. Use whenever the user wants to break down, scope, plan, or ticket a feature, epic, or initiative, write Linear issues or acceptance criteria, or prepare work for parallel agents, even if they don't say Linear. Works with the Linear MCP or linear-cli, or as drafts."
 metadata:
   author: kellykampen
-  version: "2.1.0"
+  version: "2.2.0"
 ---
 
 # Issue Breakdown
@@ -109,18 +109,20 @@ A user story ("As a <role>, I want <action>, so <result>") is a good way to writ
 
 Plus, as Linear fields: parent project, labels (an area and a type, from the team's existing labels), estimate, and **blocker links** for every real dependency.
 
-### Fleet labels
+### t3-fleet labels
 
-The orchestrator reads these labels to schedule the work, so set them on every ticket they apply to. They belong to one multi-select label group named **Fleet**:
+The orchestrator reads these labels to schedule the work, so set them on every ticket they apply to. They belong to one multi-select label group named **t3-fleet**:
 
 | Label | Set it when |
 | --- | --- |
-| `foundation` | The ticket is shared groundwork that other tickets build on (schema, contracts, dependencies, registry stubs, spikes). |
-| `local-only` | The ticket needs something only the user's local machine has: a device, simulator, local service, or local credential. |
-| `schema-change` | The ticket changes the database schema after the foundation. These run one at a time. |
-| `risky` | The ticket touches security, permissions, auth, data, money, migrations, or concurrency, or has a WARNING step. It gets a cross-provider review before merge. |
+| `t3-fleet-foundation` | The ticket is shared groundwork that other tickets build on (schema, contracts, dependencies, registry stubs, spikes). |
+| `t3-fleet-local-only` | The ticket needs something only the user's local machine has: a device, simulator, local service, or local credential. |
+| `t3-fleet-schema-change` | The ticket changes the database schema after the foundation. These run one at a time. |
+| `t3-fleet-risky` | The ticket touches security, permissions, auth, data, money, migrations, or concurrency, or has a WARNING step. It gets a cross-provider review before merge. |
 
-Create the **Fleet** group once, at the **workspace** or the **top-most parent team**, so every team below inherits it. Never create it, or any of its labels, on a leaf team. See Step 7.
+Create the **t3-fleet** group once, at the **workspace** or the **top-most parent team**, so every team below inherits it. Never create it, or any of its labels, on a leaf team. See Step 7.
+
+Linear label names are unique across the workspace and every team, ignoring case and group. That is why each label carries the `t3-fleet-` prefix: a plain `risky` or `foundation` often exists already on some team. If a create still fails on a name clash, report it; do not rename another team's label without asking.
 
 Describe **what**, not **how**. Name decisions already made; leave the implementation to the agent. A ticket that dictates files, functions, and patterns invites both over-engineering and wrong guesses about the codebase.
 
@@ -178,8 +180,8 @@ Do not create tickets in Linear until every box is checked. Show the user the br
 - [ ] Traceability has no gaps: every REQ has at least one tagged criterion, and every criterion's Verify names its test or check.
 - [ ] Every criterion has a Verify that runs on the PR and an Evidence that CI or a preview produces. None depends on production, "after deploy," real users, time windows, dashboards, or another ticket merging.
 - [ ] Post-release checks are in the brief's Release checks, not in tickets.
-- [ ] Dependencies are blocker links, and they form no cycle. Shared groundwork is in a ticket labeled `foundation`.
-- [ ] Fleet labels are set where they apply (`foundation`, `local-only`, `schema-change`, `risky`).
+- [ ] Dependencies are blocker links, and they form no cycle. Shared groundwork is in a ticket labeled `t3-fleet-foundation`.
+- [ ] t3-fleet labels are set where they apply (`t3-fleet-foundation`, `t3-fleet-local-only`, `t3-fleet-schema-change`, `t3-fleet-risky`).
 - [ ] UI tickets have a design screenshot attached.
 - [ ] Risky steps carry WARNING or CAUTION, and every WARNING decision is settled.
 - [ ] The intent brief has the Mermaid dependency flowchart.
@@ -200,8 +202,9 @@ Labels: discover before you create.
 
 1. Read the team hierarchy, and the issue-label catalog with each label's owning team, parent group, and `inheritedFrom`. Follow every page. Project labels are a separate catalog and do not label issues.
 2. Reuse workspace and inherited parent-team labels. Do not create a local variant such as `platform:cli` when an applicable workspace `cli` exists. A child team's copy with `inheritedFrom` set is an inherited definition, not a duplicate.
-3. If the **Fleet** group does not exist yet, create it once at the workspace (when unrelated teams will use the fleet) or at the top-most parent team (when only that parent's teams will), as a multi-select group with the four labels above. Never create it on a leaf team. If a team-local copy already exists, tell the user and use it rather than adding another.
-4. Verify labels and a provisional estimate on every ticket you create or revise.
+3. If the **t3-fleet** group does not exist yet, create it once at the workspace (when unrelated teams will use the fleet) or at the top-most parent team (when only that parent's teams will), as a multi-select group with the four labels above. Never create it on a leaf team. If a team-local copy already exists, tell the user and use it rather than adding another.
+4. A catalog read can miss labels that belong to other teams' label groups. Read each relevant team's labels with the team filter, ask for groups too, and treat a name-clash error on create as the final check.
+5. Verify labels and a provisional estimate on every ticket you create or revise.
 
 Tool notes for `linear-cli`, including project relations and the description-body pitfall, are in [references/linear-cli.md](references/linear-cli.md). With the Linear MCP or another client, map the same fields.
 

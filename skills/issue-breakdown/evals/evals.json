@@ -39,8 +39,8 @@
     },
     {
       "id": 6,
-      "prompt": "Our Linear workspace has a parent team Product with sub-teams Web and Mobile. Plan a feature for Web, and there are no Fleet labels yet.",
-      "expected_output": "Reads the team hierarchy and label catalog first. Creates the Fleet multi-select group (foundation, local-only, schema-change, risky) once at the Product parent team (or the workspace if unrelated teams will use it), never on Web. Applies the labels to the right tickets, and after approval adds an 'Approved:' line to the intent brief.",
+      "prompt": "Our Linear workspace has a parent team Product with sub-teams Web and Mobile. Plan a feature for Web, and there are no t3-fleet labels yet.",
+      "expected_output": "Reads the team hierarchy and label catalog first. Creates the t3-fleet multi-select group (t3-fleet-foundation, t3-fleet-local-only, t3-fleet-schema-change, t3-fleet-risky) once at the Product parent team (or the workspace if unrelated teams will use it), never on Web. Applies the labels to the right tickets, and after approval adds an 'Approved:' line to the intent brief.",
       "files": []
     }
   ]
