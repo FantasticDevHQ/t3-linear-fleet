@@ -20,7 +20,7 @@
   <a href="LICENSE"><img src="https://img.shields.io/github/license/FantasticDevHQ/t3-linear-fleet?style=flat-square" alt="License" /></a>
 </p>
 
-<p align="center"><a href="#quick-start">Quick start</a> · <a href="#how-it-works">How it works</a> · <a href="#why-it-works-this-way">Why</a> · <a href="#how-i-organize-linear">Linear setup</a> · <a href="#skills">Skills</a></p>
+<p align="center"><a href="#quick-start">Quick start</a> · <a href="#how-i-work">How I work</a> · <a href="#how-it-works">How it works</a> · <a href="#why-it-works-this-way">Why</a> · <a href="#linear-setup">Linear setup</a> · <a href="#skills">Skills</a></p>
 
 ---
 
@@ -84,6 +84,34 @@ npx skills@latest list --global
 
 Expected result: `fleet-plan` appears in the list for your agents. Then ask your agent to "set up the fleet" (`fleet-setup`), and "plan this feature with fleet-plan" to start a Linear plan.
 
+## How I work
+
+This is the setup the skills were built around. It is not required, but the skills assume its shape.
+
+```mermaid
+flowchart TB
+  WS[Linear workspace<br/>t3-fleet labels live here]
+  WS --> P1[Parent team:<br/>a product family or org]
+  WS --> P2[Parent team:<br/>open source]
+  WS --> P3[Parent team:<br/>client work]
+  P1 --> T1[Team = one repository]
+  P1 --> T2[Team = one repository]
+  P2 --> T3[Team = one repository]
+  T1 --> PR1[Project = one feature<br/>intent brief + Approved line]
+  T1 --> PR2[Project = maintenance<br/>work the features don't need]
+  PR1 --> I1[Ticket = one PR]
+  PR1 --> I2[Ticket = one PR]
+  PR1 --> I3[Ticket = one PR]
+```
+
+- **One team per repository.** Each repository gets its own Linear team, with its own ticket prefix (for example `ENG-123`). A ticket ID tells you which codebase it belongs to, branches and commits carry it, and the team's GitHub automation only has to know one repository.
+- **Parent teams group related repositories.** Products from the same family, open-source tools, and client work each sit under their own parent team. Shared labels can live on a parent team so every repository team below inherits them.
+- **Labels that every team needs live at the workspace.** The `t3-fleet` group is used by teams under every parent, so it lives at the workspace. Linear label names must be unique across the workspace and all teams, which is why each fleet label has the `t3-fleet-` prefix.
+- **A project is one feature.** The project description is the intent brief: problem, users, definition of done, non-goals, constraints, decisions, release checks, and a dependency graph of every ticket. `fleet-plan` writes it; `fleet-refresh` brings older projects up to it.
+- **A ticket is one PR.** It has an outcome, numbered requirements, acceptance criteria with `Verify` and `Evidence`, a design image for UI work, and a Fleet section that names its model and effort.
+- **Work the feature doesn't need goes elsewhere.** Follow-ups found during a feature (tooling, flaky tests, lint) move to a separate maintenance project of the same team, so a feature's run stays focused on its definition of done.
+- **Done means merged.** A ticket is Done when its work reaches the default branch. Before that, a merge into the feature branch moves it to an "Integrated" status, or leaves it as it was if you chose "no action".
+
 ## How it works
 
 A feature goes through four stages. You talk to the agent in the first stage and review in the last. The middle runs unattended. It pauses only for what the orchestrator cannot settle itself, for example a costly or irreversible decision, a conflict with the intent brief, or a ticket that stays blocked after a takeover. It asks all of these in one batch. The full list is in `fleet-run`'s [Escalations](./skills/fleet-run/SKILL.md#escalations) section.
@@ -144,33 +172,18 @@ Each choice answers a problem that shows up when agents build features unattende
 - **No config file for machines.** Machines and models change often, so `fleet-run` discovers them through T3 Code every time it runs.
 - **Read changes back.** APIs sometimes report success for a write they did not apply. When `fleet-refresh` and `fleet-setup` change Linear, they read each change back before they report it.
 
-## How I organize Linear
+## Linear setup
 
-This is the setup the skills were built around. It is not required, but the skills assume its shape.
+Run `fleet-setup` once (ask your agent to "set up the fleet"). It checks Linear access, T3 Code, and the GitHub CLI, creates the `t3-fleet` label group (`t3-fleet-foundation`, `t3-fleet-local-only`, `t3-fleet-schema-change`, `t3-fleet-risky`) at the right level of your workspace, rates your favorite models, and ends with a ready checklist. Run it again any time; it only fixes what is missing.
 
-```mermaid
-flowchart TB
-  WS[Linear workspace<br/>t3-fleet labels live here]
-  WS --> P1[Parent team:<br/>a product family or org]
-  WS --> P2[Parent team:<br/>open source]
-  WS --> P3[Parent team:<br/>client work]
-  P1 --> T1[Team = one repository]
-  P1 --> T2[Team = one repository]
-  P2 --> T3[Team = one repository]
-  T1 --> PR1[Project = one feature<br/>intent brief + Approved line]
-  T1 --> PR2[Project = maintenance<br/>work the features don't need]
-  PR1 --> I1[Ticket = one PR]
-  PR1 --> I2[Ticket = one PR]
-  PR1 --> I3[Ticket = one PR]
-```
+Two Linear settings cannot be changed through the API, so `fleet-setup` walks you through them, once per team (Settings > Team > Workflows & automations):
 
-- **One team per repository.** Each repository gets its own Linear team, with its own ticket prefix (for example `ENG-123`). A ticket ID tells you which codebase it belongs to, branches and commits carry it, and the team's GitHub automation only has to know one repository.
-- **Parent teams group related repositories.** Products from the same family, open-source tools, and client work each sit under their own parent team. Shared labels can live on a parent team so every repository team below inherits them.
-- **Labels that every team needs live at the workspace.** The `t3-fleet` group is used by teams under every parent, so it lives at the workspace. Linear label names must be unique across the workspace and all teams, which is why each fleet label has the `t3-fleet-` prefix.
-- **A project is one feature.** The project description is the intent brief: problem, users, definition of done, non-goals, constraints, decisions, release checks, and a dependency graph of every ticket. `fleet-plan` writes it; `fleet-refresh` brings older projects up to it.
-- **A ticket is one PR.** It has an outcome, numbered requirements, acceptance criteria with `Verify` and `Evidence`, a design image for UI work, and a Fleet section that names its model and effort.
-- **Work the feature doesn't need goes elsewhere.** Follow-ups found during a feature (tooling, flaky tests, lint) move to a separate maintenance project of the same team, so a feature's run stays focused on its definition of done.
-- **Done means merged.** A ticket is Done when its work reaches the default branch. Before that, a merge into the feature branch moves it to an "Integrated" status, or leaves it as it was if you chose "no action".
+1. Turn on **Link commits to issues with magic words** and add the GitHub push webhook that Linear shows. The fleet links work through commits (`Fixes ENG-123`, `Refs ENG-123`), not PR titles, and the feature PR lists every ticket again, because Linear does not re-detect tickets merged into a feature branch.
+2. Add branch-specific rules: a merge into `^feat/.*` moves the ticket to an "Integrated" status (or "no action"), and a merge into `main` moves it to Done.
+
+Your repository's CI must also run on pull requests into `feat/**` and on pushes to `feat/**`, not only on the default branch. `fleet-refresh` plans this as a prerequisite, and `fleet-run` checks it before it starts.
+
+See [Linear's GitHub integration docs](https://linear.app/docs/github) for details.
 
 ## Skills
 
@@ -187,19 +200,6 @@ flowchart TB
 | [fleet-panel-review](./skills/fleet-panel-review/SKILL.md) | Ready (2.0.0) | Optional review by a panel of three flagship models from three providers, with scores per round, synthesis, and firm scope control. For plans, contracts, and large features. |
 
 The skills require Linear, through the [Linear MCP server](https://linear.app/docs/mcp) or [linear-cli](https://github.com/nesszer/linear-cli), and [T3 Code](https://github.com/pingdotgg/t3code) for orchestration. No config file lists your machines or models: `fleet-run` discovers your linked machines, their providers and models, and the repository's project on each machine through T3 Code every time it runs, so machines can come and go. Set limits in the request itself, for example "run this project, max 8 workers". Each ticket names the model that builds it and an effort level (`low` to `max`) in a short Fleet section. Planning picks them from your favorite models in T3 Code, using the ratings you gave each one through `fleet-models`, which keeps them in one file, `~/.config/t3-linear-fleet/models.json`. Edit that section to change a ticket's model, or override it in the run request. The skills never assume a specific secrets manager; they use whatever your project declares.
-
-## Linear setup
-
-Run `fleet-setup` once (ask your agent to "set up the fleet"). It checks Linear access, T3 Code, and the GitHub CLI, creates the `t3-fleet` label group (`t3-fleet-foundation`, `t3-fleet-local-only`, `t3-fleet-schema-change`, `t3-fleet-risky`) at the right level of your workspace, rates your favorite models, and ends with a ready checklist. Run it again any time; it only fixes what is missing.
-
-Two Linear settings cannot be changed through the API, so `fleet-setup` walks you through them, once per team (Settings > Team > Workflows & automations):
-
-1. Turn on **Link commits to issues with magic words** and add the GitHub push webhook that Linear shows. The fleet links work through commits (`Fixes ENG-123`, `Refs ENG-123`), not PR titles, and the feature PR lists every ticket again, because Linear does not re-detect tickets merged into a feature branch.
-2. Add branch-specific rules: a merge into `^feat/.*` moves the ticket to an "Integrated" status (or "no action"), and a merge into `main` moves it to Done.
-
-Your repository's CI must also run on pull requests into `feat/**` and on pushes to `feat/**`, not only on the default branch. `fleet-refresh` plans this as a prerequisite, and `fleet-run` checks it before it starts.
-
-See [Linear's GitHub integration docs](https://linear.app/docs/github) for details.
 
 ## Contributing
 
