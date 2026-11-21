@@ -40,9 +40,16 @@ for my coding agents, using the public `skills` CLI (https://skills.sh).
    `npx skills@latest add FantasticDevHQ/t3-linear-fleet --global --skill '*'`
    Ask me which agents to target if the CLI cannot detect them.
 4. Verify with `npx skills@latest list --global` that `issue-breakdown` is installed.
-5. Check whether my agent can reach Linear through the Linear MCP server or
-   `linear-cli`. Do not create, edit, or delete any Linear data. Only report
-   whether access is available.
+5. Check whether my agent can reach Linear, through either:
+   - the Linear MCP server (https://linear.app/docs/mcp), at
+     https://mcp.linear.app/mcp, or
+   - linear-cli (https://github.com/nesszer/linear-cli): `linear-cli --version`.
+   If neither works, tell me how to connect the MCP server for my agent, or how
+   to install linear-cli (`cargo install linear-cli`) and authenticate it
+   (`linear-cli setup`). Do not ask me for an API key in chat. Do not create,
+   edit, or delete any Linear data. Only report whether access is available.
+6. Check that T3 Code (https://github.com/pingdotgg/t3code) is how I run my
+   agents if I want to use project-run; it needs T3 Code's orchestration tools.
 
 Report the commands you ran, the installed skills, the agents they were linked
 to, and whether Linear access is ready. Do not claim anything you did not verify.
@@ -50,7 +57,12 @@ to, and whether Linear access is ready. Do not claim anything you did not verify
 
 ### Manual setup
 
-Requires Node.js 22 or newer with npx. Using the skills also needs a Linear workspace, connected through the Linear MCP server or `linear-cli`.
+Requires Node.js 22 or newer with npx. Using the skills also needs a Linear workspace, connected through either:
+
+- the [Linear MCP server](https://linear.app/docs/mcp) at `https://mcp.linear.app/mcp`, added to your agent; or
+- [linear-cli](https://github.com/nesszer/linear-cli): `cargo install linear-cli`, then `linear-cli setup`.
+
+`project-run` also needs [T3 Code](https://github.com/pingdotgg/t3code), which provides the orchestration tools.
 
 List the skills, then install them globally:
 
@@ -85,7 +97,7 @@ Expected result: `issue-breakdown` appears in the list for your agents. Ask your
 | [review-loop](./skills/review-loop/SKILL.md) | Ready (1.0) | Budgeted review by a different provider, with blocker / should / nit severity, a ledger, and checks for over-engineering and weakened tests. |
 | [panel-review](./skills/panel-review/SKILL.md) | Ready (1.0) | Optional review by a panel of three flagship models from three providers, with scores per round, synthesis, and firm scope control. For plans, contracts, and large features. |
 
-The skills require Linear (MCP server or `linear-cli`) and T3 Code for orchestration. There is no config file: `project-run` discovers your linked machines, their providers and models, and the repository's project on each machine through T3 Code every time it runs, so machines can come and go. Set limits in the request itself, for example "run this project, max 8 workers". The skills never assume a specific secrets manager; they use whatever your project declares.
+The skills require Linear, through the [Linear MCP server](https://linear.app/docs/mcp) or [linear-cli](https://github.com/nesszer/linear-cli), and [T3 Code](https://github.com/pingdotgg/t3code) for orchestration. There is no config file: `project-run` discovers your linked machines, their providers and models, and the repository's project on each machine through T3 Code every time it runs, so machines can come and go. Set limits in the request itself, for example "run this project, max 8 workers". The skills never assume a specific secrets manager; they use whatever your project declares.
 
 ## Linear setup
 
