@@ -3,7 +3,7 @@ name: fleet-plan
 description: "Plan a feature as a Linear project that the T3 Linear Fleet (project-run) can build unattended. Researches the codebase, writes an intent brief (problem, users, definition of done, non-goals, decisions), drafts the fewest reviewable tickets with EARS requirements and traceable acceptance criteria that can be proven inside the PR before merge, has a fresh agent cold-read them, asks the user every open question in one batch with recommended defaults, and only creates the tickets once a readiness gate passes. Use when the user wants to plan a feature for the fleet, for project-run, or for parallel agents in T3 Code, or asks for fleet-plan by name. Works with the Linear MCP or linear-cli, or as drafts."
 metadata:
   author: kellykampen
-  version: "3.0.0"
+  version: "3.1.0"
 ---
 
 # Fleet Plan
@@ -135,13 +135,8 @@ Describe **what**, not **how**. Name decisions already made; leave the implement
 
 Every ticket says which model builds it and how hard that model thinks, in its **Fleet** section. `Model` and `Effort` are required; `Why` is optional. The section is plain text, so the user changes a ticket's model by editing one line. `project-run` reads it and checks it at preflight.
 
-1. **Get the candidate models.** Use the user's favorite models in T3 Code: the `favorites` list (`[{provider, model}]`) in T3 Code's settings file on the planning machine, usually `~/.t3/userdata/settings.json`. Drop favorites whose provider is disabled in `orchestrator_capabilities`. If no favorites remain (no settings file, an empty list, or every provider disabled), use every model `orchestrator_capabilities` lists. Outside T3 Code, ask for the candidate models in the question batch (Step 5).
-2. **Choose per ticket.** If a model-classification skill is installed (for example `model-classifier`), use it to choose among the candidates. Otherwise weigh, in this order, **intelligence, then taste, then cost**:
-   - Mechanical, fully specified work: the cheapest capable candidate, `low` or `medium`.
-   - Ordinary work: the everyday workhorse candidate, `medium`.
-   - User-facing UI, copy, or API design: a candidate with strong design judgment, `medium` or `high`.
-   - `t3-fleet-foundation`, `t3-fleet-risky`, or genuinely novel work: the strongest candidate, `high` or `xhigh`. Keep `max` for the few tickets where being wrong is expensive and hard to detect.
-   - Spread similar tickets across providers when candidates are equal, so one rate limit does not stall the run.
+1. **Get the candidates from `fleet-models`.** It reads the user's favorite models from T3 Code's settings, keeps the user's own rating of each one, and asks about new favorites once. Put any question it needs into this skill's one batch (Step 5). Outside T3 Code, with no settings file, ask for the candidate models in that batch instead.
+2. **Choose per ticket** with the rule in `fleet-models` ("Choosing a model for a ticket"): intelligence first, then taste, then cost, with the ticket's labels and risk deciding the bar. Spread equal choices across providers. Write the reason in `Why`.
 3. **Effort** is one of five levels: `low`, `medium`, `high`, `xhigh`, `max`. `project-run` maps it to each provider's own option. Special modes (for example "ultra" or "ultrathink") are never set here; the user asks for them in the run request.
 
 Use the model ID exactly as `orchestrator_capabilities` lists it. Do not name a provider: the same model often runs under several, and `project-run` picks one that has capacity.

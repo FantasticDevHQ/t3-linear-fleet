@@ -3,7 +3,7 @@ name: project-run
 description: "Orchestrate a planned Linear project to a ready feature PR with no human in the loop. Checks the plan was approved, discovers machines, providers, and projects through T3 Code at run time, runs a preflight smoke test per machine, creates the integration branch, runs the foundation ticket first, then dispatches tickets to worker agents as their blockers merge, load-balanced across machines and providers. Merges through the merge gate, freezes on red CI, hands stuck tickets to fresh agents, asks the few escalations in one batch, runs a cross-provider feature review, assembles the evidence packet, and stops for the human to merge. Use when the user asks to run, execute, build, or ship a Linear project or feature with agents, or to orchestrate a fleet across machines and providers."
 metadata:
   author: kellykampen
-  version: "1.4.0"
+  version: "1.5.0"
 ---
 
 # Project Run
@@ -52,7 +52,7 @@ Stop and report, without starting any work, if a check fails.
 4. **Smoke-test each machine.** Dispatch one short task per machine: clone or fetch the repo, run setup and the fast check, confirm `gh auth status`, confirm the project's secrets are reachable through its configured secrets manager, and confirm Linear access. Drop any machine that fails, and report why.
 5. **Check each ticket's model and effort** against the models discovered in step 3.
    - A ticket's **eligible machines** are the usable machines it may run on: only the local machine for `t3-fleet-local-only`, otherwise all of them. Its model is available if an eligible machine offers it under any provider.
-   - If it is not available, swap it for the closest candidate that an eligible machine offers. Candidates are the user's T3 Code favorites that an eligible machine offers (the `favorites` list in T3 Code's settings file on this machine, usually `~/.t3/userdata/settings.json`). If no favorite is offered there, or there is no favorites list, every model the eligible machines offer is a candidate. "Closest" means similar strength to the original, preferring the same model family. Log the swap and continue.
+   - If it is not available, swap it for the closest candidate that an eligible machine offers. Candidates are the user's classified favorites from `fleet-models` that an eligible machine offers; "closest" is defined there, including for a model that has no rating. If the classification file is missing or broken, `fleet-models` reports it and you continue with your own judgment. If none is offered, or there is no classification, every model the eligible machines offer is a candidate, closest by your own judgment of strength. Log the swap and continue. Do not ask the user to classify models during a run; list unclassified favorites in the final report.
    - If no eligible machine offers any model, stop and report the ticket.
    - An `Effort` outside `low`, `medium`, `high`, `xhigh`, `max` counts as `medium`.
    - **Reviewers:** `review-loop` needs a reviewer from a provider other than the writer's. If fewer than two providers are usable, stop and report.

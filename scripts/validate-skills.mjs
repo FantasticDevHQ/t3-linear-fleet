@@ -2,6 +2,7 @@
 // plugin manifest and README list exactly the skills that exist.
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
+import { metadataVersion, readmeVersion } from "./skill-versions.mjs";
 
 const root = fileURLToPath(new URL("../", import.meta.url));
 const errors = [];
@@ -56,8 +57,17 @@ if (JSON.stringify(listed) !== JSON.stringify(skills))
   errors.push(`.claude-plugin/plugin.json skills ${JSON.stringify(listed)} must equal ${JSON.stringify(skills)}`);
 
 const readme = read("README.md");
-for (const skill of skills)
-  if (!readme.includes(`(./skills/${skill}/SKILL.md)`)) errors.push(`README.md: no link to ./skills/${skill}/SKILL.md`);
+for (const skill of skills) {
+  if (!readme.includes(`(./skills/${skill}/SKILL.md)`)) {
+    errors.push(`README.md: no link to ./skills/${skill}/SKILL.md`);
+    continue;
+  }
+  const version = metadataVersion(read(`skills/${skill}/SKILL.md`));
+  const shown = readmeVersion(readme, skill);
+  if (!version) errors.push(`skills/${skill}/SKILL.md: metadata.version is missing`);
+  else if (shown !== version)
+    errors.push(`README.md: ${skill} shows version ${shown ?? "none"}, but its SKILL.md is ${version}. Update the skills table.`);
+}
 
 if (errors.length) {
   for (const error of errors) console.error(`FAIL ${error}`);
