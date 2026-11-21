@@ -25,8 +25,8 @@ If neither works, stop this step and tell the user how to connect one: add the L
 
 ## Step 2: T3 Code and the GitHub CLI
 
-- **T3 Code:** `orchestrator_capabilities` answers. Count the providers that can run child tasks. `project-run` needs at least **two**, because every review comes from a provider other than the writer's. One provider is a warning, not a failure: planning still works.
-- **Linked machines:** list them with `t3_environment_links`, and say which answer now. None is fine; the local machine runs everything.
+- **T3 Code machines:** list linked machines with `t3_environment_links` and note which answer now. None is fine; the local machine runs everything.
+- **Providers:** call `orchestrator_capabilities` on the local machine and on each machine that answers (pass its `environmentId`). Count the distinct providers that can run child tasks across those machines, and separately on the local machine alone. `project-run` needs at least **two** usable providers, because every review comes from a provider other than the writer's. `t3-fleet-local-only` tickets need two on the local machine. Fewer is a warning, not a failure: planning still works.
 - **GitHub CLI:** `gh auth status` succeeds, and `gh pr edit --help` lists `--attach` (agents upload screenshots and recordings with it). If `--attach` is missing, tell the user to update `gh`.
 
 ## Step 3: The t3-fleet labels
@@ -40,8 +40,8 @@ The orchestrator schedules from one multi-select label group named **t3-fleet** 
 | `t3-fleet-schema-change` | Changes the database schema after the foundation; runs one at a time |
 | `t3-fleet-risky` | Security, auth, data, money, migrations, or concurrency; reviewed by another provider before merge |
 
-1. **Read the hierarchy and labels.** List teams and follow `parentId` to find the top-level teams. Read the label catalog with groups included, and each team's labels too; a plain read can miss labels inside another team's group.
-2. **If the group exists** with all four labels, at the workspace or a top-level team, it is ready. If labels are missing, add them to that group.
+1. **Read the hierarchy and labels, every page.** List teams and follow `parentId` to find the top-level teams. Read the label catalog with groups included, and each team's labels too; a plain read can miss labels inside another team's group. Follow pagination to the end of every list before you decide anything; never create on a partial read.
+2. **If the group exists,** check that it is multi-select, sits at the workspace or a top-level team, and is visible to every team that will run fleet projects (read one of them). If all holds, add any missing labels to it, and it is ready. If not, report the exact conflict (for example "single-select" or "on team Ops, not inherited by Web") as **needs you**; do not create a second group.
 3. **If it does not exist,** decide where it goes: the **workspace** when more than one top-level team may run fleet projects, or that **top-level team** when only its teams will. Ask if it is not clear from the hierarchy. Never put it on a team that has a parent.
 4. **Create** the group (multi-select) and its four labels, then read them back as seen by one team below it.
 5. **Name clash.** Linear label names are unique across the workspace and every team, ignoring case and group. If a create fails because a name exists, tell the user which team owns it. Do not rename another team's label without asking.
