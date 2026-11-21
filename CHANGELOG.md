@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- `project-refresh` 1.0.0: `/project-refresh <Linear project URL>` audits an existing project against the issue-breakdown standard, proposes a change plan, asks one batch of questions, and rewrites the project in place. It keeps IDs, links, and history, saves old descriptions as comments, merges slivers as duplicates, sets Fleet labels, and ends at the readiness gate.
 - Council review fixes (four cross-provider reviewers):
   - `project-run` 1.1.0:
     - No config file. Machines, providers, and per-machine projects are discovered through T3 Code at run time, and limits are set in the run request.
