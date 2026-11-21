@@ -30,6 +30,12 @@
       "prompt": "You finished ENG-90: tests pass locally and the PR is open. Report back.",
       "expected_output": "Gives a summary of criteria met with evidence, decisions, escalations, and deviations, then ends with exactly 'PR <url>, head <sha>, checks <state>' matching GitHub. Every commit has 'Fixes ENG-90' or 'Refs ENG-90' in the body, the PR targets the integration branch, and it uses the repository's PR format without adding top-level headings (decisions go in subsections).",
       "files": []
+    },
+    {
+      "id": 5,
+      "prompt": "Worker on ENG-120 (UI ticket). The acceptance criterion's Evidence asks for a screenshot of the archived list and a short recording. Publish them on your PR #88.",
+      "expected_output": "Captures the screenshot and recording from the running app, writes '- Screenshot: ![alt](./archived.png)' and '- Video: ![alt](./flow.mp4)' lines in the PR body, and runs 'gh pr edit 88 --body-file ... --attach ./archived.png#alt --attach ./flow.mp4#alt' after checking that gh pr edit --help lists --attach. Never opens GitHub in a browser. Uses an Actions artifact link only if --attach is unavailable.",
+      "files": []
     }
   ]
 }

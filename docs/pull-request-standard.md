@@ -136,6 +136,12 @@ UI changes: Yes
 - Video: https://github.com/OWNER/REPO/actions/runs/RUN_ID/artifacts/ARTIFACT_ID
 ```
 
+Upload attachments with the GitHub CLI rather than a browser: write the local
+reference on the labeled line (`- Screenshot: ![Affected flow](./flow.png)`), then
+run `gh pr edit <n> --body-file body.md --attach './flow.png#Affected flow'` (also
+`gh pr create` and `gh pr comment`). `gh` uploads the file and rewrites the
+reference to the attachment URL.
+
 The validator inspects changed frontend files, styles, markup, and image assets,
 excluding tests and fixtures. Detected UI files require visual proof even
 if the declaration says No. Declare Yes for UI changes in other file types too,
