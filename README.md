@@ -118,13 +118,21 @@ See [Linear's GitHub integration docs](https://linear.app/docs/github) for detai
 
 ## Contributing
 
-Requires Node.js 22 or newer. No dependency install is needed. Run the checks:
+Contributions are welcome. Read the
+[contributing guide](https://github.com/FantasticDevHQ/.github/blob/main/CONTRIBUTING.md)
+and [Code of Conduct](https://github.com/FantasticDevHQ/.github/blob/main/CODE_OF_CONDUCT.md),
+and report vulnerabilities privately as described in the
+[security policy](https://github.com/FantasticDevHQ/.github/blob/main/SECURITY.md).
+
+Source development needs Node.js 22 or newer. There is no package manager step:
+the checks use only Node.js built-ins, so no dependency install is needed.
 
 ```sh
-node scripts/check.mjs
+node scripts/check.mjs   # skill frontmatter and listing validation, plus PR standard tests
 ```
 
-Follow [AGENTS.md](AGENTS.md) for skill rules and the [pull request standard](docs/pull-request-standard.md) for PRs.
+Follow [AGENTS.md](AGENTS.md) for skill rules. Pull requests follow the
+[PR standard](docs/pull-request-standard.md).
 
 ## Credits
 
@@ -132,4 +140,4 @@ The orchestration patterns are informed by Theo's [tstack](https://github.com/t3
 
 ## License
 
-[MIT](LICENSE)
+[MIT](LICENSE), Copyright (c) 2026 Kelly Kampen.

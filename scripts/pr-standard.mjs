@@ -126,19 +126,49 @@ function ticketFrom(token) {
   }
 }
 
-// Tickets declared with a magic word, one or more per line:
-// `Fixes ENG-1`, `Refs ENG-2, ENG-3 and DES-4`, or full Linear issue URLs.
-export function declaredTickets(text) {
+// GitHub issue references for contributors without Linear access:
+// `#42`, `owner/repo#42` or a full github.com issue URL.
+function issueFrom(token) {
+  token = token.replace(/^<|[>.,;:]+$/g, "");
+  if (/^(?:[\w.-]+\/[\w.-]+)?#[1-9]\d*$/.test(token)) return token;
+  try {
+    const url = new URL(token);
+    if (url.protocol !== "https:" || url.hostname !== "github.com") return;
+    return /^\/[\w.-]+\/[\w.-]+\/issues\/[1-9]\d*\/?$/.test(url.pathname)
+      ? url.href
+      : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+// References declared with a magic word, one or more per line:
+// `Fixes ENG-1`, `Refs ENG-2, ENG-3 and DES-4`, full Linear issue URLs, or
+// GitHub issues such as `Fixes #42`. Every target on a line must be valid.
+export function declaredReferences(text) {
   const tickets = new Set();
+  const issues = new Set();
   for (const line of outsideFences(text).split("\n")) {
     const targets = line.match(magicWord)?.[2];
     if (!targets) continue;
     const tokens = targets.split(/[\s,]+/).filter((token) => token && !/^and$/i.test(token));
-    const found = tokens.map(ticketFrom);
-    if (found.length && found.every(Boolean)) found.forEach((id) => tickets.add(id));
+    const found = tokens.map((token) => {
+      const ticket = ticketFrom(token);
+      if (ticket) return { ticket };
+      const issue = issueFrom(token);
+      return issue ? { issue } : undefined;
+    });
+    if (!found.length || !found.every(Boolean)) continue;
+    for (const ref of found) {
+      if (ref.ticket) tickets.add(ref.ticket);
+      else issues.add(ref.issue);
+    }
   }
-  return tickets;
+  return { tickets, issues };
 }
+
+// Linear tickets declared with a magic word.
+export const declaredTickets = (text) => declaredReferences(text).tickets;
 
 const noTicket = (text, pattern) =>
   outsideFences(text)
@@ -149,7 +179,7 @@ const noTicket = (text, pattern) =>
     });
 
 function linkageErrors(text, title, commitTickets) {
-  const declared = declaredTickets(text);
+  const { tickets: declared, issues } = declaredReferences(text);
   const required = new Set(commitTickets);
   const titleTicket = title.match(/: ([A-Z][A-Z0-9]+-[1-9]\d*) /)?.[1];
   if (titleTicket) required.add(titleTicket);
@@ -159,26 +189,32 @@ function linkageErrors(text, title, commitTickets) {
     errors.push(
       `In \`## Summary\`, declare every ticket this PR works on with a Linear magic word: missing ${missing.join(", ")}. Use \`Fixes ${missing[0]}\` only for completed work, \`Refs ${missing[0]}\` for partial work, or \`Relates to ${missing[0]}\` for a relation without status automation. Several IDs may follow one word, e.g. \`Fixes ${missing.join(", ")}\`. Linear does not re-detect tickets from earlier merges into a feature branch, so list them here.`,
     );
-  if (!declared.size && !required.size && !noTicket(text, /^[ \t]*(?:[-*][ \t]*)?No ticket:[ \t]*(.+)$/i))
+  if (
+    !declared.size &&
+    !issues.size &&
+    !required.size &&
+    !noTicket(text, /^[ \t]*(?:[-*][ \t]*)?No ticket:[ \t]*(.+)$/i)
+  )
     errors.push(
-      "In `## Summary`, link the Linear ticket(s) with a magic word (`Fixes ENG-123`, `Refs ENG-123`) or state `No ticket: <reason>`.",
+      "In `## Summary`, link the Linear ticket(s) or GitHub issue(s) with a magic word (`Fixes ENG-123`, `Refs ENG-123`, `Fixes #123`) or state `No ticket: <reason>`.",
     );
   return errors;
 }
 
-// Every non-merge commit names its ticket with a magic word, or carries a
-// `No-ticket: <reason>` footer. Returns the errors and the tickets referenced.
+// Every non-merge commit names its Linear ticket or GitHub issue with a magic
+// word, or carries a `No-ticket: <reason>` footer. Returns the errors and the
+// Linear tickets referenced.
 export function commitErrors(commits = []) {
   const errors = [];
   const tickets = new Set();
   for (const commit of commits) {
     if (commit.merge) continue;
     const message = commit.message ?? "";
-    const found = declaredTickets(message);
-    found.forEach((id) => tickets.add(id));
-    if (!found.size && !noTicket(message, /^No-ticket:[ \t]*(.+)$/im))
+    const found = declaredReferences(message);
+    found.tickets.forEach((id) => tickets.add(id));
+    if (!found.tickets.size && !found.issues.size && !noTicket(message, /^No-ticket:[ \t]*(.+)$/im))
       errors.push(
-        `Commit ${String(commit.sha ?? "").slice(0, 7) || "(unknown)"} "${message.split("\n")[0]}" has no Linear reference. Add a body line such as \`Fixes ENG-123\` or \`Refs ENG-123\`, or a \`No-ticket: <reason>\` footer, then reword the commit and push.`,
+        `Commit ${String(commit.sha ?? "").slice(0, 7) || "(unknown)"} "${message.split("\n")[0]}" has no ticket or issue reference. Add a body line such as \`Fixes ENG-123\`, \`Refs ENG-123\` or \`Fixes #123\`, or a \`No-ticket: <reason>\` footer, then reword the commit and push.`,
       );
   }
   return { errors, tickets };

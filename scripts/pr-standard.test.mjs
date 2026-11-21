@@ -227,10 +227,10 @@ test("every non-merge commit needs a magic-word ticket or a No-ticket footer", (
     ]),
     [],
   );
-  for (const message of ["ci: add validator", "ci: add validator\n\nJIF-65", "ci: x\n\nNo-ticket:", "ci: x\n\nNo-ticket: TBD"])
+  for (const message of ["ci: add validator", "ci: add validator\n\nJIF-65", "ci: x\n\n#42", "ci: x\n\nFixes #0", "ci: x\n\nFixes https://github.com/o/r/pull/4", "ci: x\n\nNo-ticket:", "ci: x\n\nNo-ticket: TBD"])
     assert.ok(
       validatePullRequest({ title, body }, [], [commit(message)]).some((error) =>
-        error.includes("has no Linear reference"),
+        error.includes("has no ticket or issue reference"),
       ),
       message,
     );
@@ -392,4 +392,40 @@ test("accepts a GitHub Actions artifact as UI video evidence", () => {
       ),
       url,
     );
+});
+
+test("outside contributors can reference GitHub issues instead of Linear tickets", () => {
+  const noTitleTicket = "fix(cli): handle missing config file";
+  for (const declaration of [
+    "Fixes #42",
+    "- Refs #42",
+    "Closes FantasticDevHQ/finch#42",
+    "Resolves https://github.com/FantasticDevHQ/finch/issues/42",
+    "Fixes #42, #43 and JIF-65",
+  ]) {
+    const summary = body.replace("Refs JIF-65", declaration);
+    const commits = [commit(`fix(cli): handle missing config\n\n${declaration}`)];
+    const errors = validatePullRequest({ title: noTitleTicket, body: summary }, [], commits);
+    assert.deepEqual(
+      errors.filter((error) => !error.includes("missing JIF-65")),
+      [],
+      declaration,
+    );
+  }
+  for (const declaration of ["#42", "Fixes #0", "Fixes https://github.com/o/r/pull/42", "Fixes #42 later"])
+    assert.ok(
+      validatePullRequest({ title: noTitleTicket, body: body.replace("Refs JIF-65", declaration) }).some((error) =>
+        error.includes("No ticket"),
+      ),
+      declaration,
+    );
+});
+
+test("GitHub issue references do not replace required Linear declarations", () => {
+  const errors = validatePullRequest(
+    { title, body: body.replace("Refs JIF-65", "Fixes #42") },
+    [],
+    [commit("ci: add validator\n\nRefs JIF-65")],
+  );
+  assert.ok(errors.some((error) => error.includes("missing JIF-65")), errors.join("\n"));
 });

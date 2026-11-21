@@ -37,8 +37,17 @@ Fixes JIF-65
 ```
 
 Use a closing word such as `Fixes` only when the commit completes the ticket,
-and a non-closing word such as `Refs` for partial work. A commit that works on
-no ticket carries a footer with the reason:
+and a non-closing word such as `Refs` for partial work. Outside contributors
+without Linear access reference a GitHub issue the same way, as `#42`,
+`owner/repo#42` or a full `https://github.com/.../issues/42` URL:
+
+```text
+fix(cli): handle missing config file
+
+Fixes #42
+```
+
+A commit that works on no ticket or issue carries a footer with the reason:
 
 ```text
 docs: fix typo in README
@@ -51,6 +60,10 @@ moves the ticket to In Progress when the commit is pushed and to Done when the
 commit reaches the default branch. When a PR is squash-merged, the squash
 message is built from the PR title and body, so the Summary declarations below
 end up on the merged commit too. Merge commits are exempt.
+
+Outside contributors follow the shared
+[contributing guide](https://github.com/FantasticDevHQ/.github/blob/main/CONTRIBUTING.md);
+keep its Commits and Pull requests sections consistent with this standard.
 
 Use the PR template and fill in these level-two headings exactly once, in order:
 
@@ -83,10 +96,14 @@ Refs JIF-70
 | `Refs JIF-123`       | Partial work. Other workflow automation can run, but merge does not apply merged status.  |
 | `Relates to JIF-123` | An informational relation with no status automation.                                      |
 
-A raw full Linear issue URL may replace an ID. The validator also accepts
+A raw full Linear issue URL may replace an ID. A GitHub issue reference
+(`Fixes #42`, `Refs owner/repo#42` or a full issue URL) satisfies the Summary
+declaration for outside contributors; it never substitutes for a Linear ticket
+that a commit or the title references. Every target on a declaration line must
+be a valid ticket or issue. The validator also accepts
 Linear's other documented closing, non-closing, and relation words, such as
 `Closes`, `Implements`, `References`, `Part of`, and `Related to`. A PR that works
-on no ticket states `No ticket: <reason>` in Summary instead. A feature PR also
+on no ticket or issue states `No ticket: <reason>` in Summary instead. A feature PR also
 links its Linear project.
 
 Linear does not re-detect tickets that were linked by earlier merges into a
