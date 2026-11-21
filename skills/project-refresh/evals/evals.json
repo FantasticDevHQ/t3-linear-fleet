@@ -22,7 +22,7 @@
     {
       "id": 3,
       "prompt": "Refresh a project in team Web, under parent team Product. The workspace has no t3-fleet label group, but Web has a local label named 't3-fleet-risky'.",
-      "expected_output": "Reads the label catalog with owning team and inheritedFrom first. Creates the t3-fleet group at the Product parent team (or the workspace), not on Web, and tells the user about the existing team-local 'risky' label instead of creating another duplicate. Never replaces a ticket's full label set.",
+      "expected_output": "Reads the label catalog with owning team and inheritedFrom first. Creates the t3-fleet group at the Product parent team (or the workspace), not on Web, with the other three labels. It does not create another 't3-fleet-risky' (Linear refuses the duplicate name): it tells the user about the existing team-local 't3-fleet-risky' label and reuses it for Web's tickets. Never replaces a ticket's full label set.",
       "files": []
     },
     {
