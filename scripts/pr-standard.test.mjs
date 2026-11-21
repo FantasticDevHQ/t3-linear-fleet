@@ -169,7 +169,7 @@ test("requires a magic-word declaration for the title ticket in Summary", () => 
     "Contributes to JIF-65",
     "Towards JIF-65",
     "Related to JIF-65",
-    "Refs https://linear.app/dojoco/issue/JIF-65/require-pr-standards",
+    "Refs https://linear.app/acme/issue/JIF-65/require-pr-standards",
     "Fixes JIF-64, JIF-65 and JIF-66",
   ]) {
     assert.deepEqual(
@@ -181,11 +181,11 @@ test("requires a magic-word declaration for the title ticket in Summary", () => 
   for (const declaration of [
     "",
     "JIF-65",
-    "[JIF-65](https://linear.app/dojoco/issue/JIF-65)",
+    "[JIF-65](https://linear.app/acme/issue/JIF-65)",
     "Refs JIF-650",
     "Fixes JIF-66",
     "Refs https://example.com/issue/JIF-65",
-    "Refs https://linear.app/dojoco/issue/JIF-66/wrong-ticket",
+    "Refs https://linear.app/acme/issue/JIF-66/wrong-ticket",
     "Refs JIF-65 soon",
     "`Refs JIF-65`",
     "<!-- Refs JIF-65 -->",
