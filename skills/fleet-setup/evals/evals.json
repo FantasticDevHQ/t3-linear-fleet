@@ -1,0 +1,23 @@
+{
+  "skill_name": "fleet-setup",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Fresh install. The Linear MCP works. T3 Code shows two providers that can run child tasks. The workspace has top-level teams Product (with sub-teams Web and Mobile) and Ops, and no t3-fleet labels. gh is logged in and lists --attach. No models are classified yet.",
+      "expected_output": "Checks everything first, then asks one question batch: where to put the t3-fleet group (workspace recommended because two top-level teams exist), the GitHub automation checklist per team, and the fleet-models classification. Creates the multi-select group and four labels at the chosen level, reads them back from a sub-team, never on Web or Mobile. Ends with a checklist marking each item ready, fixed now, or needs you.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "Run fleet-setup again. Everything was set up last week. Team Ops owns a label named 't3-fleet-risky' that is not in the group, and creating it in the group fails with a name clash.",
+      "expected_output": "Changes nothing that is already ready and asks no questions about it. Reports that team Ops owns the clashing label and does not rename or delete it without asking. The checklist marks labels as needs you with the exact choice.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "Neither the Linear MCP nor linear-cli works, and only one T3 provider can run child tasks.",
+      "expected_output": "Does not ask for an API key. Explains how to connect the Linear MCP or install and set up linear-cli, skips the Linear steps, still checks gh and models, warns that project-run needs two providers for reviews, and reports not ready to plan and not ready to run.",
+      "files": []
+    }
+  ]
+}

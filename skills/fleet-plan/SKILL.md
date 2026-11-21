@@ -218,7 +218,7 @@ Labels: discover before you create.
 
 1. Read the team hierarchy, and the issue-label catalog with each label's owning team, parent group, and `inheritedFrom`. Follow every page. Project labels are a separate catalog and do not label issues.
 2. Reuse workspace and inherited parent-team labels. Do not create a local variant such as `platform:cli` when an applicable workspace `cli` exists. A child team's copy with `inheritedFrom` set is an inherited definition, not a duplicate.
-3. If the **t3-fleet** group does not exist yet, create it once at the workspace (when unrelated teams will use the fleet) or at the top-most parent team (when only that parent's teams will), as a multi-select group with the four labels above. Never create it on a leaf team. If a team-local copy already exists, tell the user and use it rather than adding another.
+3. If the **t3-fleet** group does not exist yet, run `fleet-setup` Step 3, which creates it once at the workspace (when unrelated teams will use the fleet) or at the top-most parent team (when only that parent's teams will), as a multi-select group with the four labels above. Never create it on a leaf team. If a team-local copy already exists, tell the user and use it rather than adding another.
 4. A catalog read can miss labels that belong to other teams' label groups. Read each relevant team's labels with the team filter, ask for groups too, and treat a name-clash error on create as the final check.
 5. Verify labels and a provisional estimate on every ticket you create or revise.
 

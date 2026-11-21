@@ -82,7 +82,7 @@ Verify the install:
 npx skills@latest list --global
 ```
 
-Expected result: `fleet-plan` appears in the list for your agents. Ask your agent to "plan this feature with fleet-plan" to start a Linear plan.
+Expected result: `fleet-plan` appears in the list for your agents. Then ask your agent to "set up the fleet" (`fleet-setup`), and "plan this feature with fleet-plan" to start a Linear plan.
 
 ## The workflow
 
@@ -94,6 +94,7 @@ Expected result: `fleet-plan` appears in the list for your agents. Ask your agen
 
 | Skill | Status | What it does |
 | --- | --- | --- |
+| [fleet-setup](./skills/fleet-setup/SKILL.md) | Ready (1.0.0) | One-time setup and health check: Linear access (MCP or linear-cli), T3 Code providers, the GitHub CLI, the t3-fleet labels, Linear's GitHub automation, and your model ratings. Safe to rerun. |
 | [fleet-plan](./skills/fleet-plan/SKILL.md) | Ready (3.1.0) | Plans a feature as a Linear project: intent brief, one batch of questions with defaults, a cold read, the fewest tickets, EARS requirements traced to acceptance criteria provable inside the PR, and a readiness gate. |
 | [fleet-models](./skills/fleet-models/SKILL.md) | Ready (1.0.0) | Classifies your favorite models in T3 Code once (intelligence, taste, cost, best use) from suggested defaults you confirm, asks again only about new favorites, and holds the rule for picking each ticket's model. |
 | [project-run](./skills/project-run/SKILL.md) | Ready (1.5.0) | The orchestrator: preflight, integration branch, foundation first, dispatch on blockers across T3 Code machines and providers, merge and freeze rules, takeovers, batched escalation, feature review, and the evidence packet. |
@@ -107,13 +108,14 @@ The skills require Linear, through the [Linear MCP server](https://linear.app/do
 
 ## Linear setup
 
-The fleet tracks tickets on commits, not PR titles. Every commit carries a Linear magic word (`Fixes ENG-123` when it completes the ticket, `Refs ENG-123` for partial work), and the feature PR lists every ticket again, because Linear does not re-detect tickets merged into a feature branch. Do this once per Linear team, under Settings > Team > Workflows & automations:
+Run `fleet-setup` once (ask your agent to "set up the fleet"). It checks Linear access, T3 Code, and the GitHub CLI, creates the `t3-fleet` label group (`t3-fleet-foundation`, `t3-fleet-local-only`, `t3-fleet-schema-change`, `t3-fleet-risky`) at the right level of your workspace, rates your favorite models, and ends with a ready checklist. Run it again any time; it only fixes what is missing.
 
-1. Turn on **Link commits to issues with magic words** and add the GitHub push webhook that Linear shows.
+Two Linear settings cannot be changed through the API, so `fleet-setup` walks you through them, once per team (Settings > Team > Workflows & automations):
+
+1. Turn on **Link commits to issues with magic words** and add the GitHub push webhook that Linear shows. The fleet links work through commits (`Fixes ENG-123`, `Refs ENG-123`), not PR titles, and the feature PR lists every ticket again, because Linear does not re-detect tickets merged into a feature branch.
 2. Add branch-specific rules: a merge into `^feat/.*` moves the ticket to an "Integrated" status (or "no action"), and a merge into `main` moves it to Done.
-3. Create the **t3-fleet** label group once, as a multi-select group with four labels: `t3-fleet-foundation`, `t3-fleet-local-only`, `t3-fleet-schema-change`, and `t3-fleet-risky`. Put it at the **workspace** if unrelated teams will use the fleet, or at the **top-most parent team** if only that parent's teams will. Teams below inherit it. Never create it on a leaf team. `fleet-plan` sets these labels during planning, and `project-run` schedules from them. If the group is missing, `fleet-plan` creates it at the right level.
 
-Your repository's CI must also run on pull requests into `feat/**` and on pushes to `feat/**`, not only on the default branch. `project-run` checks this before it starts.
+Your repository's CI must also run on pull requests into `feat/**` and on pushes to `feat/**`, not only on the default branch. `project-refresh` plans this as a prerequisite, and `project-run` checks it before it starts.
 
 See [Linear's GitHub integration docs](https://linear.app/docs/github) for details.
 
