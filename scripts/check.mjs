@@ -4,7 +4,7 @@ import { fileURLToPath } from "node:url";
 const root = fileURLToPath(new URL("../", import.meta.url));
 const steps = [
   ["scripts/validate-skills.mjs"],
-  ["--test", "scripts/pr-standard.test.mjs", "scripts/enforce-pr-standard.test.mjs"],
+  ["--test", "scripts/pr-standard.test.mjs", "scripts/enforce-pr-standard.test.mjs", "scripts/skill-versions.test.mjs"],
 ];
 for (const args of steps) {
   const result = spawnSync(process.execPath, args, { cwd: root, stdio: "inherit" });

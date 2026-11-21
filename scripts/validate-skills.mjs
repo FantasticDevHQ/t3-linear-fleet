@@ -2,6 +2,7 @@
 // plugin manifest and README list exactly the skills that exist.
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
+import { metadataVersion, readmeVersion } from "./skill-versions.mjs";
 
 const root = fileURLToPath(new URL("../", import.meta.url));
 const errors = [];
@@ -61,9 +62,8 @@ for (const skill of skills) {
     errors.push(`README.md: no link to ./skills/${skill}/SKILL.md`);
     continue;
   }
-  const version = read(`skills/${skill}/SKILL.md`).match(/^\s+version:\s*"([^"]+)"/m)?.[1];
-  const row = readme.split("\n").find((line) => line.includes(`(./skills/${skill}/SKILL.md)`));
-  const shown = row?.match(/\((\d+\.\d+\.\d+)\)/)?.[1];
+  const version = metadataVersion(read(`skills/${skill}/SKILL.md`));
+  const shown = readmeVersion(readme, skill);
   if (!version) errors.push(`skills/${skill}/SKILL.md: metadata.version is missing`);
   else if (shown !== version)
     errors.push(`README.md: ${skill} shows version ${shown ?? "none"}, but its SKILL.md is ${version}. Update the skills table.`);

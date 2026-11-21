@@ -49,15 +49,17 @@ Every rating is 1 to 9, and **higher is always better**, including cost:
 
 ## Step 1: Sync
 
-1. Read the favorites. If `orchestrator_capabilities` is available, drop favorites whose provider is disabled, and add each model's providers.
-2. Read the classification file. If it does not exist, every favorite is new.
-3. Compare:
+1. Read the favorites from the settings file. They alone decide `favorite: true` or `false`; provider availability does not.
+2. Read the classification file. If it does not exist, every favorite is new. If it cannot be parsed, or an entry lacks a model ID or has a rating outside 1 to 9, **do not overwrite it**: report the problem and the file's path, and treat the broken entries (or the whole file) as unclassified for now. Planning and setup may offer to reclassify in their question batch; `project-run` never asks.
+3. Compare, by model ID:
    - **New favorites** (no entry yet) need a classification.
    - **Removed favorites** get `"favorite": false`. Keep their ratings in case they come back.
    - A removed favorite that returns gets `"favorite": true` with its old ratings.
-4. If nothing is new, you are done. Do not ask anything.
+   - Set each entry's `providers` to the providers the settings list for that model; when the same model is a favorite under several providers, list them all.
+4. **Candidates for this run** are the favorites that are classified and offered by a usable provider in `orchestrator_capabilities` (when it is available). A favorite whose provider is disabled stays a favorite in the file; it is just not a candidate today.
+5. If nothing is new, you are done. Do not ask anything.
 
-If there are no favorites at all, say so, and use every model `orchestrator_capabilities` lists as candidates for this run without saving them.
+If there are no favorites at all, say so, and use every model `orchestrator_capabilities` lists as candidates for this run without saving them. Without ratings, choose among them by your own judgment of each model's intelligence, taste, and cost, in that order, and say so in the ticket's `Why`.
 
 ## Step 2: Classify the new models (once)
 
@@ -80,9 +82,11 @@ Candidates are the classified favorites that the run can reach. Choose by the ti
 | `t3-fleet-foundation`, `t3-fleet-risky`, or novel work | The highest intelligence, then taste | `high` or `xhigh` |
 | Being wrong is expensive and hard to detect (money, security, permanent data) | The highest intelligence | `xhigh` or `max` |
 
-When candidates tie, spread tickets across providers so one rate limit cannot stall the run. Write the reason in the ticket's `Why` line.
+**No candidate meets the bar** (for example, none has taste 7 or more): choose the best candidate on that row's first measure, say so in `Why` (for example "best available taste is 6"), and continue. Never stop planning for it.
 
-**Closest replacement** (for `project-run`, when a ticket's model is not available): the available candidate with the smallest difference in intelligence, then in taste. Prefer the same model family when two are equal.
+**Ties:** spread tickets across providers so one rate limit cannot stall the run: prefer the provider with fewer tickets chosen so far, then the model ID that sorts first. Write the reason in the ticket's `Why` line.
+
+**Closest replacement** (for `project-run`, when a ticket's model is not available): the available candidate with the smallest difference in intelligence, then in taste, then the same tie rule. If the missing model has no ratings, judge its strength from its family and tier, and pick the candidate closest to that.
 
 ## Never
 
