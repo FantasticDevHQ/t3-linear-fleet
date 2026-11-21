@@ -157,6 +157,80 @@ flowchart TB
   O -->|status, Run log| L[(Linear project)]
 ```
 
+### What a ticket contains
+
+Every ticket follows one template, so any agent can build it without asking. A shortened example:
+
+```markdown
+## Outcome
+Members can archive several rows at once from the members table.
+
+## Requirements
+- **REQ-001:** When a member selects rows and chooses Archive, the system shall archive every selected row.
+
+## Scope
+- Bulk archive from the table's selection bar.
+- Decided: archived rows leave the default view; no undo (owner, 2026-11-21).
+
+## Acceptance criteria
+- [ ] **AC-1 (REQ-001):** Given 3 selected rows, When the member chooses Archive, Then all 3 show as archived.
+  - Verify: E2E test "bulk archive" passes on the PR.
+  - Evidence: run output and a screenshot attached to the PR.
+
+## Design
+<screenshot of the target>
+
+## Fleet
+- Model: claude-opus-5-5
+- Effort: medium
+- Why: ordinary UI work with a clear spec
+```
+
+- **Outcome, Requirements, Scope:** what to build and the decisions already made. Requirements use the EARS pattern ("When …, the system shall …") and are numbered so each one can be traced to a test.
+- **Acceptance criteria:** each one has a `Verify` line (a test or check that runs on the PR) and an `Evidence` line (what the PR shows). Nothing can only be proven after merge.
+- **Fleet:** which model builds the ticket and how hard it thinks. Edit these two lines to change them.
+- **Labels:** the `t3-fleet` labels below, plus the team's own area and type labels.
+
+### Model and effort
+
+Each ticket names its model and effort in its Fleet section.
+
+- **Where the choice comes from.** `fleet-setup` and `fleet-models` read your favorite models from T3 Code and ask you once to rate each one for **intelligence**, **taste** (design and API judgment) and **cost**, from 1 to 9 (higher is better, so cost 9 means nearly free). The ratings live in `~/.config/t3-linear-fleet/models.json`. When you add a favorite later, you are asked about that one only.
+- **How a ticket gets its model.** Planning weighs intelligence first, then taste, then cost:
+
+  | Ticket | Model | Effort |
+  | --- | --- | --- |
+  | Mechanical, fully specified (config, triggers, small copy changes) | cheapest model with intelligence 6+ | `low` or `medium` |
+  | Ordinary implementation | intelligence 7+, then cheapest | `medium` |
+  | User-facing UI, copy, or API design | taste 7+, then smartest | `medium` or `high` |
+  | `t3-fleet-foundation`, `t3-fleet-risky`, or novel work | smartest, then best taste | `high` or `xhigh` |
+  | Money, security, or permanent data | smartest | `xhigh` or `max` |
+
+- **Effort levels.** `low`, `medium`, `high`, `xhigh`, `max`. Each provider names its setting differently (`effort`, `reasoningEffort`, `thought_level`, `thinking`); `fleet-run` maps the level to it, or to the nearest lower level the model offers. Special modes such as "ultra" or "ultrathink" are used only if you ask for them in the run request.
+- **Reviewers.** Every ticket is reviewed by a model from a provider that wrote none of its code: a capable, inexpensive one (intelligence 7+, then cheapest) for ordinary tickets, the strongest one for risky tickets and the whole feature.
+- **When a model is missing.** If no machine offers a ticket's model, `fleet-run` uses the closest rated favorite and notes the swap in the Run log.
+- **Overrides.** Edit a ticket's Fleet lines, or say it in the run request: "everything on Codex", "max effort for ENG-42". The run request wins.
+
+### The t3-fleet labels
+
+| Label | Effect on the run |
+| --- | --- |
+| `t3-fleet-foundation` | Shared groundwork (schema, contracts, registries). Runs first; everything else waits for it. |
+| `t3-fleet-local-only` | Needs something only your local machine has (a device, simulator, local credential). Runs only there. |
+| `t3-fleet-schema-change` | Changes the database schema after the foundation. These run one at a time. |
+| `t3-fleet-risky` | Security, auth, data, money, migrations, or concurrency. Gets the strongest reviewer and up to two review rounds. |
+
+### Terms used here
+
+- **Intent brief:** the Linear project's description. It states the problem, users, definition of done, non-goals, constraints, decisions, release checks, and a graph of every ticket, and ends with an `Approved:` line.
+- **Definition of done:** what a user can see or do when the feature ships. Every ticket serves part of it; nothing else is built.
+- **Integration branch:** `feat/<project>`. Ticket PRs merge here; one feature PR takes it to `main`.
+- **Run log:** the record of every attempt (worker, machine, model, PR, decisions), kept on the feature PR and in Linear comments.
+- **Evidence packet:** what you review at the end: a recording or transcripts of the feature working, each acceptance criterion linked to its proof, and the decisions made for you.
+- **Escalation batch:** the few questions only you can answer, asked together when nothing else can move.
+- **Release checks:** things that can only be checked after release (live services, production metrics). They never block a merge.
+- **Possible follow-ups:** ideas found during a run that the plan doesn't need. They are listed for you, never built or filed on their own.
+
 ## Why it works this way
 
 Each choice answers a problem that shows up when agents build features unattended.
