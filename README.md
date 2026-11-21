@@ -83,7 +83,7 @@ Expected result: `issue-breakdown` appears in the list for your agents. Ask your
 | [ticket-worker](./skills/ticket-worker/SKILL.md) | Ready (1.0) | The worker brief: intent, smallest change, proof, ownership through green, escalation to the orchestrator, fixed report line. |
 | [pr-gate](./skills/pr-gate/SKILL.md) | Ready (1.0) | Ticket and final merge gates, PR watching without polling, event routing, and the freeze on a red integration branch. |
 | [review-loop](./skills/review-loop/SKILL.md) | Ready (1.0) | Budgeted review by a different provider, with blocker / should / nit severity, a ledger, and checks for over-engineering and weakened tests. |
-| panel-review | Planned | Optional review by a panel of several providers for large or risky work. |
+| [panel-review](./skills/panel-review/SKILL.md) | Ready (1.0) | Optional review by a panel of three flagship models from three providers, with scores per round, synthesis, and firm scope control. For plans, contracts, and large features. |
 
 The skills require Linear (MCP server or `linear-cli`) and T3 Code for orchestration. There is no config file: `project-run` discovers your linked machines, their providers and models, and the repository's project on each machine through T3 Code every time it runs, so machines can come and go. Set limits in the request itself, for example "run this project, max 8 workers". The skills never assume a specific secrets manager; they use whatever your project declares.
 

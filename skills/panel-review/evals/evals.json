@@ -1,0 +1,35 @@
+{
+  "skill_name": "panel-review",
+  "evals": [
+    {
+      "id": 0,
+      "prompt": "Run a panel review on the Wave-0 contracts for the billing-export project before workers start.",
+      "expected_output": "Calls orchestrator_capabilities and picks the latest flagship from three different providers at high effort, never hardcoding IDs. Starts three read-only delegate_task reviews in parallel with the same self-contained brief. Checks findings as each returns, synthesizes after all three, and records a per-round score table.",
+      "files": []
+    },
+    {
+      "id": 1,
+      "prompt": "Only two providers are available today. Run the panel review on the feature PR.",
+      "expected_output": "Reports that a third provider is unavailable instead of silently using a second model from an existing provider, and lets the user decide or proceeds with the two only if the user agrees.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "Round 1 panelists suggest: fix a missing null check that breaks the main flow, add a caching layer 'for future scale', add an admin dashboard, and rename some variables.",
+      "expected_output": "Accepts and fixes only the real defect against the goal (the null check on the main flow). Declines the caching layer, admin dashboard, and renames as scope additions with one line each, listing them as follow-ups.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "After fixes, run round 2. One panelist from round 1 is gone and a new provider joins.",
+      "expected_output": "Runs a fresh round with new tasks, sends the round-1 ledger, and records the new panelist with '—' for round 1. Writes 'no score' for any panelist that gives none, never inventing a number.",
+      "files": []
+    },
+    {
+      "id": 4,
+      "prompt": "The work ends in PR #42. Where do the panel results go?",
+      "expected_output": "Edits the PR description to add a 'Panel review' section with the rounds count and the per-round score table, placed before the agent line, updating it as rounds complete instead of posting PR comments.",
+      "files": []
+    }
+  ]
+}
