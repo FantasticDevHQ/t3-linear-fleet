@@ -15,6 +15,11 @@
   <a href="https://twitter.com/FantasticDevHQ"><img src="https://img.shields.io/badge/Twitter_%2F_X-0c0e13?style=for-the-badge&amp;logo=x&amp;logoColor=white" alt="Fantastic.Dev on Twitter / X" /></a>
 </p>
 
+<p align="center">
+  <a href="https://github.com/FantasticDevHQ/t3-linear-fleet/actions/workflows/check.yml"><img src="https://img.shields.io/github/actions/workflow/status/FantasticDevHQ/t3-linear-fleet/check.yml?branch=main&amp;style=flat-square" alt="CI status" /></a>
+  <a href="LICENSE"><img src="https://img.shields.io/github/license/FantasticDevHQ/t3-linear-fleet?style=flat-square" alt="License" /></a>
+</p>
+
 <p align="center"><a href="#quick-start">Quick start</a> · <a href="#have-my-agent-set-this-up">Agent setup</a> · <a href="#skills">Skills</a></p>
 
 ---
