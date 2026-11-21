@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Model and effort per ticket: every ticket gets a required **Fleet** section (`Model`, `Effort`, optional `Why`). Labels were rejected because Linear label groups cannot nest, label names must be unique across the workspace, and model IDs and effort scales change too often.
+  - `issue-breakdown` 2.3.0 picks the model from the user's T3 Code favorites (the `favorites` list in T3 Code's settings file, until T3 Code exposes favorites to agents). It uses a model-classification skill if one is installed, or a built-in rule of intelligence, then taste, then cost. Effort is `low`, `medium`, `high`, `xhigh`, or `max`. The readiness gate requires the section.
+  - `project-refresh` 1.2.0 adds the section to every ticket in the run.
+  - `project-run` 1.4.0 checks each ticket's model at preflight and swaps an unavailable one for the closest candidate. It dispatches to any machine and provider that offers the model, maps effort to the provider's own option, never sets special modes unless the run request asks, and logs provider, model, and effort per attempt.
+
 - Lessons from the first `/project-refresh` pilot, on a real 42-ticket project:
   - The fleet labels are now `t3-fleet-foundation`, `t3-fleet-local-only`, `t3-fleet-schema-change`, and `t3-fleet-risky`, in a group named `t3-fleet`. Linear label names are unique across the workspace and every team, so plain names such as `foundation` clash with labels that already exist (`issue-breakdown` 2.2.0, `project-run` 1.3.0, `project-refresh` 1.1.0, `pr-gate` 1.1.1, README).
   - `project-refresh` 1.1.0:
