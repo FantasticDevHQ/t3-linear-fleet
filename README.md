@@ -20,13 +20,29 @@
   <a href="LICENSE"><img src="https://img.shields.io/github/license/FantasticDevHQ/t3-linear-fleet?style=flat-square" alt="License" /></a>
 </p>
 
-<p align="center"><a href="#quick-start">Quick start</a> · <a href="#how-i-work">How I work</a> · <a href="#how-it-works">How it works</a> · <a href="#why-it-works-this-way">Why</a> · <a href="#linear-setup">Linear setup</a> · <a href="#usage">Usage</a> · <a href="#skills">Skills</a></p>
+<p align="center"><a href="#requirements">Requirements</a> · <a href="#quick-start">Quick start</a> · <a href="#how-i-work">How I work</a> · <a href="#how-it-works">How it works</a> · <a href="#why-it-works-this-way">Why</a> · <a href="#linear-setup">Linear setup</a> · <a href="#usage">Usage</a> · <a href="#skills">Skills</a></p>
 
 ---
 
 T3 Linear Fleet is a set of agent skills for solo developers who plan in [Linear](https://linear.app) and run coding agents through [T3 Code](https://github.com/pingdotgg/t3code). You plan a feature once. A fleet of agents builds it in parallel across your machines and model providers, gets everything green, and hands you evidence to review. You don't have to watch over them.
 
 > **Unofficial.** Not affiliated with T3, T3 Code, or their authors.
+
+## Requirements
+
+| You need | Why | Needed for |
+| --- | --- | --- |
+| A coding agent that supports skills (Claude Code, Codex, OpenCode, Pi, Antigravity, …) | Runs the skills | Everything |
+| Node.js 22 or newer with `npx` | Installs the skills with the `skills` CLI | Install |
+| A [Linear](https://linear.app) workspace, reached through the [Linear MCP server](https://linear.app/docs/mcp) or [linear-cli](https://github.com/nesszer/linear-cli) | Projects and tickets live there | Everything |
+| Linear's GitHub integration, with magic-word commit linking on | Tickets follow commits and merges | `fleet-run` |
+| [T3 Code](https://github.com/pingdotgg/t3code) | Machines, providers, models, and the tools that dispatch workers | `fleet-run`, `fleet-models` |
+| At least **two** model providers in T3 Code (for example Claude and Codex) | Every review comes from a provider other than the writer's | `fleet-run` |
+| A GitHub repository and the [GitHub CLI](https://cli.github.com) (`gh`), signed in, recent enough that `gh pr edit --help` lists `--attach` | PRs, checks, and evidence uploads | `fleet-run`, `fleet-worker` |
+| CI that runs on pull requests into `feat/**` and on pushes to `feat/**` | Ticket PRs merge into the feature branch only when checks pass | `fleet-run` |
+| Every secret and external account the plan needs, already in your project's secrets manager | Workers can't stop to ask for keys | `fleet-run` |
+
+Optional: more linked machines in T3 Code (local or cloud) to run more workers at once, and a preview or remote end-to-end setup for UI evidence. `fleet-setup` checks most of this for you.
 
 ## Quick start
 
