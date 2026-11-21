@@ -18,7 +18,7 @@ An author reviewing its own diff repeats its own blind spots. This loop gets an 
 | **Whole feature** (the integration branch against the default branch) | Up to 3 rounds, before the final gate |
 | **Every other ticket PR** | 1 review round before the ticket gate, by a capable, inexpensive reviewer. |
 
-**Verification rounds** are separate from the budget. The gate needs the reviewer's approval of the PR's **latest head**. Whenever the head changes after a review (a fix for findings, a CI fix, a takeover, or a conflict resolved by hand), run a verification round on the new head. It checks only the change and the open finding IDs. A plain merge of the integration branch with no conflicts needs no new review. A verification round that raises a new blocker or should finding after the budget is spent ends the loop as **stuck**.
+**Verification rounds** are separate from the budget. The gate needs the reviewer's approval of the PR's **latest head**. Whenever the head changes after a review (a fix for findings, a CI fix, a takeover, or a conflict resolved by hand), run a verification round on the new head. It checks only the change and the open finding IDs. A merge of the integration branch with no conflicts needs no new review; the approval carries over (`pr-gate` allows it). A ticket gets at most **3 verification rounds**. Another head change after that, or a verification round that raises a new blocker or should finding after the budget is spent, ends the loop as **stuck**.
 
 Extend a budget to 5 rounds only for security, data, or concurrency problems where a blocker or should finding stays open with evidence, or when the user asks. Stop early if a round returns only nits.
 
