@@ -3,7 +3,7 @@ name: project-refresh
 description: "Bring an existing Linear project up to the fleet spec so project-run can execute it. Invoked as /project-refresh <Linear project URL>. Audits a project whose tickets were written to an older standard (user stories, 3-point slivers, post-merge acceptance criteria, missing intent brief, no t3-fleet labels), proposes a change plan, asks every open question in one batch, then rewrites the intent brief and tickets in place: it keeps ticket IDs, links, and history, saves each old description as a comment first, merges slivers as duplicates, and ends at the readiness gate with an Approved line. Use when the user wants to refresh, upgrade, migrate, clean up, or rewrite an existing Linear project or backlog to the new ticket standard."
 metadata:
   author: kellykampen
-  version: "1.4.0"
+  version: "1.5.0"
 ---
 
 # Project Refresh
@@ -67,7 +67,7 @@ Write the plan before touching Linear. For each ticket, give exactly one action 
 | **Rewrite** | Same ticket and ID, description rewritten to the ticket template. |
 | **Merge into ENG-n** | Its scope folds into the surviving ticket; it is then marked a duplicate of it. |
 | **Split** | It keeps its first outcome; new tickets take the others. |
-| **New** | A missing ticket, usually the foundation ticket or a spike. |
+| **New** | A missing ticket, only when the definition of done cannot be met without it (usually a foundation ticket, a prerequisite, or a spike). Prefer folding the work into an existing ticket. Never add a ticket for a nice-to-have. |
 | **Cancel** | Out of scope under the intent brief or a non-goal. Never delete. |
 
 Choose the surviving ticket in a merge by: the one with history (branch, PR, comments), then the most complete, then the lowest number.

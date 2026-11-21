@@ -3,7 +3,7 @@ name: review-loop
 description: "Budgeted code review by a model from a different provider than the author. Sends a self-contained, read-only brief; grades findings blocker / should / nit; checks for bugs, missed acceptance criteria, over-engineering, weakened tests, and non-goal leakage; answers each finding with the smallest fix or a written reason; keeps a ledger; and stops on approval, budget end, or a stuck dispute. One round for every ticket PR (up to two for risky tickets), up to three for a whole feature, plus verification of each new head. Use before merging any ticket PR, before the final feature PR, or whenever the user asks for an independent or cross-provider review loop."
 metadata:
   author: kellykampen
-  version: "1.2.0"
+  version: "1.2.1"
 ---
 
 # Review Loop
@@ -73,7 +73,7 @@ Check every finding against the code yourself, and grade it again. A finding abo
 
 - **Agree:** make the smallest fix. Prefer a fix that deletes or narrows code over one that adds a lock, cache, helper, or option. Add one focused test that fails without the fix when the intent needs it.
 - **Disagree:** reply with evidence: `file:line`, a test, or output.
-- **Nit or out of scope:** decline in one line, and list it as a possible follow-up.
+- **Nit or out of scope:** decline in one line, and list it as a possible follow-up for the orchestrator's report. Never widen the PR or file a ticket for it.
 
 Do not agree just to end the loop. After fixes, rerun the checks and compare the diff size. If review made the diff grow, cut first.
 

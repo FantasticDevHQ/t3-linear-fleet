@@ -3,7 +3,7 @@ name: project-run
 description: "Orchestrate a planned Linear project to a ready feature PR with no human in the loop. Checks the plan was approved, discovers machines, providers, and projects through T3 Code at run time, runs a preflight smoke test per machine, creates the integration branch, runs the foundation ticket first, then dispatches tickets to worker agents as their blockers merge, load-balanced across machines and providers. Merges through the merge gate, freezes on red CI, hands stuck tickets to fresh agents, asks the few escalations in one batch, runs a cross-provider feature review, assembles the evidence packet, and stops for the human to merge. Use when the user asks to run, execute, build, or ship a Linear project or feature with agents, or to orchestrate a fleet across machines and providers."
 metadata:
   author: kellykampen
-  version: "1.6.0"
+  version: "1.7.0"
 ---
 
 # Project Run
@@ -143,7 +143,7 @@ When every ticket is merged into the integration branch:
 3. Dispatch an **evidence agent** that did not write the code, on a different provider. For a user-facing feature it walks the definition of done on the preview deploy and records it. For a backend feature it captures the command, API, or test transcripts that prove the definition of done. It publishes media with `gh pr edit <n> --attach`, the path confirmed in preflight, never through a browser.
 4. Write the **evidence packet** into the feature PR, from [references/evidence-packet.md](references/evidence-packet.md). Update the summary so it declares every ticket (`Fixes ENG-1, ENG-2, …`).
 5. Mark the feature PR ready for review and check the **final gate** in `pr-gate`. If anything changed the head after the evidence was captured, refresh the evidence.
-6. Unwatch every PR and delete any remaining scheduled wake-ups. Report **ready** to the user: the feature PR link, head commit, evidence summary, decisions made on their behalf, any manual Linear corrections, and the release checks for after merge. Leave the PR open unless the user explicitly told you to merge this feature.
+6. Unwatch every PR and delete any remaining scheduled wake-ups. Report **ready** to the user: the feature PR link, head commit, evidence summary, decisions made on their behalf, any manual Linear corrections, the release checks for after merge, and the possible follow-ups (not filed; the user decides). Leave the PR open unless the user explicitly told you to merge this feature.
 
 ## Linear status
 
@@ -158,6 +158,7 @@ Rebuild the state before acting: the Run log in the feature PR (or the ticket co
 
 ## Never
 
+- Create tickets, or widen a ticket's scope, during the run. The approved plan is the whole scope. Collect out-of-scope ideas from workers and reviewers as **possible follow-ups** in the Run log and the final report, without filing them. If the definition of done truly cannot be met without new work, that is a planning gap: put it in the escalation batch.
 - Merge the feature PR without the user's explicit instruction for this feature.
 - Ask the user anything outside the escalation batch, or ask in a plain message instead of the question tool.
 - Poll or sleep-loop. Wake on task completion, PR events, and scheduled wake-ups only.

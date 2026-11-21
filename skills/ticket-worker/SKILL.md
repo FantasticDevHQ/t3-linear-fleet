@@ -3,7 +3,7 @@ name: ticket-worker
 description: "The contract a worker agent follows for one Linear ticket in a parallel-agent fleet. Reads the intent brief and decisions, restates the intent, makes the smallest change that meets the acceptance criteria, proves each criterion with evidence it observed, commits with Linear magic words, pushes, opens or updates one PR into the feature's integration branch, and ends with a fixed report line. Handles first attempts, fix tasks, and takeovers. Escalates costly decisions in its report instead of asking the user. Use when an orchestrator hands you a ticket, when asked to work or build a specific Linear ticket, or when acting as a worker in a fleet."
 metadata:
   author: kellykampen
-  version: "1.2.0"
+  version: "1.3.0"
 ---
 
 # Ticket Worker
@@ -116,7 +116,7 @@ Do not watch the PR and do not merge it.
 
 ## Step 7: Report and end
 
-End with a short summary (criteria met with evidence, decisions, escalations, deviations, blockers), then **exactly this final line**:
+End with a short summary (criteria met with evidence, decisions, escalations, deviations, blockers, and **possible follow-ups**: anything out of scope you noticed but did not do; never file tickets for them), then **exactly this final line**:
 
 ```text
 PR <url>, head <sha>, checks <passing|failing|pending>
