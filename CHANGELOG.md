@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Skill names stay distinct from other collections: the planned multi-provider review is `panel-review`, and `project-run` no longer advertises a 'full send' trigger. AGENTS.md records the rule.
 - `project-refresh` 1.0.0: `/project-refresh <Linear project URL>` audits an existing project against the issue-breakdown standard, proposes a change plan, asks one batch of questions, and rewrites the project in place. It keeps IDs, links, and history, saves old descriptions as comments, merges slivers as duplicates, sets Fleet labels, and ends at the readiness gate.
 - Council review fixes (four cross-provider reviewers):
   - `project-run` 1.1.0:
