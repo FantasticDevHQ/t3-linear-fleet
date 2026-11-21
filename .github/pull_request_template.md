@@ -32,7 +32,8 @@ UI changes: <!-- Replace with Yes or No. -->
 <!-- Include commands/checks and results, plus reviewer-accessible HTTPS proof links
 or pasted fenced test/log/API output. State what the evidence demonstrates.
 For UI changes, Screenshot and/or Video proof below is required. At least one.
-Upload media through GitHub attachments, or link a GitHub Actions artifact;
+Upload media with `gh pr edit <n> --attach ./file.png` (never a browser),
+or link a GitHub Actions artifact;
 embed screenshots inline.
 State verification limitations. No local-only evidence paths. -->
 

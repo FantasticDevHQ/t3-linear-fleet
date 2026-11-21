@@ -16,7 +16,7 @@ Repository: <clone URL>   Integration branch (PR target): <feat/project-slug>
 Ticket: <ENG-123> <title>   Linear branch name: <branch name from Linear>
 Attempt: <first attempt | fix task n of <budget> | takeover>
 Your identity for the PR's Agent section: <agent and model>, thread <child thread ID if known, else "see T3">
-UI evidence publishing: <GitHub attachments via authenticated browser | CI artifacts from job <name> | not needed>
+UI evidence publishing: <gh pr create|edit --attach (never a browser) | fallback: CI artifacts from job <name> | not needed>
 
 INTENT BRIEF:
 <full intent brief>

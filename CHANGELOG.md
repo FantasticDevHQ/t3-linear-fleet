@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Evidence uploads go through `gh pr create|edit|comment --attach`, never a browser: `ticket-worker` 1.2.0, `project-run` 1.2.0 (the preflight checks `--attach`), the worker brief, the evidence packet, and the PR standard doc. Actions artifacts are now only the fallback.
+- `panel-review` 1.0.0: an optional review by three flagship models from three providers. Each panelist works read-only and returns a score; findings are checked against the source and disagreements settled; scope additions are declined; fresh rounds run after fixes; a per-round score table goes in the PR.
 - Skill names stay distinct from other collections: the planned multi-provider review is `panel-review`, and `project-run` no longer advertises a 'full send' trigger. AGENTS.md records the rule.
 - `project-refresh` 1.0.0: `/project-refresh <Linear project URL>` audits an existing project against the issue-breakdown standard, proposes a change plan, asks one batch of questions, and rewrites the project in place. It keeps IDs, links, and history, saves old descriptions as comments, merges slivers as duplicates, sets Fleet labels, and ends at the readiness gate.
 - Council review fixes (four cross-provider reviewers):

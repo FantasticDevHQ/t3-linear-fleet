@@ -51,4 +51,6 @@ Backend feature:
 - <copied from the intent brief>
 ```
 
+Publish screenshots and recordings with the GitHub CLI, never a browser: put `![alt](./file.png)` on the labeled line, then run `gh pr edit <n> --body-file body.md --attach './file.png#alt'`. `gh` uploads the file and rewrites the reference.
+
 Never write a result you did not observe. If a piece of evidence is missing, say so in section 3.

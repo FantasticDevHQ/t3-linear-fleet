@@ -3,7 +3,7 @@ name: ticket-worker
 description: "The contract a worker agent follows for one Linear ticket in a parallel-agent fleet. Reads the intent brief and decisions, restates the intent, makes the smallest change that meets the acceptance criteria, proves each criterion with evidence it observed, commits with Linear magic words, pushes, opens or updates one PR into the feature's integration branch, and ends with a fixed report line. Handles first attempts, fix tasks, and takeovers. Escalates costly decisions in its report instead of asking the user. Use when an orchestrator hands you a ticket, when asked to work or build a specific Linear ticket, or when acting as a worker in a fleet."
 metadata:
   author: kellykampen
-  version: "1.1.0"
+  version: "1.2.0"
 ---
 
 # Ticket Worker
@@ -80,7 +80,25 @@ Proof is evidence **you observed in this task**: command output, a passing test,
 
 - For each criterion, add or un-skip the test its Verify line names, and make it pass.
 - Do not weaken, skip, or delete an existing test to get green, including the foundation tests. If a test is genuinely wrong, change it and record why in the PR.
-- For UI or runtime behavior, run the app or preview and look at it. Green mocked tests do not prove the user experience works. Capture the screenshot or recording the criterion's Evidence asks for, and publish it the way the brief says (GitHub attachments or CI artifacts). If you cannot publish it, say so in the PR.
+- For UI or runtime behavior, run the app or preview and look at it. Green mocked tests do not prove the user experience works. Capture the screenshot or recording the criterion's Evidence asks for, and publish it as described below.
+
+### Publishing screenshots and recordings
+
+**Use the GitHub CLI, never a browser.** `gh pr create`, `gh pr edit`, and `gh pr comment` take `--attach`, which uploads an image or video as a GitHub attachment. Write the reference into the PR body on a labeled line, then attach the file; `gh` rewrites the local path to the uploaded URL:
+
+```sh
+# In the PR body (Evidence section):
+#   - Screenshot: ![Archived list after bulk archive](./archived.png)
+#   - Video: ![Bulk archive flow](./archive-flow.mp4)
+gh pr edit <n> --body-file pr-body.md \
+  --attach './archived.png#Archived list after bulk archive' \
+  --attach './archive-flow.mp4#Bulk archive flow'
+```
+
+- Check first that `gh pr edit --help` lists `--attach`. It needs a recent `gh`; if it is missing, update `gh` before falling back.
+- Up to 50 files per command. The alt text goes after `#`.
+- Fallback only when `--attach` is unavailable: link a GitHub Actions artifact that contains the recording (`Video: https://github.com/<owner>/<repo>/actions/runs/<run>/artifacts/<id>`), if the repository's PR standard accepts it.
+- Do not commit evidence files to the repository. If you cannot publish evidence at all, say so in the PR.
 - If you cannot prove a criterion before merge, do not mark it done. Escalate it.
 
 ## Step 6: Commit, push, PR
