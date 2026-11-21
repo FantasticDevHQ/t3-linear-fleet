@@ -110,7 +110,7 @@ The fleet tracks tickets on commits, not PR titles. Every commit carries a Linea
 
 1. Turn on **Link commits to issues with magic words** and add the GitHub push webhook that Linear shows.
 2. Add branch-specific rules: a merge into `^feat/.*` moves the ticket to an "Integrated" status (or "no action"), and a merge into `main` moves it to Done.
-3. Create the **Fleet** label group once, as a multi-select group with four labels: `foundation`, `local-only`, `schema-change`, and `risky`. Put it at the **workspace** if unrelated teams will use the fleet, or at the **top-most parent team** if only that parent's teams will. Teams below inherit it. Never create it on a leaf team. `issue-breakdown` sets these labels during planning, and `project-run` schedules from them. If the group is missing, `issue-breakdown` creates it at the right level.
+3. Create the **t3-fleet** label group once, as a multi-select group with four labels: `t3-fleet-foundation`, `t3-fleet-local-only`, `t3-fleet-schema-change`, and `t3-fleet-risky`. Put it at the **workspace** if unrelated teams will use the fleet, or at the **top-most parent team** if only that parent's teams will. Teams below inherit it. Never create it on a leaf team. `issue-breakdown` sets these labels during planning, and `project-run` schedules from them. If the group is missing, `issue-breakdown` creates it at the right level.
 
 Your repository's CI must also run on pull requests into `feat/**` and on pushes to `feat/**`, not only on the default branch. `project-run` checks this before it starts.
 
