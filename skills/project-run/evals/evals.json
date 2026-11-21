@@ -42,6 +42,12 @@
       "prompt": "Ticket ENG-21's Fleet section says Model: claude-fable-5-2, Effort: xhigh. ENG-22 says Model: gpt-9-nova, Effort: medium, but no machine offers that model. The run request says 'everything at most high effort'.",
       "expected_output": "Preflight checks both models against orchestrator_capabilities on every usable machine. ENG-22's model is unavailable: it picks the closest available candidate (the user's T3 Code favorites first), notes the swap in the Run log, and does not stop the run. ENG-21 runs on claude-fable-5-2 under any provider that offers it, at high instead of xhigh because the run request wins, mapped to that provider's own effort option. No special mode such as ultrathink is set. The Run log records provider, model, and effort for each attempt.",
       "files": []
+    },
+    {
+      "id": 7,
+      "prompt": "Mid-run, the worker on ENG-14 reports that the settings page 'should also get dark mode and an export button', and a reviewer suggests adding a caching layer. Neither is in the approved plan. The definition of done is met without them.",
+      "expected_output": "Does not create tickets or widen ENG-14. Records both ideas as possible follow-ups in the Run log and lists them, unfiled, in the final report for the user to decide. Declines the caching suggestion as out of scope in the review ledger. Continues the run unchanged.",
+      "files": []
     }
   ]
 }

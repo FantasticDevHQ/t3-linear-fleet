@@ -3,7 +3,7 @@ name: project-run
 description: "Orchestrate a planned Linear project to a ready feature PR with no human in the loop. Checks the plan was approved, discovers machines, providers, and projects through T3 Code at run time, runs a preflight smoke test per machine, creates the integration branch, runs the foundation ticket first, then dispatches tickets to worker agents as their blockers merge, load-balanced across machines and providers. Merges through the merge gate, freezes on red CI, hands stuck tickets to fresh agents, asks the few escalations in one batch, runs a cross-provider feature review, assembles the evidence packet, and stops for the human to merge. Use when the user asks to run, execute, build, or ship a Linear project or feature with agents, or to orchestrate a fleet across machines and providers."
 metadata:
   author: kellykampen
-  version: "1.6.0"
+  version: "1.7.0"
 ---
 
 # Project Run
@@ -130,7 +130,11 @@ After the **first** ticket merges into the integration branch, check its Linear 
 Workers report costly decisions in their final message (`ESCALATION` blocks) and end their task. Handle each one:
 
 1. **Answer it yourself** when the intent brief, its Decisions, or the ticket answers it, or when it is reversible and the worker gave a recommendation that fits the intent brief and non-goals. Record the answer in the project's Decisions section; the evidence packet lists it under "Decisions made for you". Continue the ticket with a new attempt that carries the answer.
-2. **Batch it for the user** only when it is an irreversible or external action, a conflict with the intent or a non-goal, a ticket that stayed blocked after a takeover, a review that `review-loop` ended as **stuck** (an unsettled dispute, or the verification-round limit reached), a provider pinned in the run request that failed or ran out of quota, or a review with no provider left that wrote none of the PR's commits. Options for the last two: wait for the provider, allow another provider, or stop those tickets.
+2. **Batch it for the user** only when it is an irreversible or external action, a conflict with the intent or a non-goal, a ticket that stayed blocked after a takeover, a review that `review-loop` ended as **stuck** (an unsettled dispute, or the verification-round limit reached), a provider pinned in the run request that failed or ran out of quota, a review with no provider left that wrote none of the PR's commits, or a **planning gap** (the definition of done cannot be met without work no ticket covers). Options for the provider cases: wait for the provider, allow another provider, or stop those tickets. Options for a planning gap: approve one new ticket for exactly that gap, change the definition of done, or stop the run.
+
+When the user changes the definition of done, update the intent brief (definition of done, affected tickets' criteria, release checks), set `Approved:` to today's date, record the decision, and only then resume the work it affects; the final gate and the evidence agent use the updated brief.
+
+When the user approves a new ticket, write it to the `fleet-plan` ticket standard (Verify and Evidence on every criterion, a Fleet section, labels, blocker links), add it to the brief's dependency graph, set `Approved:` to today's date, record the decision, and dispatch it like any other ticket. Work that does not depend on the gap keeps running while you wait for the answer.
 
 Ask the batch when **nothing else can dispatch or merge**, not before. Unwatch PRs, then ask **once** through your harness's question tool (`AskUserQuestion`, `request_user_input`, or similar), so the thread visibly waits. Each question carries its full context, the options, and your recommendation first. The run pauses while you wait; say so in the question. Record each answer in Decisions, watch the PRs again, and continue the affected tickets with new attempts.
 
@@ -139,11 +143,11 @@ Ask the batch when **nothing else can dispatch or merge**, not before. Unwatch P
 When every ticket is merged into the integration branch:
 
 1. Merge the latest default branch into the integration branch (never rebase it) and get the full suite green on that head.
-2. Run the **feature review** with `review-loop` (up to 3 rounds), with a reviewer from a provider other than the one that wrote most of the code. Each accepted finding is fixed by a fix task on a repair branch, merged into the integration branch through the ticket gate.
+2. Run the **feature review** with `review-loop` (up to 3 rounds), with a reviewer from a provider other than the one that wrote most of the code. Sort each accepted finding: a defect in what a ticket delivered is fixed by a fix task on a repair branch whose commits carry `Refs <that ticket>`, merged into the integration branch through the ticket gate; an idea outside the plan becomes a possible follow-up; a part of the definition of done that no ticket covers is a planning gap for the escalation batch.
 3. Dispatch an **evidence agent** that did not write the code, on a different provider. For a user-facing feature it walks the definition of done on the preview deploy and records it. For a backend feature it captures the command, API, or test transcripts that prove the definition of done. It publishes media with `gh pr edit <n> --attach`, the path confirmed in preflight, never through a browser.
 4. Write the **evidence packet** into the feature PR, from [references/evidence-packet.md](references/evidence-packet.md). Update the summary so it declares every ticket (`Fixes ENG-1, ENG-2, …`).
 5. Mark the feature PR ready for review and check the **final gate** in `pr-gate`. If anything changed the head after the evidence was captured, refresh the evidence.
-6. Unwatch every PR and delete any remaining scheduled wake-ups. Report **ready** to the user: the feature PR link, head commit, evidence summary, decisions made on their behalf, any manual Linear corrections, and the release checks for after merge. Leave the PR open unless the user explicitly told you to merge this feature.
+6. Unwatch every PR and delete any remaining scheduled wake-ups. Report **ready** to the user: the feature PR link, head commit, evidence summary, decisions made on their behalf, any manual Linear corrections, the release checks for after merge, and the possible follow-ups (not filed; the user decides). Leave the PR open unless the user explicitly told you to merge this feature.
 
 ## Linear status
 
@@ -158,6 +162,7 @@ Rebuild the state before acting: the Run log in the feature PR (or the ticket co
 
 ## Never
 
+- Create tickets, or widen a ticket's scope, during the run, except a ticket the user approves for a planning gap (see Escalations). The approved plan is the whole scope. Collect out-of-scope ideas from workers and reviewers as **possible follow-ups** in the Run log and the final report, without filing them. If the definition of done truly cannot be met without new work, that is a planning gap: put it in the escalation batch.
 - Merge the feature PR without the user's explicit instruction for this feature.
 - Ask the user anything outside the escalation batch, or ask in a plain message instead of the question tool.
 - Poll or sleep-loop. Wake on task completion, PR events, and scheduled wake-ups only.
