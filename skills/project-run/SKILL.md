@@ -3,7 +3,7 @@ name: project-run
 description: "Orchestrate a planned Linear project to a ready feature PR with no human in the loop. Checks the plan was approved, discovers machines, providers, and projects through T3 Code at run time, runs a preflight smoke test per machine, creates the integration branch, runs the foundation ticket first, then dispatches tickets to worker agents as their blockers merge, load-balanced across machines and providers. Merges through the merge gate, freezes on red CI, hands stuck tickets to fresh agents, asks the few escalations in one batch, runs a cross-provider feature review, assembles the evidence packet, and stops for the human to merge. Use when the user asks to run, execute, build, or ship a Linear project or feature with agents, or to orchestrate a fleet across machines and providers."
 metadata:
   author: kellykampen
-  version: "1.5.0"
+  version: "1.6.0"
 ---
 
 # Project Run
@@ -55,7 +55,7 @@ Stop and report, without starting any work, if a check fails.
    - If it is not available, swap it for the closest candidate that an eligible machine offers. Candidates are the user's classified favorites from `fleet-models` that an eligible machine offers; "closest" is defined there, including for a model that has no rating. If the classification file is missing or broken, `fleet-models` reports it and you continue with your own judgment. If none is offered, or there is no classification, every model the eligible machines offer is a candidate, closest by your own judgment of strength. Log the swap and continue. Do not ask the user to classify models during a run; list unclassified favorites in the final report.
    - If no eligible machine offers any model, stop and report the ticket.
    - An `Effort` outside `low`, `medium`, `high`, `xhigh`, `max` counts as `medium`.
-   - **Reviewers:** `review-loop` needs a reviewer from a provider other than the writer's. If fewer than two providers are usable, stop and report.
+   - **Reviewers:** `review-loop` needs a reviewer from a provider that wrote none of the PR's commits. If fewer than two providers are usable, stop and report. With only two, keep fix tasks and takeovers on the ticket's original provider.
    - **Provider override:** if the run request names a provider, check that it offers a candidate model on each ticket's eligible machines. Report any ticket where it does not before you start.
 6. **Check the repository's pipeline.**
    - CI runs on pull requests into `feat/**` and on pushes to `feat/**`, not only on the default branch. If it does not, stop: the ticket gate would pass with no checks. Name the prerequisite ticket that fixes it, if the plan has one; it merges into the default branch outside the run.
@@ -66,7 +66,7 @@ Stop and report, without starting any work, if a check fails.
    - `t3-fleet-foundation` tickets go first.
    - `t3-fleet-local-only` tickets run on the local machine.
    - `t3-fleet-schema-change` tickets after the foundation run one at a time.
-   - `t3-fleet-risky` tickets get a `review-loop` before their merge.
+   - Every ticket gets a `review-loop` review before its merge; `t3-fleet-risky` tickets get up to two rounds with the strongest reviewer.
    If a ticket clearly needs one of these labels and lacks it, add it and note it in the Run log.
 
 ## Phase 1: Day 0
@@ -91,7 +91,7 @@ A ticket is **ready** when every blocker is merged into the integration branch. 
 
 **Choose the model and effort** from the ticket's Fleet section, as checked in preflight. The user can override them in the run request ("everything on Codex", "max effort for TDV-9"); the request wins. Choose a machine and provider that offer that model and have capacity. Map the effort to that model's own option, read from `orchestrator_capabilities` (for example `effort`, `reasoningEffort`, `thought_level`, or `thinking`). Order the levels `low` < `medium` < `high` < `xhigh` < `max`, and ignore option values outside that scale. Use the value with the same name. If the model does not offer it, use the nearest offered value below it, or the lowest offered value if none is below. If the model has no effort option, dispatch without one and log it. Never set a special mode (for example "ultra", "ultrathink", or fast modes) unless the run request asks for it.
 
-A provider override in the run request ("everything on Codex") keeps each ticket's model when that provider offers it. Otherwise use the closest candidate that provider offers, chosen as in preflight, and log the swap. If the provider errors or runs out of quota, skip it for the rest of the run and use the same model under another provider, or the closest available candidate. If the run request pinned that provider, do not switch: escalate it (see Escalations) and keep running other work. If no provider other than a ticket's writer is left for its review, hold that ticket's review and escalate; never review with the writer's provider. Record the provider, model, and effort of every attempt in the Run log, so each ticket's reviewer comes from a different provider.
+A provider override in the run request ("everything on Codex") keeps each ticket's model when that provider offers it. Otherwise use the closest candidate that provider offers, chosen as in preflight, and log the swap. If the provider errors or runs out of quota, skip it for the rest of the run and use the same model under another provider, or the closest available candidate. If the run request pinned that provider, do not switch: escalate it (see Escalations) and keep running other work. If no provider that wrote none of a ticket's commits is left for its review, hold that ticket's review and escalate; never review with a contributing provider. Record the provider, model, and effort of every attempt in the Run log, so each ticket's reviewer comes from a different provider.
 
 Fix tasks keep the ticket's model and effort. A takeover may move up one effort level or to a stronger candidate, and says so in the Run log.
 
@@ -118,8 +118,10 @@ After the **first** ticket merges into the integration branch, check its Linear 
 | --- | --- |
 | A worker reports `PR <url>, head <sha>, checks <state>` | Confirm the PR, head, and checks on GitHub; never trust the line alone. Delete its scheduled wake-up. Watch the PR (`pr-gate`). Handle any `ESCALATION` blocks it reported. |
 | A ticket PR needs a fix (failed check, conflict, accepted findings) | Dispatch a **fix task**: a new attempt on the same branch, with the failure and the worker's summary. Each fix task is one fix cycle. Count them here; workers do not. |
-| A `t3-fleet-risky` ticket PR is green | Run `review-loop` on it (2 rounds) before the ticket gate. |
-| The fix budget is spent, or a worker reports blocked | Dispatch **one takeover**, preferably on another provider. It continues the same branch and keeps the earlier commits. |
+| A ticket PR is green | Run `review-loop` on it before the ticket gate: 1 round with a capable, inexpensive reviewer, or up to 2 with the strongest reviewer for a `t3-fleet-risky` ticket. The reviewer comes from a provider that wrote none of the PR's commits. |
+| `review-loop` ends **stuck** | Mark the ticket blocked in Linear and the Run log, pause its dependents, put it in the escalation batch with both sides of the dispute or the head changes that exhausted verification, and keep everything else moving. |
+| Review findings to fix | Dispatch a **fix task** for the accepted findings; it counts as one fix cycle, like a CI fix. When its new head is green, `review-loop` runs a verification round on it before the gate. Review rounds and fix cycles are counted separately. |
+| The fix budget is spent, or a worker reports blocked | Dispatch **one takeover**, preferably on another provider, as long as a third provider stays free to review it. It continues the same branch and keeps the earlier commits. |
 | The takeover is blocked too | Mark the ticket blocked in Linear and the Run log, pause its dependents, put it in the escalation batch, and keep everything else moving. |
 | A scheduled wake-up fires | If that attempt already reported, ignore it. Otherwise read its thread once. If it is still working, schedule one more wake-up for half the budget. If it is stuck or gone, `task_cancel` it and dispatch a takeover. |
 
@@ -128,7 +130,7 @@ After the **first** ticket merges into the integration branch, check its Linear 
 Workers report costly decisions in their final message (`ESCALATION` blocks) and end their task. Handle each one:
 
 1. **Answer it yourself** when the intent brief, its Decisions, or the ticket answers it, or when it is reversible and the worker gave a recommendation that fits the intent brief and non-goals. Record the answer in the project's Decisions section; the evidence packet lists it under "Decisions made for you". Continue the ticket with a new attempt that carries the answer.
-2. **Batch it for the user** only when it is an irreversible or external action, a conflict with the intent or a non-goal, a ticket that stayed blocked after a takeover, a review dispute that `review-loop` could not settle, a provider pinned in the run request that failed or ran out of quota, or a review with no provider left other than the writer's. Options for the last two: wait for the provider, allow another provider, or stop those tickets.
+2. **Batch it for the user** only when it is an irreversible or external action, a conflict with the intent or a non-goal, a ticket that stayed blocked after a takeover, a review that `review-loop` ended as **stuck** (an unsettled dispute, or the verification-round limit reached), a provider pinned in the run request that failed or ran out of quota, or a review with no provider left that wrote none of the PR's commits. Options for the last two: wait for the provider, allow another provider, or stop those tickets.
 
 Ask the batch when **nothing else can dispatch or merge**, not before. Unwatch PRs, then ask **once** through your harness's question tool (`AskUserQuestion`, `request_user_input`, or similar), so the thread visibly waits. Each question carries its full context, the options, and your recommendation first. The run pauses while you wait; say so in the question. Record each answer in Decisions, watch the PRs again, and continue the affected tickets with new attempts.
 

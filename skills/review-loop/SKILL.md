@@ -1,9 +1,9 @@
 ---
 name: review-loop
-description: "Budgeted code review by a model from a different provider than the author. Sends a self-contained, read-only brief; grades findings blocker / should / nit; checks for bugs, missed acceptance criteria, over-engineering, weakened tests, and non-goal leakage; answers each finding with the smallest fix or a written reason; keeps a ledger; and stops on approval, budget end, or a stuck dispute. Two rounds for risky tickets, up to three for a whole feature. Use before merging a risky ticket PR, before the final feature PR, or whenever the user asks for an independent or cross-provider review loop."
+description: "Budgeted code review by a model from a different provider than the author. Sends a self-contained, read-only brief; grades findings blocker / should / nit; checks for bugs, missed acceptance criteria, over-engineering, weakened tests, and non-goal leakage; answers each finding with the smallest fix or a written reason; keeps a ledger; and stops on approval, budget end, or a stuck dispute. One round for every ticket PR (up to two for risky tickets), up to three for a whole feature, plus verification of each new head. Use before merging any ticket PR, before the final feature PR, or whenever the user asks for an independent or cross-provider review loop."
 metadata:
   author: kellykampen
-  version: "1.1.0"
+  version: "1.2.0"
 ---
 
 # Review Loop
@@ -14,15 +14,19 @@ An author reviewing its own diff repeats its own blind spots. This loop gets an 
 
 | Target | Budget |
 | --- | --- |
-| **Risky ticket PR** (labeled risky in planning: security, permissions, auth, data, money, migrations, concurrency, any WARNING item) | 2 rounds before the ticket gate: one review, and one to verify the fixes |
+| **Risky ticket PR** (labeled `t3-fleet-risky` in planning: security, permissions, auth, data, money, migrations, concurrency, any WARNING item) | Up to 2 review rounds before the ticket gate, by the strongest available reviewer. The second round runs when the first found a blocker or should finding. |
 | **Whole feature** (the integration branch against the default branch) | Up to 3 rounds, before the final gate |
-| Ordinary ticket PRs | No review-loop. The fast check and the feature review cover them. |
+| **Every other ticket PR** | 1 review round before the ticket gate, by a capable, inexpensive reviewer. |
+
+**Verification rounds** are separate from the budget. The gate needs the reviewer's approval of the PR's **latest head**, or of an earlier head when every later commit is a merge of the integration branch with no conflicts. Whenever the head changes after a review (a fix for findings, a CI fix, a takeover, or a conflict resolved by hand), run a verification round on the new head. It checks only the change and the open finding IDs. A merge of the integration branch with no conflicts needs no new review; the approval carries over (`pr-gate` allows it). A ticket gets at most **3 verification rounds**. Another head change after that, or a verification round that raises a new blocker or should finding after the budget is spent, ends the loop as **stuck**.
 
 Extend a budget to 5 rounds only for security, data, or concurrency problems where a blocker or should finding stays open with evidence, or when the user asks. Stop early if a round returns only nits.
 
 ## Choose the reviewer
 
-- Use a model from a **different provider** than the one that wrote most of the code. In T3 Code, call `orchestrator_capabilities` and pick that provider's latest flagship model. Never hardcode a model ID.
+- **Independence.** Track every provider that wrote commits on the PR: the first attempt, fix tasks, and a takeover. The reviewer must come from a provider that wrote none of them. If no such provider is available, the loop is **stuck** and the orchestrator escalates it; never use a contributing provider.
+- Use a model from that **independent provider**. Choose it with `fleet-models` ("Choosing a reviewer") from the models `orchestrator_capabilities` offers: a capable, inexpensive model for ordinary tickets, and the strongest one for risky tickets and the whole feature. Never hardcode a model ID.
+- Every ticket review **verifies acceptance**: for each criterion, the reviewer checks that its Verify result and Evidence on the PR actually prove it on the latest head, then reviews the diff.
 - Start each round as a **new** read-only task: in T3 Code, `delegate_task` with a review role. Elsewhere, use your harness's subagent. Do not send review rounds as messages into an old thread.
 - **One reviewer per round.** The reviewer must not start its own subagents.
 - Do not edit the files under review while a round runs. A timeout, an error, or no reply is **not** approval.
@@ -38,16 +42,19 @@ Get the code: clone or fetch the repo, then `git fetch origin <head branch>`.
 Diff: git diff <base>...<head> [-- <paths>]
 Intent: <one-line intent and the ticket outcome(s)>
 Non-goals: <list>
-Acceptance criteria: <IDs, with Verify lines>
+PR: <PR URL>
+Acceptance criteria: <IDs, with their Verify and Evidence lines from the PR>
 Checks run: <commands and results, including known pre-existing failures>
 
-Read the surrounding code. Find:
+First, for each acceptance criterion, check that its Verify result and Evidence on the PR prove it on this head.
+Report each as `AC-n verified` or `AC-n not proven: <reason>`. Then read the surrounding code. Find:
 - bugs and broken callers;
 - acceptance criteria the change does not meet, or does not prove;
 - code, tests, guards, options, or abstractions the intent does not need (over-engineering);
 - tests that were weakened, skipped, or deleted compared with the base;
 - work that a non-goal excludes.
-Skip style unless it hides a bug.
+Skip style unless it hides a bug. Judge the code and the evidence on the PR. Pending or
+running CI is not a finding: the merge gate checks CI separately.
 
 Severity:
 - blocker: the intended case is wrong, a criterion is not met, or there is a security or data-loss risk.
@@ -84,8 +91,7 @@ Start another round only if budget remains **and** a blocker or should is open, 
 
 ## Stop
 
-- **Approved:** the reviewer says APPROVE on the current diff, no blocker or should is open, and you have no concern of your own.
-- **Passed after fixes:** the budget is spent, but every blocker and should finding is fixed, and you verified each fix yourself against the code and the checks. Record that in the ledger. This passes the gate.
+- **Approved:** the reviewer says APPROVE on the PR's latest head (or on an earlier head followed only by conflict-free merges of the integration branch), every acceptance criterion is verified, no blocker or should is open, and you have no concern of your own. This is the only result that passes the ticket gate.
 - **Stuck:** a blocker or should finding is still disputed after two replies, or one is still open when the budget ends. Write both sides in two or three lines each. The orchestrator puts it in its escalation batch; the human decides. **The end of the budget alone is not approval.**
 
 ## Record the result

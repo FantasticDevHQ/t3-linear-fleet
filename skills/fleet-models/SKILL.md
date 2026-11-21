@@ -3,7 +3,7 @@ name: fleet-models
 description: "Classify the user's favorite models in T3 Code once, so the fleet can give each ticket the right model. Reads the favorites from T3 Code's settings, proposes a rating for each model (intelligence, taste, cost, best use) as helpful defaults, asks the user to confirm or edit them in one question, saves the result, and asks again only about favorites that were added since. Also holds the rule for choosing a model for a ticket. Use when fleet-plan or project-run needs a model, when the user changes their favorite models, or when the user asks to classify, rate, or review their models."
 metadata:
   author: kellykampen
-  version: "1.0.0"
+  version: "1.1.0"
 ---
 
 # Fleet Models
@@ -85,6 +85,15 @@ Candidates are the classified favorites that the run can reach. Choose by the ti
 **No candidate meets the bar** (for example, none has taste 7 or more): choose the best candidate on that row's first measure, say so in `Why` (for example "best available taste is 6"), and continue. Never stop planning for it.
 
 **Ties:** spread tickets across providers so one rate limit cannot stall the run: prefer the provider with fewer tickets chosen so far, then the model ID that sorts first. Write the reason in the ticket's `Why` line.
+
+**Choosing a reviewer** (for `review-loop`): only candidates from a provider that wrote none of the PR's commits.
+
+| Review | Choose | Effort |
+| --- | --- | --- |
+| Ordinary ticket | Intelligence 7 or more, then the highest cost score | `medium` |
+| `t3-fleet-risky` ticket, or the whole feature | The highest intelligence, then taste | `high` |
+
+If no eligible candidate has intelligence 7 or more, use the highest one there is and note it in the review's evidence. **Ties:** prefer the provider with fewer reviews in this run, then the model ID that sorts first. **Without ratings:** rank eligible models by your own judgment of intelligence, then cost, apply the same rule, and say so in the review's evidence.
 
 **Closest replacement** (for `project-run`, when a ticket's model is not available): the available candidate with the smallest difference in intelligence, then in taste, then the same tie rule. If the missing model has no ratings, judge its strength from its family and tier, and pick the candidate closest to that.
 
