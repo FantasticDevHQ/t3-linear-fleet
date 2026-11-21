@@ -18,7 +18,7 @@ An author reviewing its own diff repeats its own blind spots. This loop gets an 
 | **Whole feature** (the integration branch against the default branch) | Up to 3 rounds, before the final gate |
 | **Every other ticket PR** | 1 review round before the ticket gate, by a capable, inexpensive reviewer. |
 
-**Verification rounds** are separate from the budget. The gate needs the reviewer's approval of the PR's **latest head**. Whenever the head changes after a review (a fix for findings, a CI fix, a takeover, or a conflict resolved by hand), run a verification round on the new head. It checks only the change and the open finding IDs. A merge of the integration branch with no conflicts needs no new review; the approval carries over (`pr-gate` allows it). A ticket gets at most **3 verification rounds**. Another head change after that, or a verification round that raises a new blocker or should finding after the budget is spent, ends the loop as **stuck**.
+**Verification rounds** are separate from the budget. The gate needs the reviewer's approval of the PR's **latest head**, or of an earlier head when every later commit is a merge of the integration branch with no conflicts. Whenever the head changes after a review (a fix for findings, a CI fix, a takeover, or a conflict resolved by hand), run a verification round on the new head. It checks only the change and the open finding IDs. A merge of the integration branch with no conflicts needs no new review; the approval carries over (`pr-gate` allows it). A ticket gets at most **3 verification rounds**. Another head change after that, or a verification round that raises a new blocker or should finding after the budget is spent, ends the loop as **stuck**.
 
 Extend a budget to 5 rounds only for security, data, or concurrency problems where a blocker or should finding stays open with evidence, or when the user asks. Stop early if a round returns only nits.
 
@@ -91,7 +91,7 @@ Start another round only if budget remains **and** a blocker or should is open, 
 
 ## Stop
 
-- **Approved:** the reviewer says APPROVE on the PR's latest head, every acceptance criterion is verified, no blocker or should is open, and you have no concern of your own. This is the only result that passes the ticket gate.
+- **Approved:** the reviewer says APPROVE on the PR's latest head (or on an earlier head followed only by conflict-free merges of the integration branch), every acceptance criterion is verified, no blocker or should is open, and you have no concern of your own. This is the only result that passes the ticket gate.
 - **Stuck:** a blocker or should finding is still disputed after two replies, or one is still open when the budget ends. Write both sides in two or three lines each. The orchestrator puts it in its escalation batch; the human decides. **The end of the budget alone is not approval.**
 
 ## Record the result
