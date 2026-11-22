@@ -3,7 +3,7 @@ name: fleet-models
 description: "Classify the user's favorite models in T3 Code once, so the fleet can give each ticket the right model. Reads the favorites from T3 Code's settings, proposes a rating for each model (intelligence, taste, cost, best use) as helpful defaults, asks the user to confirm or edit them in one question, saves the result, and asks again only about favorites that were added since. Also holds the rule for choosing a model for a ticket. Use when fleet-plan or fleet-run needs a model, when the user changes their favorite models, or when the user asks to classify, rate, or review their models."
 metadata:
   author: kellykampen
-  version: "1.1.0"
+  version: "1.2.0"
 ---
 
 # Fleet Models
@@ -35,6 +35,8 @@ The fleet gives each ticket a model and an effort level. This skill decides **wh
 
 One entry per model ID, even when several providers offer the same model.
 
+**Replaced models.** The user may keep a model as a T3 Code favorite but not want the fleet to use it. Its entry then carries `"replacedBy": {"model": "<model ID>", "effort": "<low|medium|high|xhigh|max>"}`. A replaced model never runs. Rank and choose exactly as if it were an ordinary candidate; whenever it would be used, use the replacement model at the replacement effort instead. That covers a ticket choice in planning, a ticket's Fleet section that names it, a reviewer choice, and a closest-replacement pick. When the replacement wins on its own ratings, use the effort the choosing rule gives. After substituting, check the replacement against the same limits as the original choice: an eligible machine for a ticket, and a provider that wrote none of the PR's commits for a reviewer. If it fails them, skip that choice and take the next candidate by the same rule; if none is left, stop and report it as that rule says. The replacement must itself be a classified favorite; if it is not available, choose the closest candidate to the replacement. Keep the replaced model's ratings and `favorite` value as they are. Set `replacedBy` only when the user asks, and remove it only when they ask.
+
 ## The scale
 
 Every rating is 1 to 9, and **higher is always better**, including cost:
@@ -59,7 +61,7 @@ Every rating is 1 to 9, and **higher is always better**, including cost:
 4. **Candidates for this run** are the favorites that are classified and offered by a usable provider in `orchestrator_capabilities` (when it is available). A favorite whose provider is disabled stays a favorite in the file; it is just not a candidate today.
 5. If no favorite needs classifying, you are done. Do not ask anything.
 
-**If there are no candidates** (no favorites, or none of them is classified and offered by a usable provider), say why, and use every model `orchestrator_capabilities` lists as candidates for this run, without saving them. Without ratings, choose among them by your own judgment of each model's intelligence, taste, and cost, in that order, and say so in the ticket's `Why`.
+**If there are no candidates** (no favorites, or none of them is classified and offered by a usable provider), say why, and use every model `orchestrator_capabilities` lists as candidates for this run, without saving them, except models the classification file marks as replaced (substitute those as above). If no model remains, stop and report it. Without ratings, choose among them by your own judgment of each model's intelligence, taste, and cost, in that order, and say so in the ticket's `Why`.
 
 ## Step 2: Classify new or broken entries (once)
 
@@ -100,6 +102,6 @@ If no eligible candidate has intelligence 7 or more, use the highest one there i
 ## Never
 
 - Write to T3 Code's settings file.
-- Change a rating the user gave without asking.
+- Change a rating or a replacement the user set without asking.
 - Ask about models that are already classified, unless the user asks to reclassify.
 - Ask in the middle of a `fleet-run`. During a run, unclassified favorites are not candidates; list them in the run's final report instead.

@@ -18,6 +18,12 @@
       "prompt": "During fleet-run, ticket ENG-40 names a model that no machine offers. Classified favorites: model A (intelligence 9, taste 8), model B (intelligence 8, taste 9), model C (intelligence 6, taste 6). ENG-40's model was rated intelligence 9, taste 9. A new favorite D is not classified yet.",
       "expected_output": "Swaps ENG-40 to model A (smallest intelligence difference, then taste), logs the swap, and does not ask the user to classify D mid-run; D is listed as unclassified in the final report.",
       "files": []
+    },
+    {
+      "id": 4,
+      "prompt": "models.json rates claude-fable-5-2 (intelligence 9, taste 9, cost 2) with \"replacedBy\": {\"model\": \"claude-opus-5-5\", \"effort\": \"high\"}, and claude-opus-5-5 (intelligence 8, taste 8, cost 4). Both are T3 Code favorites offered by a usable provider, and they are the only candidates. fleet-plan is choosing a model for a t3-fleet-risky money ticket (the highest-intelligence rule, normally xhigh or max), and an ordinary implementation ticket (intelligence 7+, then highest cost score, medium). fleet-run later finds an older ticket whose Fleet section says Model: claude-fable-5-2, Effort: xhigh. The run request says nothing about effort.",
+      "expected_output": "Fable is ranked like any candidate but never runs. The risky ticket's rule picks Fable (intelligence 9), so fleet-plan writes Model: claude-opus-5-5, Effort: high (the replacement effort, not xhigh). The ordinary ticket's rule picks Opus on its own ratings (cost 4 beats Fable's 2), so it gets claude-opus-5-5 at medium. fleet-run runs the older ticket on claude-opus-5-5 at high, logs the swap, and does not ask. Fable keeps favorite:true and its ratings; replacedBy stays as the user set it. No reviewer is ever Fable.",
+      "files": []
     }
   ]
 }
