@@ -3,7 +3,7 @@ name: fleet-plan
 description: "Plan a feature as a Linear project that the T3 Linear Fleet (fleet-run) can build unattended. Researches the codebase, writes an intent brief (problem, users, definition of done, non-goals, decisions), drafts the fewest reviewable tickets with EARS requirements and traceable acceptance criteria that can be proven inside the PR before merge, has a fresh agent cold-read them, asks the user every open question in one batch with recommended defaults, and only creates the tickets once a readiness gate passes. Use when the user wants to plan a feature for the fleet, for fleet-run, or for parallel agents in T3 Code, or asks for fleet-plan by name. Works with the Linear MCP or linear-cli, or as drafts."
 metadata:
   author: kellykampen
-  version: "3.2.0"
+  version: "3.2.1"
 ---
 
 # Fleet Plan
@@ -107,7 +107,7 @@ A user story ("As a <role>, I want <action>, so <result>") is a good way to writ
 <screenshot/PNG of the target, plus optional source link (UI tickets only)>
 
 ## Fleet
-- Model: <model ID, exactly as T3 Code lists it, e.g. claude-fable-5-2>
+- Model: <model ID, exactly as T3 Code lists it, e.g. claude-opus-5-5>
 - Effort: <low | medium | high | xhigh | max>
 - Why: <optional: one line on why this model and effort>
 ```
@@ -136,7 +136,7 @@ Describe **what**, not **how**. Name decisions already made; leave the implement
 Every ticket says which model builds it and how hard that model thinks, in its **Fleet** section. `Model` and `Effort` are required; `Why` is optional. The section is plain text, so the user changes a ticket's model by editing one line. `fleet-run` reads it and checks it at preflight.
 
 1. **Get the candidates from `fleet-models`.** It reads the user's favorite models from T3 Code's settings, keeps the user's own rating of each one, and asks about new favorites once. Put any question it needs into this skill's one batch (Step 5). Outside T3 Code, with no settings file, ask for the candidate models in that batch instead.
-2. **Choose per ticket** with the rule in `fleet-models` ("Choosing a model for a ticket"): intelligence first, then taste, then cost, with the ticket's labels and risk deciding the bar. Spread equal choices across providers. Write the reason in `Why`.
+2. **Choose per ticket** with the rule in `fleet-models` ("Choosing a model for a ticket"): intelligence first, then taste, then cost, with the ticket's labels and risk deciding the bar. If the rule picks a model the user has replaced (`replacedBy` in `fleet-models`), write its replacement at the replacement's effort instead; never write the replaced model. Spread equal choices across providers. Write the reason in `Why`.
 3. **Effort** is one of five levels: `low`, `medium`, `high`, `xhigh`, `max`. `fleet-run` maps it to each provider's own option. Special modes (for example "ultra" or "ultrathink") are never set here; the user asks for them in the run request.
 
 Use the model ID exactly as `orchestrator_capabilities` lists it. Do not name a provider: the same model often runs under several, and `fleet-run` picks one that has capacity.
