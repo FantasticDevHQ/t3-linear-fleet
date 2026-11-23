@@ -41,7 +41,8 @@ export function acceptanceCriteria(markdown) {
   for (const name of ordered) {
     const body = section(markdown, name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
     const items = body.split("\n").filter((l) => /^[-*]\s/.test(l));
-    if (!items.some((l) => /\bAC-\d+\b/.test(l))) continue;
+    const explicit = /^Acceptance criteria\b/i.test(name);
+    if (!items.length || (!explicit && !items.some((l) => /\bAC-\d+\b/.test(l)))) continue;
     const bad = items.filter((l) => !/\bAC-\d+\b/.test(l));
     if (bad.length) throw new Error(`acceptance items without an AC-n ID in "${name}": ${bad.join(" | ")}`);
     const out = [];

@@ -106,3 +106,9 @@ test("round 2 brief prints only open ledger entries", () => {
   assert.doesNotMatch(brief, /F1 blocker fixed/);
   assert.match(brief, /F2 should disputed y/);
 });
+
+test("a PR criteria section with only malformed items fails instead of falling back to the ticket", () => {
+  const ticketWithAc = ticket + "\n## Acceptance criteria\n- [ ] **AC-9:** from ticket\n";
+  const body = "## Acceptance criteria\n- [ ] works somehow\n";
+  assert.throws(() => buildBrief({ ...base, prBody: body, ticket: ticketWithAc }), /without an AC-n ID/);
+});
