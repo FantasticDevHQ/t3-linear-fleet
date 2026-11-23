@@ -76,7 +76,7 @@ export function buildBrief(d) {
   const lines = [
     "Review only. Do not edit, commit, push, comment on PRs, or start subagents.",
     `Repo: https://github.com/${d.repo}.git   Branch: ${d.headRef}   Base: ${d.baseSha}   Head: ${d.headSha}`,
-    `Get the code: clone or fetch the repo, then \`git fetch origin ${d.headRef}\`.`,
+    `Get the code: clone or fetch the repo, then \`git fetch origin pull/${d.number}/head\` (works for forks too).`,
     `Diff: git diff ${diffBase}...${d.headSha}${d.paths ? ` -- ${d.paths}` : ""}`,
     `Intent: ${intent.replace(/\n+/g, " ")}`,
     `Non-goals: ${nonGoals.replace(/\n+/g, " ")}`,
@@ -165,6 +165,7 @@ function main(argv) {
     buildBrief({
       ...opts,
       repo,
+      number,
       url: pr.url,
       prBody: pr.body,
       headRef: pr.headRefName,

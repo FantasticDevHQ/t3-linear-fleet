@@ -38,7 +38,7 @@ The reviewer gets no history, so the brief must stand alone. **Generate it, do n
 ```text
 Review only. Do not edit, commit, push, comment on PRs, or start subagents.
 Repo: <clone URL>   Branch: <head branch>   Base: <sha>   Head: <sha>
-Get the code: clone or fetch the repo, then `git fetch origin <head branch>`.
+Get the code: clone or fetch the repo, then `git fetch origin pull/<PR number>/head` (works for forks too).
 Diff: git diff <base>...<head> [-- <paths>]
 Intent: <one-line intent and the ticket outcome(s)>
 Non-goals: <list>
