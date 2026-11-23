@@ -77,6 +77,12 @@ export function buildBrief(d) {
     "Review only. Do not edit, commit, push, comment on PRs, or start subagents.",
     `Repo: https://github.com/${d.repo}.git   Branch: ${d.headRef}   Base: ${d.baseSha}   Head: ${d.headSha}`,
     `Get the code: clone or fetch the repo, then \`git fetch origin pull/${d.number}/head\` (works for forks too).`,
+    ...(followUp
+      ? [
+          `Also fetch the head the last round reviewed: \`git fetch origin ${d.since}\` (GitHub serves commits by SHA).`,
+          `If that fails because the branch was rewritten, review the full diff \`git diff ${d.baseSha}...${d.headSha}\` instead and say so.`,
+        ]
+      : []),
     `Diff: git diff ${diffBase}...${d.headSha}${d.paths ? ` -- ${d.paths}` : ""}`,
     `Intent: ${intent.replace(/\n+/g, " ")}`,
     `Non-goals: ${nonGoals.replace(/\n+/g, " ")}`,
