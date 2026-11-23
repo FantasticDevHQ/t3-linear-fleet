@@ -59,7 +59,7 @@ test("openFindings skips fixed, declined, and resolved findings", () => {
 test("round 1 brief pins base and head and carries intent, non-goals and ACs", () => {
   const brief = buildBrief(base);
   assert.match(brief, /Base: aaaa {3}Head: bbbb/);
-  assert.match(brief, /git fetch origin pull\/12\/head/);
+  assert.match(brief, /git fetch origin aaaa pull\/12\/head/);
   assert.match(brief, /Diff: git diff aaaa\.\.\.bbbb/);
   assert.match(brief, /Intent: Admins archive many members at once\./);
   assert.match(brief, /Non-goals: - No undo\./);

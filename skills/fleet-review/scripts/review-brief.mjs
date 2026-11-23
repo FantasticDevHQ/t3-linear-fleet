@@ -76,7 +76,7 @@ export function buildBrief(d) {
   const lines = [
     "Review only. Do not edit, commit, push, comment on PRs, or start subagents.",
     `Repo: https://github.com/${d.repo}.git   Branch: ${d.headRef}   Base: ${d.baseSha}   Head: ${d.headSha}`,
-    `Get the code: clone or fetch the repo, then \`git fetch origin pull/${d.number}/head\` (works for forks too).`,
+    `Get the code: clone or fetch the repo, then \`git fetch origin ${d.baseSha} pull/${d.number}/head\` (the pinned base and the PR head; works for forks too). Check both SHAs with \`git cat-file -e <sha>\` before diffing.`,
     ...(followUp
       ? [
           `Also fetch the head the last round reviewed: \`git fetch origin ${d.since}\` (GitHub serves commits by SHA).`,
