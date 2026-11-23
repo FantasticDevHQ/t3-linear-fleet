@@ -3,7 +3,7 @@ name: fleet-run
 description: "Orchestrate a planned Linear project to a ready feature PR with no human in the loop. Checks the plan was approved, discovers machines, providers, and projects through T3 Code at run time, runs a preflight smoke test per machine, creates the integration branch, runs the foundation ticket first, then dispatches tickets to worker agents as their blockers merge, load-balanced across machines and providers. Merges through the merge gate, freezes on red CI, hands stuck tickets to fresh agents, asks the few escalations in one batch, runs a cross-provider feature review, assembles the evidence packet, and stops for the human to merge. Use when the user asks to run, execute, build, or ship a Linear project or feature with agents, or to orchestrate a fleet across machines and providers."
 metadata:
   author: kellykampen
-  version: "2.1.1"
+  version: "2.1.2"
 ---
 
 # Fleet Run
@@ -152,7 +152,7 @@ When every ticket is merged into the integration branch:
 
 1. Merge the latest default branch into the integration branch (never rebase it) and get the full suite green on that head.
 2. Run the **feature review** with `fleet-review` (up to 3 rounds), with a reviewer from a provider other than the one that wrote most of the code. Sort each accepted finding: a defect in what a ticket delivered is fixed by a fix task on a repair branch whose commits carry `Refs <that ticket>`, merged into the integration branch through the ticket gate; an idea outside the plan becomes a possible follow-up; a part of the definition of done that no ticket covers is a planning gap for the escalation batch.
-3. Dispatch an **evidence agent** that did not write the code, on a different provider. For a user-facing feature it walks the definition of done on the preview deploy and records it. For a backend feature it captures the command, API, or test transcripts that prove the definition of done. It publishes media with `gh pr edit <n> --attach`, the path confirmed in preflight, never through a browser.
+3. Dispatch an **evidence agent** that did not write the code, on a different provider. For a user-facing feature it walks the definition of done on the preview deploy and records it. For a backend feature it captures the command, API, or test transcripts that prove the definition of done. It publishes media with `gh pr edit <n> --attach`, the path confirmed in preflight, never through a browser. If the evidence agent's harness has a skill for PR evidence (for example `github-pr-evidence`), name it in the brief and keep the brief to what only you know: the PR, the head SHA, the definition of done to prove, and the exact commands to run. Generate review briefs with `scripts/review-brief.mjs` in the installed `fleet-review` skill's folder rather than writing them by hand.
 4. Write the **evidence packet** into the feature PR, from [references/evidence-packet.md](references/evidence-packet.md). Update the summary so it declares every ticket (`Fixes ENG-1, ENG-2, …`).
 5. Mark the feature PR ready for review and check the **final gate** in `fleet-gate`. If anything changed the head after the evidence was captured, refresh the evidence.
 6. Unwatch every PR and delete any remaining scheduled wake-ups. Report **ready** to the user: the feature PR link, head commit, evidence summary, decisions made on their behalf, any manual Linear corrections, the release checks for after merge, and the possible follow-ups (not filed; the user decides). Leave the PR open unless the user explicitly told you to merge this feature.
