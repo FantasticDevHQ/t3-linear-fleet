@@ -3,7 +3,7 @@ name: fleet-review
 description: "Budgeted code review by a model from a different provider than the author. Sends a self-contained, read-only brief; grades findings blocker / should / nit; checks for bugs, missed acceptance criteria, over-engineering, weakened tests, and non-goal leakage; answers each finding with the smallest fix or a written reason; keeps a ledger; and stops on approval, budget end, or a stuck dispute. One round for every ticket PR (up to two for risky tickets), up to three for a whole feature, plus verification of each new head. Use before merging any ticket PR, before the final feature PR, or whenever the user asks for an independent or cross-provider review loop."
 metadata:
   author: kellykampen
-  version: "2.0.0"
+  version: "2.1.0"
 ---
 
 # Fleet Review
@@ -18,7 +18,7 @@ An author reviewing its own diff repeats its own blind spots. This loop gets an 
 | **Whole feature** (the integration branch against the default branch) | Up to 3 rounds, before the final gate |
 | **Every other ticket PR** | 1 review round before the ticket gate, by a capable, inexpensive reviewer. |
 
-**Verification rounds** are separate from the budget. The gate needs the reviewer's approval of the PR's **latest head**, or of an earlier head when every later commit is a merge of the integration branch with no conflicts. Whenever the head changes after a review (a fix for findings, a CI fix, a takeover, or a conflict resolved by hand), run a verification round on the new head. It checks only the change and the open finding IDs. A merge of the integration branch with no conflicts needs no new review; the approval carries over (`fleet-gate` allows it). A ticket gets at most **3 verification rounds**. Another head change after that, or a verification round that raises a new blocker or should finding after the budget is spent, ends the loop as **stuck**.
+**Verification rounds** are separate from the budget. The gate needs the reviewer's approval of the PR's **latest head**, or of an earlier head when every later commit is a merge of the integration branch with no conflicts. Whenever the head changes after a review (a fix for findings, a CI fix, a takeover, or a conflict resolved by hand), run a verification round on the new head. It checks only the change and the open finding IDs. A merge of the integration branch with no conflicts needs no new review; the approval carries over (`fleet-gate` allows it). The same holds when every commit since the approved head changes only Markdown documentation, comments, or the PR body (no code, tests, configuration, or generated files): list the changed files in the review record instead of running a round. When the only change is added tests (no production code, and no existing test changed or deleted), the verification round checks only that the new tests are real and pass; use the cheapest eligible reviewer at low effort. A ticket gets at most **3 verification rounds**. Another head change after that, or a verification round that raises a new blocker or should finding after the budget is spent, ends the loop as **stuck**.
 
 Extend a budget to 5 rounds only for security, data, or concurrency problems where a blocker or should finding stays open with evidence, or when the user asks. Stop early if a round returns only nits.
 
@@ -33,7 +33,7 @@ Extend a budget to 5 rounds only for security, data, or concurrency problems whe
 
 ## The brief
 
-The reviewer gets no history, so the brief must stand alone:
+The reviewer gets no history, so the brief must stand alone. **Generate it, do not retype it:** `node scripts/review-brief.mjs <PR URL> --ticket <ticket.md> [--check "<command>: <result>"]...` prints this brief with the base and head SHAs pinned, the ticket's Outcome and Non-goals, and the acceptance criteria with their Verify and Evidence lines read from the PR body. Save the ticket's description as `ticket.md` first. For round 2 and later, add `--round <n> --ledger <ledger file> --since <head the last round reviewed>`; the brief then lists only the open finding IDs and the diff since that head. Add only what the script cannot know (known pre-existing failures, what to focus on). Without the script, write the same brief by hand:
 
 ```text
 Review only. Do not edit, commit, push, comment on PRs, or start subagents.
@@ -62,7 +62,7 @@ Severity:
 - nit: everything else (other paths, rare cases, style, small performance costs, extra compatibility).
 
 Reply:
-VERDICT: APPROVE or CHANGES
+VERDICT: APPROVE <head SHA> or CHANGES
 F1 [blocker|should|nit] <file>:<line> <claim>. Fix: <suggestion>
 (Keep finding IDs stable across rounds.)
 ```
