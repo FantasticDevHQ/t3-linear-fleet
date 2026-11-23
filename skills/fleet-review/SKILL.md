@@ -97,7 +97,7 @@ Start another round only if budget remains **and** a blocker or should is open, 
 
 ## Stop
 
-- **Approved:** the reviewer says APPROVE on the PR's latest head (or on an earlier head followed only by conflict-free merges of the integration branch), every acceptance criterion is verified, no blocker or should is open, and you have no concern of your own. This is the only result that passes the ticket gate.
+- **Approved:** the reviewer says APPROVE on the PR's latest head, or on an earlier head when every later commit is one that carries the approval over (see Verification rounds: conflict-free merges of the integration branch, PR-body-only changes, or prose Markdown nothing reads; list those files in the review record), every acceptance criterion is verified, no blocker or should is open, and you have no concern of your own. This is the only result that passes the ticket gate.
 - **Stuck:** a blocker or should finding is still disputed after two replies, or one is still open when the budget ends. A disputed blocker about money, security, or data is stuck at once, and so is any proposal to settle a finding by moving it to another ticket: the user decides, not the orchestrator and the reviewer together. Write both sides in two or three lines each. The orchestrator puts it in its escalation batch; the human decides. **The end of the budget alone is not approval.**
 
 ## Record the result

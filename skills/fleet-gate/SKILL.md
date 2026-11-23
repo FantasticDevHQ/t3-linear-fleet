@@ -22,7 +22,7 @@ A **stacked** ticket PR (its base is another ticket's branch) never merges while
 Merge a ticket PR into the integration branch only when **all** of these are true on its **latest head commit**:
 
 - [ ] Every check on the PR has completed and passed, none is pending, and at least one check ran. Branch protection is often configured only for the default branch, so do not rely on "required" checks alone.
-- [ ] The PR's acceptance checklist shows every criterion with a Verify result and Evidence. The worker ticks criteria on its own evidence. The orchestrator ticks the independent-acceptance box only with a link to the reviewer's approval of this exact head SHA.
+- [ ] The PR's acceptance checklist shows every criterion with a Verify result and Evidence. The worker ticks criteria on its own evidence. The orchestrator ticks the independent-acceptance box only with a link to the reviewer's approval of this exact head SHA, or of the earlier head the approval carries over from (next item), with the carried-over commits listed.
 - [ ] `fleet-review` ended **Approved** on the latest head, or on an earlier head when every later commit is a merge of the integration branch with no conflicts, or changes only the PR body or prose Markdown that nothing builds, tests, or reads (as `fleet-review` defines): a reviewer from a provider that wrote none of the PR's commits verified every acceptance criterion, and no **blocker** or **should** finding is open. Tickets labeled `t3-fleet-risky` used the strongest reviewer. Approval is an explicit `VERDICT: APPROVE <sha>` from the reviewer. A lost or incomplete review, partial notes, or your own check is not approval, and any other commit no reviewer has seen blocks the merge.
 - [ ] Every commit carries a Linear magic word, and the PR summary declares the ticket. With a squash merge, the squash message's `Fixes` line covers a commit that lacks one; do not invent other exceptions.
 - [ ] GitHub reports the PR mergeable, and not DIRTY (conflicting).
@@ -101,7 +101,7 @@ Every push to the integration branch runs the full suite. When it fails:
 ## Never
 
 - Merge the feature PR without the user's explicit instruction for this feature.
-- Merge any PR that is DIRTY, has a failing or pending check, has base changes since the last green run that touch its files, or has a commit no reviewer approved.
+- Merge any PR that is DIRTY, has a failing or pending check, has base changes since the last green run that touch its files, or has a commit no reviewer approved that does not carry an approval over (as `fleet-review` defines).
 - Bypass branch protection, use admin merges, or skip a required check.
 - Rebase or force-push the integration branch.
 - Watch a PR from a delegated child, or run two watchers on one PR.
