@@ -25,7 +25,7 @@ The orchestrator's brief gives you:
 
 If something is missing, read it from Linear yourself if you can. Do not start without the intent brief.
 
-**Blockers.** A blocker is met when its merge commit is an ancestor of your base, whatever its Linear status. This overrides repository and global agent rules about waiting for dependencies, because the fleet merges into the integration branch first and moves tickets to Done later.
+**Blockers.** A blocker is met when its merge commit is an ancestor of your base, whatever its Linear status. In a stacked attempt, the blocker whose open PR is your given PR base counts as met; every other blocker must be an ancestor. This overrides repository and global agent rules about waiting for dependencies, because the fleet merges into the integration branch first and moves tickets to Done later.
 
 ## Step 1: Understand the intent
 
@@ -121,7 +121,7 @@ gh pr edit <n> --body-file pr-body.md \
 1. Commit with a Conventional Commit subject and, on its own line in the body of **every** commit, a Linear magic word: `Fixes ENG-123` when the work completes the ticket, `Refs ENG-123` for partial work.
 2. Fetch and rebase onto the latest tip of your PR's base: the integration branch for first attempts, the given PR base for stacked attempts, or `origin/<branch>` for fix tasks and takeovers. **Then** run the fast check, so the code you push is the code you checked.
 3. **Always push before you end**, even when you are blocked or escalating, so the next agent can continue your work.
-4. Open **one** PR into the **integration branch**, or into the given PR base for a stacked attempt (never the default branch), or update the existing one. Use the repository's PR format exactly; do not add top-level headings it does not define. Include:
+4. Open **one** PR into the **integration branch**, or into the given PR base for a stacked attempt (never the default branch, unless the brief makes you a prerequisite ticket whose base is the default branch), or update the existing one. Use the repository's PR format exactly; do not add top-level headings it does not define. Include:
    - the one-line intent restatement and `Fixes ENG-123` (or `Refs`) in the summary;
    - the acceptance checklist: each criterion ID, the result of its Verify step, and its Evidence;
    - decisions you made and deviations or limitations, as subsections inside the format's sections (for example `### Decisions` under Evidence). An empty deviations list must be true;

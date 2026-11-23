@@ -153,7 +153,7 @@ After the **first** ticket merges into the integration branch, check its Linear 
 | The fix budget is spent, or a worker reports blocked | Dispatch **one takeover**, preferably on another provider, as long as a third provider stays free to review it. It continues the same branch and keeps the earlier commits. |
 | The takeover is blocked too, or a review budget is spent | Mark the ticket blocked in Linear and the Run log, pause its dependents, put it in the escalation batch, and keep everything else moving. |
 | An attempt stopped on an environment failure (Ground rules) | Retry it on another machine or provider with the same attempt number. No budget is used. |
-| A wake-up fires | If that attempt already reported, delete the wake-up and stop. Otherwise read its thread once. If it is working, arm one more wake-up for half the budget. If it waits on an approval or question, answer it, or cancel and restart it in a mode that does not prompt. If it is stuck, gone, or its machine does not answer, `task_cancel` it and dispatch a takeover (or a retry, for an environment failure). |
+| A wake-up fires | If that attempt already reported, delete the wake-up and stop. Otherwise read its thread once. If it is working, arm one more wake-up for half the budget. If it waits on an approval or question, answer it, or cancel and restart it in a mode that does not prompt. If it is stuck or gone, `task_cancel` it and dispatch a takeover (or a retry, for an environment failure). If its machine does not answer, follow reconciliation step 3 under **Staying live** (a new branch; cancel the original when its machine returns). |
 
 ## Staying live
 
@@ -219,7 +219,7 @@ Rebuild the state from the Run log, never from the conversation: then open ticke
 - Edit, commit, push, merge branches, resolve conflicts, or run gates in a product repository (Ground rules).
 - Create, split, or move tickets, requirements, or findings, or widen a ticket's scope, without the user's approval.
 - Decide a product rule, exceed a budget, or approve a head yourself.
-- Tick a box for a check you did not run, or that someone else must run.
+- Tick a box for a check you did not run, or that someone else must run. The one exception is the independent-acceptance box, ticked with a link to the reviewer's approval, as `fleet-gate` says.
 - Merge the feature PR without the user's explicit instruction for this feature.
 - Ask the user anything outside an escalation batch, or ask in a plain message instead of the question tool.
 - Poll or sleep-loop. Wake on task completion, PR events, and wake-ups only.
