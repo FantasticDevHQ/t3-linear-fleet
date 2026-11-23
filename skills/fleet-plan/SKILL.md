@@ -3,7 +3,7 @@ name: fleet-plan
 description: "Plan a feature as a Linear project that the T3 Linear Fleet (fleet-run) can build unattended. Researches the codebase, writes an intent brief (problem, users, definition of done, non-goals, decisions), drafts the fewest reviewable tickets with EARS requirements and traceable acceptance criteria that can be proven inside the PR before merge, has a fresh agent cold-read them, asks the user every open question in one batch with recommended defaults, and only creates the tickets once a readiness gate passes. Use when the user wants to plan a feature for the fleet, for fleet-run, or for parallel agents in T3 Code, or asks for fleet-plan by name. Works with the Linear MCP or linear-cli, or as drafts."
 metadata:
   author: kellykampen
-  version: "3.2.1"
+  version: "3.3.0"
 ---
 
 # Fleet Plan
@@ -54,6 +54,9 @@ The intent brief is the Linear project description. Every agent reads it before 
 
 ## Constraints
 <platform, performance, compatibility, deadlines, budget, security>
+- Secrets and external accounts: <names only, never values; or "none">
+- Source designs: <each design or prototype, and the ticket that applies it>
+- Invariants: <rules every ticket must keep, e.g. "hidden listings never reach a public query">
 
 ## Decisions
 - <decision> — <one-line reason>   (settled choices; updated during execution)
@@ -104,7 +107,7 @@ A user story ("As a <role>, I want <action>, so <result>") is a good way to writ
   - Evidence: <what CI or the preview produces: test pass, recording, output>
 
 ## Design
-<screenshot/PNG of the target, plus optional source link (UI tickets only)>
+<reference captures of the target at desktop and phone width, uploaded so agents can fetch them, plus optional source link (UI tickets only)>
 
 ## Fleet
 - Model: <model ID, exactly as T3 Code lists it, e.g. claude-opus-5-5>
@@ -171,6 +174,8 @@ You cannot see your own gaps. Before asking the user anything, give the intent b
 1. What would you have to guess or ask to build this?
 2. Can each acceptance criterion be proven before merge, using only this PR?
 3. Is anything here not needed for the definition of done, or excluded by a non-goal?
+4. Which tickets add a shared helper, contract, table, or field that later tickets reuse? (They need blocker links, and `t3-fleet-schema-change` for schema.)
+5. Does a criterion leave a security- or data-relevant design choice open, or need data the system does not store?
 
 In T3 Code, use `orchestrator_capabilities` to pick a model and `delegate_task` with a review role. Elsewhere, use your harness's subagent. Fix what you can from the code; carry the rest into Step 5.
 
@@ -198,7 +203,10 @@ Do not create tickets in Linear until every box is checked. Show the user the br
 - [ ] Dependencies are blocker links, and they form no cycle. Shared groundwork is in a ticket labeled `t3-fleet-foundation`.
 - [ ] Every ticket has a Fleet section with a `Model` from the candidate models and an `Effort` from `low`, `medium`, `high`, `xhigh`, `max`.
 - [ ] t3-fleet labels are set where they apply (`t3-fleet-foundation`, `t3-fleet-local-only`, `t3-fleet-schema-change`, `t3-fleet-risky`).
-- [ ] UI tickets have a design screenshot attached.
+- [ ] **Design coverage:** every source design in the brief traces to a ticket that applies it, and every UI ticket carries reference captures of its design at desktop and phone width that agents can fetch.
+- [ ] **Secrets and accounts:** every secret and external account a ticket in the run needs is present in the project's secrets manager (checked by name; never read values). A ticket whose secret the user cannot provide now moves to Backlog with the reason.
+- [ ] **External blockers:** no criterion's verification depends on another team's work or an unavailable external service. Split such a criterion out now (into Release checks or a Backlog ticket), not during the run.
+- [ ] **Critical path:** the brief states it. A ticket that blocks more than about a third of the run is split or has its blockers loosened, or the user accepted it.
 - [ ] Risky steps carry WARNING or CAUTION, and every WARNING decision is settled.
 - [ ] The intent brief has the Mermaid dependency flowchart, and it lists every ticket in the run, including tickets with no links.
 - [ ] Text follows ASD-STE100 style.
@@ -232,7 +240,7 @@ So agents and humans link work the same way:
 
 - Work on a ticket happens on a branch named with Linear's copied branch name, which contains the ticket ID.
 - Every commit for a ticket carries a Linear magic word in its body: `Fixes ENG-123` when it completes the ticket, `Refs ENG-123` for partial work. Linear links commits only through magic words.
-- Each ticket lands as one PR into the feature's integration branch. The final PR to the default branch lists every ticket again (`Fixes ENG-1, ENG-2`), because Linear does not re-detect tickets that were merged into a feature branch.
+- Each ticket lands as one PR into the feature's integration branch. The final PR to the default branch lists every ticket again, one magic word per line (`Fixes ENG-1` newline `Fixes ENG-2`), because Linear does not re-detect tickets that were merged into a feature branch.
 
 ## Gotchas
 

@@ -3,7 +3,7 @@ name: fleet-review
 description: "Budgeted code review by a model from a different provider than the author. Sends a self-contained, read-only brief; grades findings blocker / should / nit; checks for bugs, missed acceptance criteria, over-engineering, weakened tests, and non-goal leakage; answers each finding with the smallest fix or a written reason; keeps a ledger; and stops on approval, budget end, or a stuck dispute. One round for every ticket PR (up to two for risky tickets), up to three for a whole feature, plus verification of each new head. Use before merging any ticket PR, before the final feature PR, or whenever the user asks for an independent or cross-provider review loop."
 metadata:
   author: kellykampen
-  version: "2.1.0"
+  version: "2.2.0"
 ---
 
 # Fleet Review
@@ -18,7 +18,7 @@ An author reviewing its own diff repeats its own blind spots. This loop gets an 
 | **Whole feature** (the integration branch against the default branch) | Up to 3 rounds, before the final gate |
 | **Every other ticket PR** | 1 review round before the ticket gate, by a capable, inexpensive reviewer. |
 
-**Verification rounds** are separate from the budget. The gate needs the reviewer's approval of the PR's **latest head**, or of an earlier head when every later commit is a merge of the integration branch with no conflicts. Whenever the head changes after a review (a fix for findings, a CI fix, a takeover, or a conflict resolved by hand), run a verification round on the new head. It checks only the change and the open finding IDs. A merge of the integration branch with no conflicts needs no new review; the approval carries over (`fleet-gate` allows it). The same holds when every commit since the approved head changes only the PR body, or only prose Markdown files that no build, test, or tool reads (such as README, CHANGELOG, or a docs page with no doc build or doc tests). Code comments, configuration, generated files, and Markdown that a build, test, or tool consumes do not count. List the changed files in the review record instead of running a round; when you cannot show that nothing reads a file, run the verification round. When the only change is added tests (no production code, and no existing test changed or deleted), the verification round checks only that the new tests are real and pass; use the cheapest eligible reviewer at low effort. A ticket gets at most **3 verification rounds**. Another head change after that, or a verification round that raises a new blocker or should finding after the budget is spent, ends the loop as **stuck**.
+**Verification rounds** are separate from the budget. The gate needs the reviewer's approval of the PR's **latest head**, or of an earlier head when every later commit is a merge of the integration branch with no conflicts. Whenever the head changes after a review (a fix for findings, a CI fix, a takeover, or a conflict resolved by hand), run a verification round on the new head. It checks only the change and the open finding IDs. **No new review is needed** (the approval carries over, and `fleet-gate` allows it) when every commit since the approved head is a merge of the integration branch with no conflicts, or changes only the PR body (the head SHA did not change), or only prose Markdown files that no build, test, or tool reads (such as README, CHANGELOG, or a docs page with no doc build or doc tests). List the changed files in the review record instead of running a round. Everything else gets a verification round: code comments, configuration, generated files, Markdown that a build, test, or tool consumes, and **formatting-only code changes**. For a formatting-only change, the round is a light check: the diff is whitespace or formatter output only, and the checks are green. When you cannot show that nothing reads a file, run the verification round. When the only change is added tests (no production code, and no existing test changed or deleted), the verification round checks only that the new tests are real and pass; use the cheapest eligible reviewer at low effort. A ticket gets at most **3 verification rounds**. Another head change after that, or a verification round that raises a new blocker or should finding after the budget is spent, ends the loop as **stuck**.
 
 Extend a budget to 5 rounds only for security, data, or concurrency problems where a blocker or should finding stays open with evidence, or when the user asks. Stop early if a round returns only nits.
 
@@ -27,13 +27,14 @@ Extend a budget to 5 rounds only for security, data, or concurrency problems whe
 - **Independence.** Track every provider that wrote commits on the PR: the first attempt, fix tasks, and a takeover. The reviewer must come from a provider that wrote none of them. If no such provider is available, the loop is **stuck** and the orchestrator escalates it; never use a contributing provider.
 - Use a model from that **independent provider**. Choose it with `fleet-models` ("Choosing a reviewer") from the models `orchestrator_capabilities` offers: a capable, inexpensive model for ordinary tickets, and the strongest one for risky tickets and the whole feature. Never hardcode a model ID.
 - Every ticket review **verifies acceptance**: for each criterion, the reviewer checks that its Verify result and Evidence on the PR actually prove it on the latest head, then reviews the diff.
-- Start each round as a **new** read-only task: in T3 Code, `delegate_task` with a review role. Elsewhere, use your harness's subagent. Do not send review rounds as messages into an old thread.
+- Start each round as a **new** read-only task: in T3 Code, `delegate_task` with a review role. Elsewhere, use your harness's subagent. Do not send review rounds as messages into an old thread. The task is short: `Read <brief file> and follow it.` (or the brief inline, when the reviewer runs on another machine), plus at most five bullets of context the brief lacks. Do not retype the brief around it.
 - **One reviewer per round.** The reviewer must not start its own subagents.
 - Do not edit the files under review while a round runs. A timeout, an error, or no reply is **not** approval.
+- **Incomplete review.** When a reviewer returns no verdict (a lost stream, an abort, the wrong checkout) or says it could not run a check, rerun the round at once with a corrected brief, or ask the same reviewer thread for its verdict on the same head, giving it the missing evidence (the CI run, the output). It does not use a round of the budget. Never infer approval from partial notes, and never turn a reviewer's CHANGES into approval yourself.
 
 ## The brief
 
-The reviewer gets no history, so the brief must stand alone. **Generate it, do not retype it:** `node <this skill's folder>/scripts/review-brief.mjs <PR URL> --ticket <ticket.md> [--check "<command>: <result>"]...` (the folder this SKILL.md was loaded from, for example `~/.claude/skills/fleet-review` or `~/.codex/skills/fleet-review`; run it from any directory) prints this brief with the base and head SHAs pinned, the ticket's Outcome and Non-goals, and the acceptance criteria with their Verify and Evidence lines, read from the PR body's Acceptance section or, when the PR has none, from the ticket. It stops with an error when it finds no AC-n criteria or a criterion without an ID. Save the ticket's description as `ticket.md` first. For round 2 and later, add `--round <n> --ledger <ledger file> --since <head the last round reviewed>`; the brief then lists only the open finding IDs and the diff since that head. Add only what the script cannot know (known pre-existing failures, what to focus on). Without the script, write the same brief by hand:
+The reviewer gets no history, so the brief must stand alone. **Generate it, do not retype it:** `node <this skill's folder>/scripts/review-brief.mjs <PR URL> --ticket <ticket.md> [--check "<command>: <result>"]...` (the folder this SKILL.md was loaded from, for example `~/.claude/skills/fleet-review` or `~/.codex/skills/fleet-review`; run it from any directory) prints this brief with the base and head SHAs pinned, the ticket's Outcome and Non-goals, and the acceptance criteria with their Verify and Evidence lines, read from the PR body's Acceptance section or, when the PR has none, from the ticket. It stops with an error when it finds no AC-n criteria or a criterion without an ID. Save the ticket's description as `ticket.md` first. For round 2 and later, add `--round <n> --ledger <ledger file> --since <head the last round reviewed>`; the brief then lists only the open finding IDs and the diff since that head. Add only what the script cannot know: known pre-existing failures, what to focus on, the project's cross-ticket invariants from the intent brief (for example "hidden listings never reach a public query"), and, for evidence images, that the reviewer downloads them with its signed-in `gh` (or you pass the files), because attachment URLs need a session. Without the script, write the same brief by hand:
 
 ```text
 Review only. Do not edit, commit, push, comment on PRs, or start subagents.
@@ -52,7 +53,12 @@ Report each as `AC-n verified` or `AC-n not proven: <reason>`. Then read the sur
 - acceptance criteria the change does not meet, or does not prove;
 - code, tests, guards, options, or abstractions the intent does not need (over-engineering);
 - tests that were weakened, skipped, or deleted compared with the base;
-- work that a non-goal excludes.
+- work that a non-goal excludes;
+- for UI changes: differences from the referenced design, and product-rule breaks at each
+  breakpoint (desktop and phone), not only the acceptance criteria.
+For risky or test-only changes, break the guarded behavior on purpose and check that a test
+fails (mutation check); report a test that stays green.
+Evidence from separate runs does not prove a criterion that asks for one run.
 Skip style unless it hides a bug. Judge the code and the evidence on the PR. Pending or
 running CI is not a finding: the merge gate checks CI separately.
 
@@ -92,8 +98,8 @@ Start another round only if budget remains **and** a blocker or should is open, 
 ## Stop
 
 - **Approved:** the reviewer says APPROVE on the PR's latest head (or on an earlier head followed only by conflict-free merges of the integration branch), every acceptance criterion is verified, no blocker or should is open, and you have no concern of your own. This is the only result that passes the ticket gate.
-- **Stuck:** a blocker or should finding is still disputed after two replies, or one is still open when the budget ends. Write both sides in two or three lines each. The orchestrator puts it in its escalation batch; the human decides. **The end of the budget alone is not approval.**
+- **Stuck:** a blocker or should finding is still disputed after two replies, or one is still open when the budget ends. A disputed blocker about money, security, or data is stuck at once, and so is any proposal to settle a finding by moving it to another ticket: the user decides, not the orchestrator and the reviewer together. Write both sides in two or three lines each. The orchestrator puts it in its escalation batch; the human decides. **The end of the budget alone is not approval.**
 
 ## Record the result
 
-Put the outcome in the PR's evidence: the number of rounds, the reviewer's model, the final verdict, the diff size before and after, and the fixed, disputed, and declined findings with their reasons. Do not invent a verdict the reviewer did not give.
+Put the outcome in the PR's evidence: the number of rounds, the reviewer's model (and, when a preferred reviewer was replaced, which one and why), the final verdict, the diff size before and after, and the fixed, disputed, and declined findings with their reasons. Do not invent a verdict the reviewer did not give.

@@ -36,6 +36,30 @@
       "prompt": "feat/search is frozen after a red full suite caused by ENG-44. The fix-forward agent opened PR #61 into feat/search. Can it merge while frozen?",
       "expected_output": "Yes, if it passes the rest of the ticket gate: it is a repair PR, which is exempt from the freeze, and its commits carry Refs ENG-44. Ordinary ticket PRs stay blocked until the full suite is green again. The merge uses an explicit squash subject and body.",
       "files": []
+    },
+    {
+      "id": 6,
+      "prompt": "Ticket PR #61's last fix was reviewed; then the orchestrator pushed a one-line follow-up commit nobody reviewed. All checks are green. Merge?",
+      "expected_output": "No. Any commit no reviewer approved blocks the merge; approval must be an explicit VERDICT: APPROVE on the exact head. The commit needs a verification round from a provider that wrote none of the PR's commits (and the orchestrator should not have written it).",
+      "files": []
+    },
+    {
+      "id": 7,
+      "prompt": "The reviewer's stream dropped before it wrote a verdict, but its notes listed no blockers. Accept the PR on those notes?",
+      "expected_output": "No. A lost or incomplete review is not approval. Rerun the round with a corrected brief, or ask the same reviewer for its verdict on the same head; never infer approval from partial notes.",
+      "files": []
+    },
+    {
+      "id": 8,
+      "prompt": "All checks on #65 are green and the review approved its head. Merge it with gh pr merge --squash.",
+      "expected_output": "Makes all PR-body edits first and waits for the rerun checks, confirms no check is pending and the PR is in no stack, then runs gh pr merge <n> --squash --match-head-commit <sha> --subject '<title> (#n)' --body with a Fixes line, never the default message. Then adds the ticket to the feature PR summary.",
+      "files": []
+    },
+    {
+      "id": 9,
+      "prompt": "The integration branch has no branch protection. Arm auto-merge on a ticket PR while its metadata checks still run?",
+      "expected_output": "No. Auto-merge only when branch protection is verified to require every check that must pass; otherwise GitHub merges at once. Wait for every check to complete, then merge.",
+      "files": []
     }
   ]
 }

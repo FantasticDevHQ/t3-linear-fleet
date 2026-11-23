@@ -3,7 +3,7 @@ name: fleet-refresh
 description: "Bring an existing Linear project up to the fleet spec so fleet-run can execute it. Invoked as /fleet-refresh <Linear project URL>. Audits a project whose tickets were written to an older standard (user stories, 3-point slivers, post-merge acceptance criteria, missing intent brief, no t3-fleet labels), proposes a change plan, asks every open question in one batch, then rewrites the intent brief and tickets in place: it keeps ticket IDs, links, and history, saves each old description as a comment first, merges slivers as duplicates, and ends at the readiness gate with an Approved line. Use when the user wants to refresh, upgrade, migrate, clean up, or rewrite an existing Linear project or backlog to the new ticket standard."
 metadata:
   author: kellykampen
-  version: "2.0.0"
+  version: "2.1.0"
 ---
 
 # Fleet Refresh
@@ -22,7 +22,7 @@ Read, following every page:
 - every issue in the project, including completed and canceled ones: description, status, assignee, estimate, labels, comments, relations, and linked branches and PRs;
 - the team hierarchy and the label catalog, with owning team and `inheritedFrom`;
 - the repository the project builds on: structure, existing patterns, tests, CI, previews, and agent instructions. Do not ask what the code can answer.
-- whether the repository is ready for `fleet-run`: CI runs on pull requests into `feat/**` and on pushes to `feat/**`; which tests CI runs and which only run on demand (for example a remote end-to-end command); whether previews exist; and which PR standard the repository enforces. A gap here becomes a small **prerequisite ticket** whose PR targets the default branch and merges before `fleet-run` starts. `fleet-run` stops at preflight while the gap exists, so this ticket cannot be part of the run. Give it no t3-fleet label, name it under Constraints in the brief as a run prerequisite, and let it block the tickets it gates. Once it merges, it is Done and counts as a met blocker.
+- whether the repository is ready for `fleet-run`: CI runs on pull requests into `feat/**` and on pushes to `feat/**`; which tests CI runs and which only run on demand (for example a remote end-to-end command); whether previews exist; whether a failing CI gate names the failing test or keeps its logs (a gate that prints only "1 gate failed" costs a run hours); and which PR standard the repository enforces. A gap here becomes a small **prerequisite ticket** whose PR targets the default branch and merges before `fleet-run` starts. `fleet-run` stops at preflight while the gap exists, so this ticket cannot be part of the run. Give it no t3-fleet label, name it under Constraints in the brief as a run prerequisite, and let it block the tickets it gates. Once it merges, it is Done and counts as a met blocker.
 
 With the Linear MCP, `get_issue` returns relations only when you pass both `includeRelations: true` and `"relations"` in `fields`. Read relations in a separate pass and check that at least one ticket has some; an empty result for every ticket usually means the request was wrong, not that there are no links. See [references/linear-notes.md](references/linear-notes.md).
 
@@ -49,7 +49,8 @@ Check the project and every not-started ticket against `fleet-plan`:
 - **Over-specification:** "how" content with no recorded decision behind it (remove it, or turn a real constraint into a decision).
 - **Dependencies:** missing blocker links, links that point the wrong way, and cycles.
 - **t3-fleet labels:** `t3-fleet-foundation`, `t3-fleet-local-only`, `t3-fleet-schema-change`, `t3-fleet-risky`, and whether the t3-fleet group exists at the right level.
-- **Design and risk:** UI tickets without a design image, and risky steps without WARNING or CAUTION.
+- **Design and risk:** UI tickets without reference captures, and risky steps without WARNING or CAUTION. **Design coverage:** find every design the project agreed (in the description, documents, comments, or a ticket such as "confirm the source design"), and check that a ticket applies each one. A design no ticket applies is a gap for the change plan. Capture references (desktop and phone width) from each source and attach them to the UI tickets that need them.
+- **Secrets and accounts:** every secret and external account the run needs is named in Constraints and present in the project's secrets manager (by name; never read values). A missing one goes in the question batch, not in a note.
 - **Model and effort:** tickets without a Fleet section (`Model`, `Effort`). Add one to every ticket in the run, including in-progress tickets (it does not change scope), as `fleet-plan` describes under Model and effort, with the candidates and rule from `fleet-models`. List the choices in the change plan so the user can change them in one place.
 - **Unlinked duplicates:** tickets with the same title or the same requirements and no duplicate relation. Merge them into the one with history.
 - **Work no agent can finish in a PR:** external setup, staging checks, live-service checks, release acceptance, and runbooks for the owner. They are release checks. List them in the brief's Release checks. Keep their tickets if the user tracks them as tickets, but they are outside the run.

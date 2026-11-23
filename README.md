@@ -242,9 +242,9 @@ Each ticket names its model and effort in its Fleet section.
 - **Intent brief:** the Linear project's description. It states the problem, users, definition of done, non-goals, constraints, decisions, release checks, and a graph of every ticket, and ends with an `Approved:` line.
 - **Definition of done:** what a user can see or do when the feature ships. Every ticket serves part of it; nothing else is built.
 - **Integration branch:** `feat/<project>`. Ticket PRs merge here; one feature PR takes it to `main`.
-- **Run log:** the record of every attempt (worker, machine, model, PR, decisions). It starts as comments on the Linear tickets and moves to the feature PR once that PR exists.
+- **Run log:** the record of every attempt (worker, machine, model, PR, decisions, open questions). It lives in Linear for the whole run, so a restarted or compacted orchestrator, or a different model, can resume from it.
 - **Evidence packet:** what you review at the end: a recording or transcripts of the feature working, each acceptance criterion linked to its proof, and the decisions made for you.
-- **Escalation batch:** the few questions only you can answer, asked together when nothing else can move.
+- **Escalation batch:** the few questions only you can answer (product rules, missing secrets, scope gaps, blocked tickets), asked together as soon as everything that does not need an answer is moving.
 - **Release checks:** things that can only be checked after release (live services, production metrics). They never block a merge.
 - **Possible follow-ups:** ideas found during a run that the plan doesn't need. They are listed for you, never built or filed on their own.
 
@@ -252,7 +252,7 @@ Each ticket names its model and effort in its Fleet section.
 
 Each choice answers a problem that shows up when agents build features unattended.
 
-- **Almost all talking happens up front.** An agent that has to ask a question halfway through either stops or guesses. So `fleet-plan` settles every product decision before a ticket exists. It asks one short question first if the goal is unclear, then the rest in one batch with recommended defaults, and records the answers in the brief. During the run, workers never ask you. The orchestrator escalates only what it cannot settle itself (see `fleet-run`'s Escalations section), batches it, and asks when nothing else can proceed.
+- **Almost all talking happens up front.** An agent that has to ask a question halfway through either stops or guesses. So `fleet-plan` settles every product decision before a ticket exists. It asks one short question first if the goal is unclear, then the rest in one batch with recommended defaults, and records the answers in the brief. During the run, workers never ask you. The orchestrator takes safe, reversible defaults itself, escalates only what it cannot settle (see `fleet-run`'s Escalations section), and asks in one batch once everything else is moving.
 - **Acceptance happens inside the PR.** A criterion that can only be checked after merge or in production blocks the merge forever, so an unattended agent loops, skips it, or asks. Every criterion has a `Verify` line that runs on the PR (a test, CI, a remote end-to-end run) and an `Evidence` line it produces. Things that can only be checked after release go in a separate, non-blocking list.
 - **The least change.** Each ticket is the least change that meets its outcome, and the plan is the fewest tickets that meet the definition of done. Once the plan is approved, the run does not add or widen tickets on its own: ideas found during the run come back to you as a list of possible follow-ups, and a real gap in the plan is put to you as a question (add one ticket, change the definition of done, or stop).
 - **Few, meaningful tickets.** One ticket is one reviewable PR with one outcome. There is no point cap: splitting work to fit an estimate makes slivers that share context and multiply review overhead.
@@ -260,6 +260,7 @@ Each choice answers a problem that shows up when agents build features unattende
 - **Commits carry the ticket, not PR titles.** Every commit says `Fixes ENG-123` or `Refs ENG-123`, which Linear's GitHub integration reads. Branch rules move a ticket to an "Integrated" status (or take no action) when it merges into the feature branch, and to Done when the feature reaches `main`. If those rules are missing, `fleet-run` corrects the statuses by hand.
 - **The right model for each ticket.** You rate your favorite models once for intelligence, taste, and cost (`fleet-models`). Each ticket then gets the candidate that fits its risk and kind of work, weighing intelligence first, then taste, then cost: mechanical work can go to a cheaper model, and money, security, or permanent-data work needs a high intelligence rating. The choice reflects your own experience, not a hardcoded table.
 - **Review by a different provider.** A model reviewing its own provider's code shares its blind spots. Every ticket is verified and reviewed by a model from another provider: a capable, inexpensive one for ordinary tickets, and the strongest one for risky tickets and the whole feature.
+- **The orchestrator never codes.** Every change, however small, goes to a worker and through review, so nothing reaches the feature branch that an independent reviewer has not approved.
 - **No config file for machines.** Machines and models change often, so `fleet-run` discovers them through T3 Code every time it runs.
 - **Read changes back.** APIs sometimes report success for a write they did not apply. When `fleet-refresh` and `fleet-setup` change Linear, they read each change back before they report it.
 
@@ -310,7 +311,9 @@ Audits the project, shows a change plan (what it keeps, rewrites, merges, moves 
 /fleet-run https://linear.app/acme/project/billing-export-1a2b3c4d5e6f
 ```
 
-If the plan needs secrets or external accounts (API keys, a payment sandbox, an email provider), add them to the project's secrets manager before you start: workers can't stop to ask for keys, and a missing one stops the tickets that need it. Many projects need none.
+If the plan needs secrets or external accounts (API keys, a payment sandbox, an email provider), add them to the project's secrets manager before you start: planning and preflight check them by name, and a missing one stops the tickets that need it. Many projects need none.
+
+Start the run on the provider with the most usage headroom: the orchestrator works for hours. Messaging the run thread from a client with a different default model (for example the mobile or web app) can switch the orchestrator's model; it notices and says so, but switch it back if you did not mean to. Machines that run workers must stay awake for the whole run, so disable sleep on a laptop or use always-on machines.
 
 The orchestrator checks your machines and the plan, creates `feat/billing-export`, dispatches tickets as their blockers merge, gets each one reviewed and green, and ends with a feature PR and an evidence packet for you to review. Limits and overrides go in the same request:
 
@@ -344,17 +347,21 @@ Builds a single ticket to the worker contract: the smallest change, proof for ev
 
 | Skill | Status | What it does |
 | --- | --- | --- |
-| [fleet-setup](./skills/fleet-setup/SKILL.md) | Ready (1.2.0) | One-time setup and health check: Linear access (MCP or linear-cli), T3 Code providers, the GitHub CLI, the t3-fleet labels, Linear's GitHub automation, and your model ratings. Safe to rerun. |
-| [fleet-plan](./skills/fleet-plan/SKILL.md) | Ready (3.2.1) | Plans a feature as a Linear project: intent brief, one batch of questions with defaults, a cold read, the fewest tickets, EARS requirements traced to acceptance criteria provable inside the PR, and a readiness gate. |
-| [fleet-models](./skills/fleet-models/SKILL.md) | Ready (1.2.0) | Classifies your favorite models in T3 Code once (intelligence, taste, cost, best use) from suggested defaults you confirm, asks again only about new favorites, and holds the rule for picking each ticket's model. |
-| [fleet-run](./skills/fleet-run/SKILL.md) | Ready (2.1.2) | The orchestrator: preflight, integration branch, foundation first, dispatch on blockers across T3 Code machines and providers, merge and freeze rules, takeovers, batched escalation, feature review, and the evidence packet. |
-| [fleet-refresh](./skills/fleet-refresh/SKILL.md) | Ready (2.0.0) | `/fleet-refresh <Linear project URL>`: audits a project written to an older standard and rewrites it in place to the fleet spec, keeping IDs and history, so `fleet-run` can execute it. |
-| [fleet-worker](./skills/fleet-worker/SKILL.md) | Ready (2.1.0) | The worker brief: intent, smallest change, proof, ownership through green, escalation to the orchestrator, fixed report line. |
-| [fleet-gate](./skills/fleet-gate/SKILL.md) | Ready (2.1.1) | Ticket and final merge gates, PR watching without polling, event routing, and the freeze on a red integration branch. |
-| [fleet-review](./skills/fleet-review/SKILL.md) | Ready (2.1.0) | Independent review of every ticket and the feature by a different provider, with acceptance verification, with blocker / should / nit severity, a ledger, and checks for over-engineering and weakened tests. |
+| [fleet-setup](./skills/fleet-setup/SKILL.md) | Ready (1.3.0) | One-time setup and health check: Linear access (MCP or linear-cli), T3 Code providers, the GitHub CLI, the t3-fleet labels, Linear's GitHub automation, and your model ratings. Safe to rerun. |
+| [fleet-plan](./skills/fleet-plan/SKILL.md) | Ready (3.3.0) | Plans a feature as a Linear project: intent brief, one batch of questions with defaults, a cold read, the fewest tickets, EARS requirements traced to acceptance criteria provable inside the PR, and a readiness gate. |
+| [fleet-models](./skills/fleet-models/SKILL.md) | Ready (1.3.0) | Classifies your favorite models in T3 Code once (intelligence, taste, cost, best use) from suggested defaults you confirm, asks again only about new favorites, keeps optional per-provider notes (ticket kinds to avoid, budget caps), and holds the rule for picking each ticket's model. |
+| [fleet-run](./skills/fleet-run/SKILL.md) | Ready (2.2.0) | The orchestrator, which never writes code: preflight, integration branch, foundation first, dispatch on blockers across T3 Code machines and providers, merge and freeze rules, takeovers, wake-ups and a watchdog, batched escalation, feature review, and the evidence packet. |
+| [fleet-refresh](./skills/fleet-refresh/SKILL.md) | Ready (2.1.0) | `/fleet-refresh <Linear project URL>`: audits a project written to an older standard and rewrites it in place to the fleet spec, keeping IDs and history, so `fleet-run` can execute it. |
+| [fleet-worker](./skills/fleet-worker/SKILL.md) | Ready (2.2.0) | The worker brief: intent, smallest change, proof, ownership through green, escalation to the orchestrator, fixed report line. |
+| [fleet-gate](./skills/fleet-gate/SKILL.md) | Ready (2.2.0) | Ticket and final merge gates, PR watching without polling, event routing, and the freeze on a red integration branch. |
+| [fleet-review](./skills/fleet-review/SKILL.md) | Ready (2.2.0) | Independent review of every ticket and the feature by a different provider, with acceptance verification, with blocker / should / nit severity, a ledger, and checks for over-engineering and weakened tests. |
 | [fleet-panel-review](./skills/fleet-panel-review/SKILL.md) | Ready (2.0.0) | Optional review by a panel of three flagship models from three providers, with scores per round, synthesis, and firm scope control. For plans, contracts, and large features. |
 
 The skills require Linear, through the [Linear MCP server](https://linear.app/docs/mcp) or [linear-cli](https://github.com/nesszer/linear-cli), and [T3 Code](https://github.com/pingdotgg/t3code) for orchestration. No config file lists your machines or models: `fleet-run` discovers your linked machines, their providers and models, and the repository's project on each machine through T3 Code every time it runs, so machines can come and go. Set limits in the request itself, for example "run this project, max 8 workers". Each ticket names the model that builds it and an effort level (`low` to `max`) in a short Fleet section. Planning picks them from your favorite models in T3 Code, using the ratings you gave each one through `fleet-models`, which keeps them in one file, `~/.config/t3-linear-fleet/models.json`. Edit that section to change a ticket's model, or override it in the run request. The skills never assume a specific secrets manager; they use whatever your project declares.
+
+### Upgrading from the old skill names
+
+The skills were renamed to `fleet-*` in 2.0.0. Remove the old entries from every machine and harness that runs fleet agents: `project-run`, `project-refresh`, `ticket-worker`, `pr-gate`, `review-loop`, and `panel-review`. A harness that still has them may load them instead of the `fleet-*` skills and follow outdated rules. `npx skills@latest list --global` shows what is installed; remove them with the tool you installed them with.
 
 ## Contributing
 
