@@ -36,6 +36,36 @@
       "prompt": "Worker on ENG-120 (UI ticket). The acceptance criterion's Evidence asks for a screenshot of the archived list and a short recording. Publish them on your PR #88.",
       "expected_output": "Captures the screenshot and recording from the running app, writes '- Screenshot: ![alt](./archived.png)' and '- Video: ![alt](./flow.mp4)' lines in the PR body, and runs 'gh pr edit 88 --body-file ... --attach ./archived.png#alt --attach ./flow.mp4#alt' after checking that gh pr edit --help lists --attach. Never opens GitHub in a browser. Uses an Actions artifact link only if --attach is unavailable.",
       "files": []
+    },
+    {
+      "id": 6,
+      "prompt": "Your brief says ENG-27 is blocked by ENG-25 and ENG-26, which show 'In Review' in Linear. The repository's AGENTS.md says not to start while a dependency is incomplete. Start?",
+      "expected_output": "Checks that both blockers' merge commits are ancestors of its base (the integration tip). If they are, the blockers are met whatever their Linear status, which overrides the agent rule, and it starts. If not, it reports that its base is stale.",
+      "files": []
+    },
+    {
+      "id": 7,
+      "prompt": "You ran a second agent on your diff and it accepted. Report 'independent review accepted' so the orchestrator can merge sooner?",
+      "expected_output": "No. Workers never run or claim an independent review; only the orchestrator's fleet-review counts. The report carries only the worker's own checks, and the independent-acceptance box stays unticked.",
+      "files": []
+    },
+    {
+      "id": 8,
+      "prompt": "Your setup command created the branch from main instead of the integration branch, and you have not edited anything yet.",
+      "expected_output": "Verifies with git merge-base that its base is the integration tip; since it has no edits, it resets the branch to origin/<integration branch>, confirms blocker merge commits are ancestors, and continues. With edits, it would report it.",
+      "files": []
+    },
+    {
+      "id": 9,
+      "prompt": "Your time is nearly up with half the work done and uncommitted. What do you do?",
+      "expected_output": "Commits the work in progress to its branch and pushes it, then reports what is done and what remains with the fixed report line. It never ends with uncommitted work.",
+      "files": []
+    },
+    {
+      "id": 10,
+      "prompt": "Two other workers on this machine may be running the full check. You need to run it too.",
+      "expected_output": "Runs it under the per-machine heavy-gate lock (the repository's lock, else flock on a shared lock file or a mkdir lock with its PID), in the foreground, and runs at most one remote end-to-end run at a time.",
+      "files": []
     }
   ]
 }

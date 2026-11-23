@@ -3,7 +3,7 @@ name: fleet-setup
 description: "One-time setup and health check for the T3 Linear Fleet. Checks Linear access (Linear MCP or linear-cli), T3 Code's orchestration tools and providers, and the GitHub CLI; creates the t3-fleet label group at the right level of the Linear workspace; walks the user through Linear's GitHub automation (magic-word commit linking and branch rules); and classifies the user's favorite models with fleet-models. Safe to run again: it only fixes what is missing and ends with a ready or not-ready checklist. Use when the user installs the fleet, says set up or check the fleet, or when fleet-plan or fleet-run finds setup missing."
 metadata:
   author: kellykampen
-  version: "1.2.0"
+  version: "1.3.0"
 ---
 
 # Fleet Setup
@@ -16,7 +16,7 @@ This skill sets up the user's tools and Linear workspace. A repository's own rea
 
 ## Step 1: Linear access
 
-Check, in this order, and use the first that works:
+Check, in this order, and use the first that works. T3 Code's own issue tools are not Linear.
 
 1. **Linear MCP server** (`https://mcp.linear.app/mcp`), reached directly or through a tool host: a read such as listing teams succeeds.
 2. **linear-cli** (https://github.com/nesszer/linear-cli): `linear-cli --version` works and a read succeeds.
@@ -25,8 +25,9 @@ If neither works, stop this step and tell the user how to connect one: add the L
 
 ## Step 2: T3 Code and the GitHub CLI
 
-- **T3 Code machines:** list linked machines with `t3_environment_links` and note which answer now. None is fine; the local machine runs everything.
+- **T3 Code machines:** list linked machines with `t3_environment_links` and note which answer now. None is fine; the local machine runs everything. A laptop used as a fleet machine must not sleep during a run (or use always-on machines): a sleeping machine stalls every worker on it. Put this in the question batch as a checklist item when a linked machine looks like a laptop.
 - **Providers:** call `orchestrator_capabilities` on the local machine and on each machine that answers (pass its `environmentId`). Count the distinct providers that can run child tasks across those machines, and separately on the local machine alone. `fleet-run` needs at least **two** usable providers, because every review comes from a provider other than the writer's. `t3-fleet-local-only` tickets need two on the local machine. Fewer is a warning, not a failure: planning still works.
+- **Provider budgets:** ask in the question batch whether any provider has a spending or quota cap (for example a monthly API budget), and save each as a `budget` provider note through `fleet-models`.
 - **GitHub CLI:** `gh auth status` succeeds, and `gh --version` is **2.99.0 or newer**, the first release with `--attach` (agents upload screenshots and recordings with it). If it is older, tell the user to update `gh`. Optional: the `gh-stack` extension (`gh stack --version`), which `fleet-run` uses only when the run request asks to stack dependent tickets.
 
 ## Step 3: The t3-fleet labels
@@ -71,7 +72,7 @@ GitHub CLI              ready (gh 2.100.0, --attach available)
 t3-fleet labels         fixed now (created at the workspace)
 GitHub automation       confirmed, not verified (WEB has an Integrated status; fleet-run checks the first merge)
 GitHub automation       needs you: add an Integrated status to team OPS (or confirm "no action")
-Models                  ready (5 favorites classified)
+Models                  ready (5 favorites classified, 1 provider budget noted)
 ```
 
 Say whether the fleet is **ready to plan** (Linear access) and **ready to run** (everything else).

@@ -116,3 +116,12 @@ test("a PR criteria section with only malformed items fails instead of falling b
   const body = "## Acceptance criteria\n- [ ] works somehow\n";
   assert.throws(() => buildBrief({ ...base, prBody: body, ticket: ticketWithAc }), /without an AC-n ID/);
 });
+
+test("the brief asks for design and breakpoint checks, mutation checks, and one-run evidence", () => {
+  const brief = buildBrief(base);
+  assert.match(brief, /referenced design, and product-rule breaks at each/);
+  assert.match(brief, /breakpoint \(desktop and phone\)/);
+  assert.match(brief, /mutation check/);
+  assert.match(brief, /Evidence from separate runs does not prove a criterion that asks for one run\./);
+  assert.match(brief, /Pending or\nrunning CI is not a finding/);
+});

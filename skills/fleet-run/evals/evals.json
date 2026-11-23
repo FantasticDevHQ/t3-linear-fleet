@@ -22,13 +22,13 @@
     {
       "id": 3,
       "prompt": "Two workers escalated: ENG-30 asks whether exported amounts include tax (the intent brief says exports are for accountants, Decisions says 'amounts are pre-tax'), and ENG-31 asks to drop a legacy column in production. Other tickets are still running.",
-      "expected_output": "Answers ENG-30 from the Decisions section without asking the user, records it, and continues ENG-30 with a new attempt carrying the answer. Puts ENG-31 in the batch because it is irreversible and external. Asks the batch only once nothing else can dispatch or merge, through the question tool with full context and a recommendation first, after unwatching PRs, and says the run pauses while waiting.",
+      "expected_output": "Answers ENG-30 from the Decisions section without asking the user, records it, and continues ENG-30 with a new attempt carrying the answer. Puts ENG-31 in the batch because it is irreversible and external. Asks the batch as soon as every ready ticket that does not need the answer is dispatched and PR watches and wake-ups are armed (not at the end of the run), through the question tool with full context and a recommendation first.",
       "files": []
     },
     {
       "id": 4,
       "prompt": "All tickets are merged into feat/billing-export, the feature review approved, and full CI is green with main merged in. Finish the run.",
-      "expected_output": "Dispatches an evidence agent on a different provider to record the definition of done on the preview deploy, writes the evidence packet in the documented order, marks the feature PR ready, checks the final gate, unwatches all PRs, and reports ready with decisions made and release checks. Does not merge the feature PR into main without the user's explicit instruction.",
+      "expected_output": "Dispatches an evidence agent on a different provider to record the definition of done on the preview deploy, writes the evidence packet in the documented order, marks the feature PR ready, checks the final gate, unwatches all PRs, deletes every wake-up and the watchdog and reads back that none is left, and reports ready with decisions made and release checks. Does not merge the feature PR into main without the user's explicit instruction.",
       "files": []
     },
     {
@@ -53,6 +53,60 @@
       "id": 8,
       "prompt": "Run request: 'stack dependent tickets'. ENG-31 is blocked only by ENG-30, whose PR #40 into feat/billing is open with green checks and is waiting for review round 2. ENG-32 is blocked by ENG-30 and ENG-29 (unmerged, still being built).",
       "expected_output": "Dispatches ENG-31 now as a stacked attempt with ENG-30's branch as its PR base, then links the PRs with gh stack link --base feat/billing 40 <ENG-31 PR> and reads both PR bases back. Does not stack ENG-32 (two unmerged blockers). Merges ENG-30 first through the normal ticket gate with an explicit squash message (not gh stack merge) after its gate passes, then sends ENG-31 a fix task to rebase onto feat/billing (git rebase --onto) and retarget, then runs ENG-31's review verification and ticket gate. If gh stack link exits 9, stops stacking and keeps ENG-31 blocked and targeting ENG-30's branch until ENG-30 merges.",
+      "files": []
+    },
+    {
+      "id": 9,
+      "prompt": "The integration branch's test gate is red on a one-line import error. You already know the fix and have a worktree open. Fix it quickly?",
+      "expected_output": "No. The orchestrator never edits, commits, or pushes in a product repository. It freezes merges per fleet-gate and dispatches a fix-forward repair task to a worker, which goes through review and the ticket gate. It may only read the logs to diagnose.",
+      "files": []
+    },
+    {
+      "id": 10,
+      "prompt": "A reviewer found that ENG-30's checkout leaves a payment session payable after the day closes. ENG-48, not started yet, is about payment recovery. Move the finding there so ENG-30 can merge?",
+      "expected_output": "No. Moving a finding or requirement to another ticket is a scope change that needs the user's approval. A finding that shows ENG-30's own criterion unmet is fixed in ENG-30; otherwise, being a money blocker, it goes into the escalation batch with options, and other work continues.",
+      "files": []
+    },
+    {
+      "id": 11,
+      "prompt": "To close an abuse finding, a fix task proposes a cap of 3 unpaid guest reservations per day. The plan does not mention a cap. Approve it as a reversible choice?",
+      "expected_output": "No. Caps, limits, quotas, rate limits, and prices are product rules. With no recorded Decision, it goes into the escalation batch with options and a recommended default; work that does not depend on it keeps running.",
+      "files": []
+    },
+    {
+      "id": 12,
+      "prompt": "ENG-25 has used all 3 fix tasks and its takeover; round 3 found one more small blocker. Dispatch a fourth fix as a recorded overrun, or verify the last fix yourself?",
+      "expected_output": "Neither. Budgets are hard and the orchestrator never approves a head. ENG-25 is marked blocked, its dependents pause, and it goes into the escalation batch, where only the user can grant more attempts.",
+      "files": []
+    },
+    {
+      "id": 13,
+      "prompt": "A wake-up fires. Three workers run on a laptop that t3_environment_links shows is not answering, and all three are past their budget. Two other machines answer and are idle.",
+      "expected_output": "Re-dispatches the three attempts on reachable machines without using fix or takeover budget (an environment failure), records it in the Run log, and cancels the originals when the laptop returns so two workers never push one branch. If no machine could take them, it would escalate.",
+      "files": []
+    },
+    {
+      "id": 14,
+      "prompt": "The orchestrator resumes after a usage limit. Its conversation context was compacted, and the thread now runs on a different provider than the run started on.",
+      "expected_output": "Reconciles before acting: notes the provider change once in the Run log and to the user and continues, re-reads the Run log in Linear, open PRs and checks, every running attempt's thread, and the armed wake-ups, re-arms missing ones, rechecks machines, the default branch, and unasked user blockers.",
+      "files": []
+    },
+    {
+      "id": 15,
+      "prompt": "A reviewer's two non-blocking findings on ENG-20 look worth doing, and a machine is idle. File them as a new ticket and dispatch it?",
+      "expected_output": "No. Idle capacity is never a reason. They stay possible follow-ups in the Run log and the final report (filed only in Backlog if the user's or repository's rules require filing). Only if one blocks an acceptance criterion or the evidence packet is it a planning gap for the escalation batch.",
+      "files": []
+    },
+    {
+      "id": 16,
+      "prompt": "The default branch moved twice during the run from other work, and new ticket branches now fail a 'diverged from origin/main' check.",
+      "expected_output": "On every wake it checks whether the default branch moved, and before new dispatches it sends a sync task: a worker merges the default branch into a branch from the integration tip with a merge commit, resolves any conflict, and opens a sync PR that goes through the ticket gate and merges as a merge commit. Then open PRs update.",
+      "files": []
+    },
+    {
+      "id": 17,
+      "prompt": "A question for the user has a recommended answer: leave a non-required metadata check red on the feature PR, or force-push to reword a commit. Three workers are in flight.",
+      "expected_output": "Does not ask. It is a safe, reversible default that changes no product rule, scope, or criterion: leave the check red, post one PR comment saying why, record it in Decisions and the evidence packet, and keep dispatching.",
       "files": []
     }
   ]

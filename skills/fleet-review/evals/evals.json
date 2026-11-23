@@ -36,6 +36,30 @@
       "prompt": "Risky ticket ENG-60 (a payments migration). Round 1 found one should finding, which you fixed and verified yourself. Round 2 confirms the fix and approves.",
       "expected_output": "Uses the 2-round budget for risky tickets: one review, one verification round. The ticket passes the gate after round 2. If round 2 had been unavailable but every finding was fixed and verified, records 'passed after fixes' in the ledger rather than escalating.",
       "files": []
+    },
+    {
+      "id": 6,
+      "prompt": "After approval of a1b2c3, the only new commit reformats a test file with the formatter. Does the approval carry over?",
+      "expected_output": "No. Formatting-only code changes are not carry-over. They get a light verification round: confirm the diff is whitespace or formatter output only and the checks are green. Only PR-body edits, conflict-free integration merges, and prose Markdown nothing reads carry over without review.",
+      "files": []
+    },
+    {
+      "id": 7,
+      "prompt": "The orchestrator fixed a missing disclosure line in the PR body after round 1; the head SHA is unchanged. Run round 2?",
+      "expected_output": "No new review is needed: a body-only change carries the approval over. List the change in the review record.",
+      "files": []
+    },
+    {
+      "id": 8,
+      "prompt": "A UI ticket's acceptance criteria all pass, but the design reference shows a 'Sponsored' label that the phone layout hides. Is this a finding?",
+      "expected_output": "Yes. UI tickets are reviewed against the referenced design and the product rules at each breakpoint, not only the acceptance criteria; a hidden disclosure label is a blocker.",
+      "files": []
+    },
+    {
+      "id": 9,
+      "prompt": "The reviewer disputes a money blocker; the orchestrator proposes moving it to another, unstarted ticket, and the reviewer agrees.",
+      "expected_output": "The loop ends stuck at once: a disputed money, security, or data blocker, or a proposal to move a finding to another ticket, goes to the user through the escalation batch. The orchestrator and reviewer never settle it together.",
+      "files": []
     }
   ]
 }

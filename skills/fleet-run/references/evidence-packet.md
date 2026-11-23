@@ -18,10 +18,15 @@ Backend feature:
 | --- | --- | --- |
 | <user-visible, data, or contract decision> | <one line> | <ENG-…> |
 
+Product-rule decisions (limits, caps, prices, user-facing steps) are listed here for the user to confirm, even when a ticket implemented them.
+
 ### 3. Deviations and surprises
 - <anything that differs from the intent brief or a ticket, and why>
+- <requirements or findings moved between tickets, with the user's approval>
+- <commits written by the orchestrator, and who reviewed them>
+- <flows blocked by a known ticket: "expected: blocked by <ticket>">
 - <known limitations>
-(Write "None." only if it is true.)
+(Write "None." only if it is true. State a cause only when you verified it.)
 
 ### 4. Test integrity
 - Foundation (Wave 0) test changes since the foundation merged: <`git diff <foundation-sha>..<head> -- <test paths>` summary, or "none">
@@ -42,6 +47,8 @@ Backend feature:
 
 - Full CI on the feature + latest default branch: <link>
 - Feature review: <rounds> rounds with <reviewer model>, verdict <APPROVE / stopped: reason>; fixed / declined findings with reasons.
+- Fallback reviewers: <where a preferred reviewer model was replaced, by which model, and why; or "none">
+- Known red checks that do not block: <check, why it is red, what clears it; or "none">
 - Review-bot threads: all resolved or dismissed with reasons.
 - Ticket PRs: <list with links>
 
@@ -53,4 +60,4 @@ Backend feature:
 
 Publish screenshots and recordings with the GitHub CLI, never a browser: put `![alt](./file.png)` on the labeled line, then run `gh pr edit <n> --body-file body.md --attach './file.png#alt'`. `gh` uploads the file and rewrites the reference.
 
-Never write a result you did not observe. If a piece of evidence is missing, say so in section 3.
+Never write a result you did not observe. If a piece of evidence is missing, say so in section 3. Evidence from separate runs never proves a criterion that asks for one run.
