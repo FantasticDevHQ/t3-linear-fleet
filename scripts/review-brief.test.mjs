@@ -70,7 +70,7 @@ test("round 1 brief pins base and head and carries intent, non-goals and ACs", (
 
 test("round 2 brief diffs from the last reviewed head and lists only open findings", () => {
   const brief = buildBrief({ ...base, round: 2, since: "cccc", ledger: "F1 blocker fixed x\nF2 should disputed y\n" });
-  assert.match(brief, /Diff: git diff cccc\.\.\.bbbb/);
+  assert.match(brief, /Diff: git diff cccc bbbb/);
   assert.match(brief, /git fetch origin cccc/);
   assert.match(brief, /git diff aaaa\.\.\.bbbb` instead/);
   assert.match(brief, /Check only the open finding IDs \(F2\)/);

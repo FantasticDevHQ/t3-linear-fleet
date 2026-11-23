@@ -83,7 +83,7 @@ export function buildBrief(d) {
           `If that fails because the branch was rewritten, review the full diff \`git diff ${d.baseSha}...${d.headSha}\` instead and say so.`,
         ]
       : []),
-    `Diff: git diff ${diffBase}...${d.headSha}${d.paths ? ` -- ${d.paths}` : ""}`,
+    `Diff: git diff ${followUp ? `${d.since} ${d.headSha}` : `${diffBase}...${d.headSha}`}${d.paths ? ` -- ${d.paths}` : ""}`,
     `Intent: ${intent.replace(/\n+/g, " ")}`,
     `Non-goals: ${nonGoals.replace(/\n+/g, " ")}`,
     `PR: ${d.url}`,
