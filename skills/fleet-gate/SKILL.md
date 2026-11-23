@@ -31,7 +31,7 @@ Merge a ticket PR into the integration branch only when **all** of these are tru
 - [ ] If the PR changes behavior that on-demand end-to-end suites cover (shared semantics, fixtures, or flows other tickets use), those suites ran green on this head.
 - [ ] The PR is in no GitHub stack, or its stack holds only ticket PRs into the integration branch. Never use a stack-aware merge that would include the feature PR.
 
-Make every PR-body edit (the acceptance record, ticked boxes) in **one** edit **before** the final check wait: a body edit reruns metadata checks. If you edit the title or body after the gate check, wait for the rerun checks and check the gate again.
+Make your acceptance-record edit (the independent-acceptance box and its approval link, the only ticket-PR body edit you make yourself; any other body change is dispatched to the worker) in **one** edit **before** the final check wait: a body edit reruns metadata checks. If you edit the title or body after the gate check, wait for the rerun checks and check the gate again.
 
 Then fetch and look at the PR once more, and squash-merge it pinned to the head you checked, with an **explicit** message, because the repository's default squash message may drop the ticket line:
 
