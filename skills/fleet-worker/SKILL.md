@@ -146,7 +146,7 @@ Report only your own checks. You never run or claim an independent review or acc
 ## Never
 
 - Ask the user a question. Escalate in your report.
-- Push to the integration branch or the default branch, or open a PR into the default branch.
+- Push to the integration branch or the default branch, or open a PR into the default branch (except a prerequisite ticket whose brief gives the default branch as its base).
 - Bypass branch protection, use admin merges, or force-push any branch you do not own (and then only with `--force-with-lease`).
 - Touch production, delete data, spend money, or change external accounts.
 - Mark a criterion done without evidence you observed.
