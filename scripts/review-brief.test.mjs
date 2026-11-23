@@ -83,3 +83,26 @@ test("parsePrRef accepts URLs and owner/repo#n", () => {
   assert.deepEqual(parsePrRef("acme/app#12"), { repo: "acme/app", number: "12" });
   assert.throws(() => parsePrRef("nope"));
 });
+
+test("a generic PR-standard checklist is skipped in favour of the AC section", () => {
+  const body = "## Acceptance checklist\n- [x] The repository's full check command passed.\n\n## Acceptance criteria\n- [x] **AC-1:** works\n  - Verify: t.test.ts\n";
+  assert.deepEqual(acceptanceCriteria(body), ["- [x] **AC-1:** works", "  - Verify: t.test.ts"]);
+});
+
+test("an AC section with an item lacking an AC-n ID fails clearly", () => {
+  const body = "## Acceptance criteria\n- [x] **AC-1:** works\n- [ ] something without an id\n";
+  assert.throws(() => acceptanceCriteria(body), /without an AC-n ID/);
+});
+
+test("ACs fall back to the ticket, and none at all is an error", () => {
+  const ticketWithAc = ticket + "\n## Acceptance criteria\n- [ ] **AC-9:** from ticket\n  - Verify: x\n";
+  const brief = buildBrief({ ...base, prBody: "## Summary\nNo ACs here.\n", ticket: ticketWithAc });
+  assert.match(brief, /AC-9/);
+  assert.throws(() => buildBrief({ ...base, prBody: "## Summary\nx\n" }), /no acceptance criteria/);
+});
+
+test("round 2 brief prints only open ledger entries", () => {
+  const brief = buildBrief({ ...base, round: 2, since: "cccc", ledger: "F1 blocker fixed x\nF2 should disputed y\n" });
+  assert.doesNotMatch(brief, /F1 blocker fixed/);
+  assert.match(brief, /F2 should disputed y/);
+});

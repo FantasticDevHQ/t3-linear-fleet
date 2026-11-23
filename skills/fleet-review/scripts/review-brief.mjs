@@ -5,7 +5,8 @@
 //
 // Prints a fleet-review brief (the "The brief" format in SKILL.md) for one review round.
 // It pins the PR's base and head SHAs and reads the acceptance criteria (with their Verify and
-// Evidence lines) from the PR body. --ticket is the ticket description saved as Markdown; its
+// Evidence lines) from the PR body's Acceptance section, or from the ticket's when the PR has
+// none. --ticket is the ticket description saved as Markdown; its
 // Outcome and Non-goals sections become the brief's Intent and Non-goals. For round 2 and later,
 // pass the ledger and the head the last round reviewed: the brief then lists only the open
 // finding IDs and the diff since that head.
@@ -27,22 +28,30 @@ export function section(markdown, name) {
   return out.join("\n").trim();
 }
 
-/** Extracts acceptance criteria: each AC line plus its indented Verify and Evidence lines. */
+/**
+ * Extracts acceptance criteria from the first `## Acceptance criteria` section (or, failing that,
+ * the first `## Acceptance...` section that lists AC-n items): each AC item plus its indented
+ * Verify and Evidence lines. Returns [] when there is no such section. Throws when a list item in
+ * the chosen section has no AC-n identifier, so a malformed checklist is never silently dropped.
+ */
 export function acceptanceCriteria(markdown) {
-  const lines = (markdown ?? "").split("\n");
-  const out = [];
-  let inAc = false;
-  for (const line of lines) {
-    if (/\bAC-\d+\b/.test(line) && /^\s*[-*]/.test(line)) {
-      inAc = true;
-      out.push(line.trim());
-    } else if (inAc && /^\s+[-*]\s*(Verify|Evidence)\s*:/i.test(line)) {
-      out.push(`  ${line.trim()}`);
-    } else if (inAc && line.trim() !== "" && !/^\s/.test(line)) {
-      inAc = false;
+  const headings = (markdown ?? "").split("\n").filter((l) => /^##\s+Acceptance/i.test(l.trim()));
+  const names = headings.map((h) => h.trim().replace(/^##\s+/, ""));
+  const ordered = [...names.filter((n) => /^Acceptance criteria\b/i.test(n)), ...names];
+  for (const name of ordered) {
+    const body = section(markdown, name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
+    const items = body.split("\n").filter((l) => /^[-*]\s/.test(l));
+    if (!items.some((l) => /\bAC-\d+\b/.test(l))) continue;
+    const bad = items.filter((l) => !/\bAC-\d+\b/.test(l));
+    if (bad.length) throw new Error(`acceptance items without an AC-n ID in "${name}": ${bad.join(" | ")}`);
+    const out = [];
+    for (const line of body.split("\n")) {
+      if (/^[-*]\s/.test(line)) out.push(line.trim());
+      else if (/^\s+[-*]\s*(Verify|Evidence)\s*:/i.test(line)) out.push(`  ${line.trim()}`);
     }
+    return out;
   }
-  return out;
+  return [];
 }
 
 /** Open finding IDs from a ledger: every ID whose status is not fixed, declined, or resolved. */
@@ -60,7 +69,9 @@ export function buildBrief(d) {
   const diffBase = followUp ? d.since : d.baseSha;
   const intent = section(d.ticket, "Outcome") || section(d.prBody, "Summary") || "(none found: pass --ticket)";
   const nonGoals = section(d.ticket, "Non-goals") || "(none listed)";
-  const acs = acceptanceCriteria(d.prBody);
+  const fromPr = acceptanceCriteria(d.prBody);
+  const acs = fromPr.length ? fromPr : acceptanceCriteria(d.ticket);
+  if (!acs.length) throw new Error("no acceptance criteria with AC-n IDs in the PR body or the ticket");
   const lines = [
     "Review only. Do not edit, commit, push, comment on PRs, or start subagents.",
     `Repo: https://github.com/${d.repo}.git   Branch: ${d.headRef}   Base: ${d.baseSha}   Head: ${d.headSha}`,
@@ -70,15 +81,19 @@ export function buildBrief(d) {
     `Non-goals: ${nonGoals.replace(/\n+/g, " ")}`,
     `PR: ${d.url}`,
     "Acceptance criteria:",
-    ...(acs.length ? acs.map((l) => `  ${l}`) : ["  (none found in the PR body: the worker must list them before review)"]),
+    ...acs.map((l) => `  ${l}`),
     `Checks run: ${d.checks?.length ? d.checks.join("; ") : "(see the PR's checks on this head)"}`,
     "",
   ];
   if (followUp) {
     const open = openFindings(d.ledger);
     lines.push(
-      `This is round ${round}. The previous round reviewed ${d.since}. Ledger so far:`,
-      ...(d.ledger ?? "").trim().split("\n").map((l) => `  ${l}`),
+      `This is round ${round}. The previous round reviewed ${d.since}. Open findings from the ledger:`,
+      ...(d.ledger ?? "")
+        .trim()
+        .split("\n")
+        .filter((l) => open.includes(l.trim().split(/\s+/)[0]))
+        .map((l) => `  ${l.trim()}`),
       "",
       `Check only the open finding IDs (${open.length ? open.join(", ") : "none"}) and the code changed since ${d.since}.`,
       "Mark each old ID `resolved` or `still open: <reason>`. Raise a new finding only for the changed code.",
@@ -119,7 +134,7 @@ export function parsePrRef(ref) {
 
 function main(argv) {
   if (!argv.length || argv.includes("-h") || argv.includes("--help")) {
-    console.error(readFileSync(fileURLToPath(import.meta.url), "utf8").split("\n").slice(1, 11).join("\n"));
+    console.error(readFileSync(fileURLToPath(import.meta.url), "utf8").split("\n").slice(1, 12).join("\n"));
     process.exit(argv.length ? 0 : 2);
   }
   const { repo, number } = parsePrRef(argv.shift());
